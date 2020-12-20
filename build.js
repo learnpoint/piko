@@ -62,6 +62,10 @@ async function isBuildNeeded(sourceFilePath, targetFilePath) {
         return [true, 'Build forced'];
     }
 
+    if (isMarkdownFile(sourceFilePath)) {
+        targetFilePath = targetFilePath.slice(0, -2) + 'html';
+    }
+
     try {
         const [sourceFileInfo, targetFileInfo] = await Promise.all([
             Deno.stat(sourceFilePath),
@@ -72,7 +76,7 @@ async function isBuildNeeded(sourceFilePath, targetFilePath) {
             return [true, 'File modified'];
         }
 
-        if (isHtmlFile(sourceFilePath) && buildArgs.componentsMTime > targetFileInfo.mtime) {
+        if ((isHtmlFile(sourceFilePath) || isMarkdownFile(sourceFilePath)) && buildArgs.componentsMTime > targetFileInfo.mtime) {
             return [true, 'Components modified'];
         }
     } catch (error) {

@@ -17,7 +17,7 @@ To use piko, you need to [install Deno](https://deno.land/manual/getting_started
 3. Reloads browser on file changes.
 
 ```js
-import { serve } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.2/mod.js";
+import { serve } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.3/mod.js";
 
 serve({
     targetPath: "/absolute/path"
@@ -32,7 +32,7 @@ serve({
 2. Source files can include component files.
 
 ```js
-import { build } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.2/mod.js";
+import { build } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.3/mod.js";
 
 build({
     sourcePath: "/absolute/path/to/source/files",
@@ -75,7 +75,7 @@ You can define a default value for passed argument:
 **buildAndServe** starts **serve** and then automatically runs **build** in the background when source files are changed.
 
 ```js
-import { buildAndServe } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.2/mod.js";
+import { buildAndServe } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.3/mod.js";
 
 buildAndServe({
     sourcePath: "/absolute/path/to/source/files",

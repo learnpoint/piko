@@ -1,5 +1,6 @@
 import { path, bold, yellow } from "./deps.js";
 import * as marked from "./marked.esm.js";
+import { defaults } from "./defaults.js";
 
 const markdown = marked.default;
 markdown.setOptions({
@@ -8,12 +9,14 @@ markdown.setOptions({
 
 const buildArgs = {};
 
-export async function build(sourcePath, targetPath, componentsPath, forceRebuild = false) {
-    buildArgs.componentsPath = componentsPath;
-    buildArgs.forceRebuild = forceRebuild;
+export async function build(options) {
+    options = { ...defaults(), ...options };
+
+    buildArgs.componentsPath = options.componentsPath;
+    buildArgs.forceRebuild = options.forceRebuild;
     buildArgs.componentsMTime = await getComponentsMTime();
 
-    recursiveBuild(sourcePath, targetPath);
+    recursiveBuild(options.sourcePath, options.targetPath);
 }
 
 async function recursiveBuild(sourcePath, targetPath) {

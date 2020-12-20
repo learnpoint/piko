@@ -12,28 +12,28 @@ import {
     brightGreen
 } from "./deps.js";
 
+import { defaults } from "./defaults.js";
+
 let serverRoot;
 let sockets = [];
 let closingSockets = false;
 
 if (import.meta.main) {
-    serve(Deno.cwd());
+    serve({ targetPath: Deno.cwd() });
 }
 
-export async function serve(serverPath) {
-    if (typeof serverPath !== 'string') {
+export async function serve(options) {
+    options = { ...defaults(), ...options };
+
+    if (typeof options.targetPath !== 'string') {
         throw new TypeError(`Parameter serverPath must be a string. Recieved ${typeof serverPath}.`);
     }
 
-    if (!serverPath) {
-        throw new TypeError('Parameter serverPath must be non-empty.');
-    }
-
-    if (!path.isAbsolute(serverPath)) {
+    if (!path.isAbsolute(options.targetPath)) {
         throw new TypeError('Parameter serverPath must represent an absolute path.');
     }
 
-    serverRoot = serverPath;
+    serverRoot = options.targetPath;
 
     listenAndServe({ port: 3333 }, async req => {
         if (req.url === "/ws" && acceptable(req)) {

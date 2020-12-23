@@ -2,9 +2,9 @@
 
 *A minimal toolkit for html writing.*
 
-We use piko at [Learnpoint](https://github.com/learnpoint) for writing html pages. It's not a static site generator with templating, blogging, or other fancy features. Rather, it's the smallest step up possible from writing html completely by hand.
+We use piko at [Learnpoint](https://github.com/learnpoint) for writing html pages. It's not a static site generator with templating, preprocessing, bundling, or any other common features. Rather, it's the smallest step up possible from writing html completely by hand.
 
-Please do note that piko is written with our own specific use cases in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written piko for fun and for our own use. That said, feel free to use piko or create your own [fork](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo).
+Please note that piko is written with our own specific use cases in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written piko for fun and for our own use. That said, feel free to use piko or create your own [fork](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo).
 
 To use piko, you need to [install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.1```.
 
@@ -17,7 +17,7 @@ To use piko, you need to [install Deno](https://deno.land/manual/getting_started
 3. Reloads browser on file changes.
 
 ```js
-import { serve } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.3/mod.js";
+import { serve } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.4/mod.js";
 
 serve({
     targetPath: "/absolute/path"
@@ -32,7 +32,7 @@ serve({
 2. Source files can include component files.
 
 ```js
-import { build } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.3/mod.js";
+import { build } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.4/mod.js";
 
 build({
     sourcePath: "/absolute/path/to/source/files",
@@ -67,7 +67,7 @@ Inside the component, you can access passed arguments with ```{{ prop }}``` synt
 
 You can define a default value for passed argument:
 ```html
-<title>{{ title || 'Index' }}</title>
+<title>{{ title || Index }}</title>
 ```
 
 ## buildAndServe
@@ -75,7 +75,7 @@ You can define a default value for passed argument:
 **buildAndServe** starts **serve** and then automatically runs **build** in the background when source files are changed.
 
 ```js
-import { buildAndServe } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.3/mod.js";
+import { buildAndServe } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.4/mod.js";
 
 buildAndServe({
     sourcePath: "/absolute/path/to/source/files",

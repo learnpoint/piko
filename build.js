@@ -24,7 +24,7 @@ async function recursiveBuild(sourcePath, targetPath) {
 
     for await (const dirEntry of Deno.readDir(sourcePath)) {
         const sPath = path.join(sourcePath, dirEntry.name);
-        const tPath = path.join(targetPath, dirEntry.name);
+        let tPath = path.join(targetPath, dirEntry.name);
 
         if (sPath === buildArgs.componentsPath) {
             continue;
@@ -33,6 +33,11 @@ async function recursiveBuild(sourcePath, targetPath) {
         if (dirEntry.isDirectory) {
             recursiveBuild(sPath, tPath);
             continue;
+        }
+
+        if (isMarkdownFile(tPath)) {
+            // Change target file extension from .md to .html
+            tPath = tPath.slice(0, -2) + 'html';
         }
 
         const [buildNeeded, buildReason] = await isBuildNeeded(sPath, tPath)
@@ -62,10 +67,6 @@ async function isBuildNeeded(sourceFilePath, targetFilePath) {
         return [true, 'Build forced'];
     }
 
-    if (isMarkdownFile(sourceFilePath)) {
-        targetFilePath = targetFilePath.slice(0, -2) + 'html';
-    }
-
     try {
         const [sourceFileInfo, targetFileInfo] = await Promise.all([
             Deno.stat(sourceFilePath),
@@ -73,10 +74,10 @@ async function isBuildNeeded(sourceFilePath, targetFilePath) {
         ]);
 
         if (sourceFileInfo.mtime > targetFileInfo.mtime) {
-            return [true, 'File modified'];
+            return [true, path.relative(Deno.cwd(), sourceFilePath) + ' modified'];
         }
 
-        if ((isHtmlFile(sourceFilePath) || isMarkdownFile(sourceFilePath)) && buildArgs.componentsMTime > targetFileInfo.mtime) {
+        if (isHtmlFile(targetFilePath) && buildArgs.componentsMTime > targetFileInfo.mtime) {
             return [true, 'Components modified'];
         }
     } catch (error) {
@@ -95,7 +96,6 @@ async function buildFile(sourceFilePath, targetFilePath) {
         const sourceContent = await Deno.readTextFile(sourceFilePath);
         Deno.writeTextFile(targetFilePath, renderHtmlFile(sourceContent, sourceFilePath, sourceContent));
     } else if (isMarkdownFile(sourceFilePath)) {
-        targetFilePath = targetFilePath.slice(0, -2) + 'html'; // Change suffix from .md to .html
         const sourceContent = await Deno.readTextFile(sourceFilePath);
         const markedupContent = markdown(sourceContent);
         Deno.writeTextFile(targetFilePath, renderHtmlFile(markedupContent, sourceFilePath, sourceContent));

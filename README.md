@@ -71,15 +71,15 @@ my-site
 
 There are three important folders in Piko:
 
-- The **```docs```** folder contains your build (compiled) site. You should _never make manual edits inside the ```docs``` folder_. Instead, let Piko manage all of its content. When you deploy to GitHub Pages, Heroku, or Netlify, this is the folder you deploy.
+- The **```docs```** folder contains your build (compiled) site. You should _never make manual edits inside the ```docs``` folder_. Instead, let Piko manage all of its content. When you deploy your site to GitHub Pages, Heroku, or Netlify, this is the folder you should deploy.
 
-- The **```src```** folder is where you do all of your sweet html writing. When Piko builds your site, it basically just copies the contents of the ```src``` folder into the ```docs``` folder.
+- The **```src```** folder is where you do all of your lovely html writing. When Piko builds your site, it basically just copies the contents of the ```src``` folder into the ```docs``` folder.
 
-- The **```src/snippets```** folder contains your html snippet files.
+- The **```src/snippets```** folder contains your html snippets.
 
 ## Using snippets
 
-Each file in the ```src/snippets``` folder is a snippet that can be included in a page. A snippet can only contain html markup.
+Each file in the ```src/snippets``` folder is a snippet that can be included in a page.
 
 Include two snippets in a html page:
 
@@ -101,13 +101,13 @@ You can pass props to a snippet using a JavaScript object. Use a comma to separa
 <!-- footer.html -->
 ```
 
-Inside the snippet file, you can access passed props with ```{{ prop }}``` syntax:
+Inside a snippet, you can access passed props with ```{{ prop }}``` syntax:
 
 ```html
 <title>{{ title }}</title>
 ```
 
-You can provide a default value for a prop:
+You can provide a default value for a prop with ```||``` syntax:
 
 ```html
 <title>{{ title || Home }}</title>
@@ -115,9 +115,9 @@ You can provide a default value for a prop:
 
 ## Using markdown
 
-You can write your pages in markdown. Piko uses [Marked](https://github.com/markedjs/marked) to parse your markdown into html.
+You can write your pages in markdown. When building your site, Piko uses [Marked](https://github.com/markedjs/marked) to parse markdown into html.
 
-Snippets can be used in markdown pages just as in html pages:
+Just as in html pages, snippets can be included in markdown:
 
 ```md
 <!-- header.html, { title: "Welcome"} -->
@@ -147,7 +147,7 @@ If you don't like typing the file extension, there is a simple workaround:
 
 2. Save the file _in the same folder_ as ```piko.cmd```. On Windows, this folder is typically located at ```C:\Users\USER\.deno\bin```. If you have trouble finding the folder in which ```piko.cmd``` is installed, you can consult the documentation for the [Deno script installer](https://deno.land/manual@v1.6.2/tools/script_installer) which is used for the Piko installation.
 
-3. Put the following content in the ```piko``` file that you created:
+3. Add the following content to the ```piko``` file you created:
 
     ```bash
     #!/bin/sh
@@ -164,7 +164,7 @@ piko 0.9.0
 
 ## A note on the CNAME file for GitHub Pages
 
-[GitHub Pages](https://pages.github.com/) is a great web host for Piko sites.
+[GitHub Pages](https://pages.github.com/) is a great host for Piko sites.
 
 When you enable GitHub Pages for your Piko site, GitHub stores a ```CNAME``` file in the ```docs``` folder. You should copy this file into the ```src``` folder. This way, you can safely delete the entire ```docs``` folder if there are any file mismatch problems, and restart the Piko dev server to rebuild the site, without loosing your ```CNAME``` file.
 

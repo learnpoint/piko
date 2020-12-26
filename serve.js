@@ -1,5 +1,3 @@
-#!/usr/bin/env -S deno run --allow-read --allow-net
-
 import {
     path,
     listenAndServe,
@@ -12,28 +10,22 @@ import {
     brightGreen
 } from "./deps.js";
 
-import { defaults } from "./defaults.js";
-
 let serverRoot;
 let sockets = [];
 let closingSockets = false;
 
-if (import.meta.main) {
-    serve({ targetPath: Deno.cwd() });
-}
+export async function serve(servePath) {
+    servePath = servePath || Deno.cwd();
 
-export async function serve(options) {
-    options = { ...defaults(), ...options };
-
-    if (typeof options.targetPath !== 'string') {
-        throw new TypeError(`Parameter serverPath must be a string. Recieved ${typeof serverPath}.`);
+    if (typeof servePath !== 'string') {
+        throw new TypeError(`Parameter servePath must be a string. Recieved ${typeof servePath}.`);
     }
 
-    if (!path.isAbsolute(options.targetPath)) {
-        throw new TypeError('Parameter serverPath must represent an absolute path.');
+    if (!path.isAbsolute(servePath)) {
+        throw new TypeError('Parameter servePath must represent an absolute path.');
     }
 
-    serverRoot = options.targetPath;
+    serverRoot = servePath;
 
     listenAndServe({ port: 3333 }, async req => {
         if (req.url === "/ws" && acceptable(req)) {

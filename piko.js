@@ -48,7 +48,7 @@ function printUsage() {
     console.log('Create new site:');
     console.log('$ piko create SITE_NAME');
     console.log();
-    console.log('Start the dev server:');
+    console.log('Start dev server:');
     console.log('$ piko dev');
     console.log();
 }

@@ -10,7 +10,7 @@ A typical scenario for Piko would be a portfolio site with several html pages.
 
 ## Requirements
 
-In order to use Piko, you have to [install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.1```
+In order to use Piko, you need to [install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.1```
 
 ## Installation
 
@@ -18,13 +18,7 @@ In order to use Piko, you have to [install Deno](https://deno.land/manual/gettin
 $ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.0/piko.js
 ```
 
-Verify the installation:
-
-```bash
-$ piko
-
-piko 0.9.0
-```
+To verify the installation, open a terminal and run ```piko -v```. If the installation was successful, the version of Piko will be printed to the terminal.
 
 ## Upgrading
 
@@ -32,7 +26,7 @@ piko 0.9.0
 $ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.0/piko.js
 ```
 
-## Get started
+## Getting started
 
 1. Use the **```create```** command to create a new site:
 
@@ -54,7 +48,7 @@ $ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.0/piko.js
 
 6. Deploy the ```docs``` folder to your web host.
 
-## Piko folders
+## Understanding the Piko folder structure
 
 ```
 my-site
@@ -117,7 +111,7 @@ You can provide a default value for a prop with ```||``` syntax:
 
 You can write your pages in markdown. When building your site, Piko uses [Marked](https://github.com/markedjs/marked) to parse markdown into html.
 
-Just as in html pages, snippets can be included in markdown:
+Just as in html pages, snippets can be included in markdown pages:
 
 ```md
 <!-- header.html, { title: "Welcome"} -->
@@ -131,9 +125,15 @@ Pages can be written in markdown, but snippets must be written in html. You cann
 
 ## A note on Git Bash for Windows
 
-On Windows, Piko is installed as a ```.cmd``` executable. Unfortunately, Git Bash for Windows does not properly recognize ```.cmd``` as an executable file extension.
+On Windows, Piko is installed as a ```.cmd``` executable. Unfortunately, Git Bash for Windows does not recognize ```.cmd``` as an executable file extension.
 
-To run Piko with Git Bash for Windows, you have to specify the ```.cmd``` extension:
+```bash
+$ piko
+
+bash: piko: command not found
+```
+
+To run Piko with Git Bash for Windows, you must specify the ```.cmd``` extension:
 
 ```bash
 $ piko.cmd
@@ -170,4 +170,6 @@ When you enable GitHub Pages for your Piko site, GitHub stores a ```CNAME``` fil
 
 ## Contributing
 
-Piko is written with our own specific use cases at [Learnpoint](https://github.com/learnpoint) in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written Piko for fun and for our own use. That said, feel free to [create your own fork](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo), or use Piko in any way you wish! ❤️
+Piko is written with our own specific use cases at [Learnpoint](https://github.com/learnpoint) in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written Piko for fun and for our own use.
+
+That said, feel free to [create your own fork](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo), or use Piko in any way you wish! ❤️

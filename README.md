@@ -10,12 +10,12 @@ A typical scenario for Piko would be a portfolio site with several html pages.
 
 ## Requirements
 
-In order to use Piko, you need to [install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.1```
+In order to use Piko, you need to [install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.2```
 
 ## Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.0/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.1/piko.js
 ```
 
 To verify the installation, open a terminal and run ```piko -v```. If the installation was successful, the version of Piko will be printed to the terminal.
@@ -23,7 +23,7 @@ To verify the installation, open a terminal and run ```piko -v```. If the instal
 ## Upgrading
 
 ```bash
-$ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.0/piko.js
+$ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.1/piko.js
 ```
 
 ## Getting started

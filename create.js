@@ -55,15 +55,13 @@ const indexFileContent = () => `<!-- header.html -->
 
 <h1>Hello world</h1>
 
-<!-- footer.html -->
-`;
+<!-- footer.html -->`;
 
 const aboutFileContent = () => `<!-- header.html, { title: "About" } -->
 
 # About
 
-<!-- footer.html -->
-`;
+<!-- footer.html -->`;
 
 const headerFileContent = projectName => `<!DOCTYPE html>
 <html lang="en">

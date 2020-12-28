@@ -13,6 +13,6 @@ export async function dev(options) {
 
     options = { ...defaults, ...options };
 
-    setTimeout(() => build(options), 0);
-    setTimeout(() => serve(options.buildPath), 600);
+    build(options);
+    serve(options.buildPath);
 }

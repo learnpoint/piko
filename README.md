@@ -1,47 +1,86 @@
 <img src="piko.svg" height="24px">
 
-*A minimal toolkit for html writing.*
+_A minimal toolkit for html writing_
 
-We use piko at [Learnpoint](https://github.com/learnpoint) for writing html pages. It's not a static site generator with templating, preprocessing, bundling, or any other common features. Rather, it's the smallest step up possible from writing html completely by hand.
+We use Piko at [Learnpoint](https://github.com/learnpoint) for writing html sites. Piko is not a frontend framework, or a static site generator with pre-processing, bundling, or any other fancy features. Rather, it's the smallest step up possible from writing every single html page completely by hand. A typical scenario for Piko would be a static portfolio site with a couple of html pages.
 
-Please note that piko is written with our own specific use cases in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written piko for fun and for our own use. That said, feel free to use piko or create your own [fork](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo).
+If your site consists of a single html page, you don't need Piko. But when your site grows to more than one page, keeping the ```head``` tag up to date between pages can become error prone and annoying. Piko lets you extract the ```head``` tag into a separate snippet that can be included and reused on multiple pages.
 
-To use piko, you need to [install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.1```.
 
-## serve
+## Requirements
 
-**serve** is a static http server.
+To use Piko, you need to [install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.2```
 
-1. Serves ```index.html``` on directory requests.
-2. Serves ```404.html``` if file not found.
-3. Reloads browser on file changes.
+## Installation
 
-```js
-import { serve } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.4/mod.js";
-
-serve({
-    targetPath: "/absolute/path"
-});
+```bash
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.2/piko.js
 ```
 
-## build
+Verify the installation:
 
-**build** copies files from a source folder to a target folder.
+```bash
+$ piko -v
 
-1. Markdown files in the source folder will be translated into html.
-2. Source files can include component files.
-
-```js
-import { build } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.4/mod.js";
-
-build({
-    sourcePath: "/absolute/path/to/source/files",
-    componentsPath: "/absolute/path/to/component/files",
-    targetPath: "/absolute/path/to/target/files"
-});
+piko 0.9.2
 ```
 
-Components are included by passing the name of the component file through a html comment:
+## Upgrading
+
+```bash
+$ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.2/piko.js
+```
+
+## Getting started
+
+1. Create a new site with the **```create```** command:
+
+    ```bash
+    $ piko create my-site
+    ```
+2. Start the dev server with the **```dev```** command:
+
+    ```bash
+    $ cd my-site
+    $ piko dev
+    ```
+
+3. Verify that you site is running at ```http://127.0.0.1:3333```
+
+4. Edit ```src/index.html```. The dev server should rebuild your site and reload your browser.
+
+5. Stop the dev server using ```Ctrl+C```.
+
+6. Deploy the ```docs``` folder to your web host.
+
+## The folder structure
+
+```
+my-site
+ ├── docs
+ |    ├── about.html
+ |    └── index.html
+ └── src
+      ├── snippets
+      |    ├── header.html
+      |    └── footer.html
+      ├── about.md
+      └── index.html
+```
+
+There are three important folders in Piko:
+
+- The **```docs```** folder contains your build (compiled) site. This folder is what you deploy to a web host. Avoid making manual edits in this folder. Let Piko manage its content.
+
+- The **```src```** folder is where you do your html writing.
+
+- The **```src/snippets```** folder contains snippets that can be included in pages.
+
+## Using snippets
+
+Each file in the ```src/snippets``` folder is a snippet.
+
+Include snippets with ```<!--  -->``` syntax:
 
 ```html
 <!-- header.html -->
@@ -51,35 +90,81 @@ Components are included by passing the name of the component file through a html
 <!-- footer.html -->
 ```
 
-You can pass arguments to a component using a JavaScript object:
+You can pass props snippets with a JavaScript object. Use a comma to separate the object from the name of the snippet:
+
 ```html
-<!-- header.html, { title: "Home"} -->
+<!-- header.html, { title: "Welcome" } -->
 
 <h1>Welcome</h1>
 
 <!-- footer.html -->
 ```
 
-Inside the component, you can access passed arguments with ```{{ prop }}``` syntax:
+Inside the snippet, you can access passed props with ```{{ prop }}``` syntax:
+
 ```html
 <title>{{ title }}</title>
 ```
 
-You can define a default value for passed argument:
+You can provide a default value with ```||``` syntax:
+
 ```html
-<title>{{ title || Index }}</title>
+<title>{{ title || Home }}</title>
 ```
 
-## buildAndServe
+## Using markdown
 
-**buildAndServe** starts **serve** and then automatically runs **build** in the background when source files are changed.
+You can write your pages in markdown.
 
-```js
-import { buildAndServe } from "https://cdn.jsdelivr.net/gh/learnpoint/piko@0.0.4/mod.js";
+Markdown pages can include snippets:
 
-buildAndServe({
-    sourcePath: "/absolute/path/to/source/files",
-    componentsPath: "/absolute/path/to/components",
-    targetPath: "/absolute/path/to/target/files"
-});
+```md
+<!-- header.html, { title: "Welcome"} -->
+
+# Welcome
+
+<!-- footer.html -->
 ```
+
+Note that snippets cannot be written in markdown. Pages can be written in markdown, but snippets must be written in html.
+
+## A note on the CNAME file for GitHub Pages
+
+When you enable GitHub Pages, GitHub creates a ```CNAME``` file in the ```docs``` folder. You should copy this file into the ```src``` folder. This way, you can safely delete the entire ```docs``` folder if there are any file mismatch problems, and restart the Piko dev server to rebuild the site without loosing the ```CNAME``` file.
+
+## A note on Git Bash for Windows
+
+On Windows, Piko is installed as a ```.cmd``` executable. Unfortunately, Git Bash for Windows does not recognize ```.cmd``` as an executable file extension.
+
+```bash
+$ piko
+
+bash: piko: command not found
+```
+
+To run Piko with Git Bash for Windows, you must specify the ```.cmd``` extension:
+
+```bash
+$ piko.cmd
+```
+
+If you don't like typing the file extension, there is a simple workaround:
+
+1. Create a file named ```piko``` (without file extension).
+
+2. Save the file _in the same folder_ as ```piko.cmd```. On Windows, this folder is typically ```C:\Users\USER\.deno\bin```. If you have trouble finding the folder in which ```piko.cmd``` is installed, you can consult the documentation for the [Deno script installer](https://deno.land/manual@v1.6.2/tools/script_installer) which is used for the Piko installation.
+
+3. Add the following content to the ```piko``` file:
+
+    ```bash
+    #!/bin/sh
+    piko.cmd "$@"
+    ```
+
+You should now be able to run Piko without specifying the file extension.
+
+## Contributing
+
+Piko is written with our own specific use cases at [Learnpoint](https://github.com/learnpoint) in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written Piko for fun and for our own use.
+
+That said, feel free to [create your own fork](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo), or use Piko in any way you wish! ❤️

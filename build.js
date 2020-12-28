@@ -1,6 +1,5 @@
 import { path, bold, yellow } from "./deps.js";
-import * as marked from "./marked.esm.js";
-import { defaults } from "./defaults.js";
+import { marked } from "./deps.js";
 
 const markdown = marked.default;
 markdown.setOptions({
@@ -10,75 +9,103 @@ markdown.setOptions({
 const buildArgs = {};
 
 export async function build(options) {
-    options = { ...defaults(), ...options };
+    const defaults = {
+        sourcePath: path.join(Deno.cwd(), 'src'),
+        buildPath: path.join(Deno.cwd(), 'docs'),
+        snippetsPath: path.join(Deno.cwd(), 'src', 'snippets'),
+        forceRebuild: false,
+        buildWatch: false
+    };
 
-    buildArgs.componentsPath = options.componentsPath;
+    options = { ...defaults, ...options };
+
+    buildArgs.snippetsPath = options.snippetsPath;
     buildArgs.forceRebuild = options.forceRebuild;
-    buildArgs.componentsMTime = await getComponentsMTime();
+    buildArgs.snippetsMTime = await getSnippetsMTime();
 
-    recursiveBuild(options.sourcePath, options.targetPath);
+    recursiveBuild(options.sourcePath, options.buildPath);
+
+    if (options.buildWatch) {
+        const watcher = Deno.watchFs(options.sourcePath);
+
+        let lastBuild = 0;
+
+        for await (const event of watcher) {
+            if ((Date.now() - lastBuild) < 200) {
+                continue;
+            }
+
+            lastBuild = Date.now();
+            buildArgs.snippetsMTime = await getSnippetsMTime();
+            recursiveBuild(options.sourcePath, options.buildPath);
+
+            console.log();
+            console.log("Rebuilding...");
+            console.log();
+        }
+    }
 }
 
-async function recursiveBuild(sourcePath, targetPath) {
-    await Deno.mkdir(targetPath, { recursive: true });
+async function recursiveBuild(sourcePath, buildPath) {
+    await Deno.mkdir(buildPath, { recursive: true });
 
     for await (const dirEntry of Deno.readDir(sourcePath)) {
         const sPath = path.join(sourcePath, dirEntry.name);
-        let tPath = path.join(targetPath, dirEntry.name);
+        let bPath = path.join(buildPath, dirEntry.name);
 
-        if (sPath === buildArgs.componentsPath) {
+        if (sPath === buildArgs.snippetsPath) {
             continue;
         }
 
         if (dirEntry.isDirectory) {
-            recursiveBuild(sPath, tPath);
+            recursiveBuild(sPath, bPath);
             continue;
         }
 
-        if (isMarkdownFile(tPath)) {
+        if (isMarkdownFile(bPath)) {
             // Change target file extension from .md to .html
-            tPath = tPath.slice(0, -2) + 'html';
+            bPath = bPath.slice(0, -2) + 'html';
         }
 
-        const [buildNeeded, buildReason] = await isBuildNeeded(sPath, tPath)
+        const [buildNeeded, buildReason] = await isBuildNeeded(sPath, bPath)
         if (buildNeeded) {
-            console.log('Building', path.relative(Deno.cwd(), tPath), '-', buildReason);
-            buildFile(sPath, tPath);
+            console.log('Building', path.relative(Deno.cwd(), bPath), '--', buildReason);
+            buildFile(sPath, bPath);
         }
     }
 }
 
-async function getComponentsMTime() {
-    let componentsMTime = new Date(0);
+async function getSnippetsMTime() {
+    let snippetsMTime = new Date(0);
 
-    for await (const item of Deno.readDir(buildArgs.componentsPath)) {
-        const itemPath = path.join(buildArgs.componentsPath, item.name);
+    for await (const item of Deno.readDir(buildArgs.snippetsPath)) {
+        const itemPath = path.join(buildArgs.snippetsPath, item.name);
         const itemInfo = await Deno.lstat(itemPath);
 
-        if (itemInfo.mtime > componentsMTime) {
-            componentsMTime = itemInfo.mtime;
+        if (itemInfo.mtime > snippetsMTime) {
+            snippetsMTime = itemInfo.mtime;
         }
     }
-    return componentsMTime;
+    return snippetsMTime;
 }
 
-async function isBuildNeeded(sourceFilePath, targetFilePath) {
+async function isBuildNeeded(sourceFilePath, buildFilePath) {
     if (buildArgs.forceRebuild) {
         return [true, 'Build forced'];
     }
 
     try {
-        const [sourceFileInfo, targetFileInfo] = await Promise.all([
+        const [sourceFileInfo, buildFileInfo] = await Promise.all([
             Deno.stat(sourceFilePath),
-            Deno.stat(targetFilePath),
+            Deno.stat(buildFilePath),
         ]);
 
-        if (sourceFileInfo.mtime > targetFileInfo.mtime) {
-            return [true, path.relative(Deno.cwd(), sourceFilePath) + ' modified'];
+        if (sourceFileInfo.mtime > buildFileInfo.mtime) {
+            return [true, path.relative(Deno.cwd(), sourceFilePath) + ' was modified'];
         }
 
-        if (isHtmlFile(targetFilePath) && buildArgs.componentsMTime > targetFileInfo.mtime) {
-            return [true, 'Components modified'];
+        if (isHtmlFile(buildFilePath) && buildArgs.snippetsMTime > buildFileInfo.mtime) {
+            return [true, 'Snippet(s) was modified'];
         }
     } catch (error) {
         if (error instanceof Deno.errors.NotFound) {
@@ -91,16 +118,16 @@ async function isBuildNeeded(sourceFilePath, targetFilePath) {
     return [false, ''];
 }
 
-async function buildFile(sourceFilePath, targetFilePath) {
+async function buildFile(sourceFilePath, buildFilePath) {
     if (isHtmlFile(sourceFilePath)) {
         const sourceContent = await Deno.readTextFile(sourceFilePath);
-        Deno.writeTextFile(targetFilePath, renderHtmlFile(sourceContent, sourceFilePath, sourceContent));
+        Deno.writeTextFile(buildFilePath, renderHtmlFile(sourceContent, sourceFilePath, sourceContent));
     } else if (isMarkdownFile(sourceFilePath)) {
         const sourceContent = await Deno.readTextFile(sourceFilePath);
         const markedupContent = markdown(sourceContent);
-        Deno.writeTextFile(targetFilePath, renderHtmlFile(markedupContent, sourceFilePath, sourceContent));
+        Deno.writeTextFile(buildFilePath, renderHtmlFile(markedupContent, sourceFilePath, sourceContent));
     } else {
-        Deno.copyFile(sourceFilePath, targetFilePath);
+        Deno.copyFile(sourceFilePath, buildFilePath);
     }
 }
 
@@ -112,7 +139,7 @@ const renderHtmlFile = (data, sourceFilePath, originalSourceContent) => {
     const dataString = data.toString();
 
     return dataString.replace(/<!--.*-->/g, (match, matchPos) => {
-        const [error, renderedContent] = renderComponent(match.replace('<!--', '').replace('-->', ''));
+        const [error, renderedContent] = renderSnippet(match.replace('<!--', '').replace('-->', ''));
 
         if (error) {
             console.log();
@@ -128,47 +155,47 @@ const renderHtmlFile = (data, sourceFilePath, originalSourceContent) => {
 
 const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
 
-const renderComponent = componentString => {
+const renderSnippet = snippetString => {
     let error = null;
 
-    const componentName = componentString.split(',')[0].trim();
+    const snippetName = snippetString.split(',')[0].trim();
 
-    let componentContent = '';
+    let snippetContent = '';
     try {
-        componentContent = Deno.readTextFileSync(path.join(buildArgs.componentsPath, componentName));
+        snippetContent = Deno.readTextFileSync(path.join(buildArgs.snippetsPath, snippetName));
     } catch {
-        error = 'Component file not found: "' + componentName + '"';
+        error = 'Snippet file not found: "' + snippetName + '"';
     }
 
-    let componentData = {};
+    let snippetData = {};
 
-    if (!error && componentString.includes(',')) {
-        const componentDataString = componentString.substring(componentString.indexOf(',') + 1).trim();
+    if (!error && snippetString.includes(',')) {
+        const snippetDataString = snippetString.substring(snippetString.indexOf(',') + 1).trim();
         try {
-            componentData = eval(`(${componentDataString})`);
+            snippetData = eval(`(${snippetDataString})`);
 
-            if (componentData === null || typeof componentData !== 'object') {
-                error = 'Component data is not a valid javascript object: ' + componentDataString;
-                componentData = {};
+            if (snippetData === null || typeof snippetData !== 'object') {
+                error = 'Snippet data is not a valid javascript object: ' + snippetDataString;
+                snippetData = {};
             }
         } catch (err) {
-            error = 'Component data is not valid javascript: ' + componentDataString;
-            componentData = {};
+            error = 'Snippet data is not valid javascript: ' + snippetDataString;
+            snippetData = {};
         }
     }
 
-    return [error, componentContent.replace(/{{.*}}/g, match => renderComponentData(match.replace('{{', '').replace('}}', ''), componentData))];
+    return [error, snippetContent.replace(/{{.*}}/g, match => renderSnippetData(match.replace('{{', '').replace('}}', ''), snippetData))];
 };
 
-const renderComponentData = (componentDataString, componentData) => {
-    let dataKey = componentDataString.split('||')[0].trim();
+const renderSnippetData = (snippetDataString, snippetData) => {
+    let dataKey = snippetDataString.split('||')[0].trim();
 
-    if (componentData[dataKey]) {
-        return componentData[dataKey];
+    if (snippetData[dataKey]) {
+        return snippetData[dataKey];
     }
 
-    if (componentDataString.includes('||')) {
-        return componentDataString.substring(componentDataString.indexOf('||') + 2).trim();
+    if (snippetDataString.includes('||')) {
+        return snippetDataString.substring(snippetDataString.indexOf('||') + 2).trim();
     }
 
     return '';

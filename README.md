@@ -2,19 +2,18 @@
 
 _A minimal toolkit for html writing_
 
-We use Piko at [Learnpoint](https://github.com/learnpoint) for writing html sites. Piko is not a frontend framework, or a static site generator with pre-processing, bundling, or any other fancy features. Rather, it's the smallest step up possible from writing every single html page completely by hand. A typical scenario for Piko would be a static portfolio site with a couple of html pages.
+We use Piko at [Learnpoint](https://github.com/learnpoint) for writing html sites. Piko is not a frontend framework, or a static site generator with pre-processing, bundling, or any other fancy features. Rather, it's the smallest step up possible from writing every single html page completely by hand.
 
-If your site consists of a single html page, you don't need Piko. But when your site grows to more than one page, keeping the ```head``` tag up to date between pages can become error prone and annoying. Piko lets you extract the ```head``` tag into a separate snippet that can be included and reused on multiple pages.
-
+A typical scenario for Piko would be a static portfolio site with a couple of html pages. You don't need Piko if your site consists of a single html page. But when your site has more than one page, keeping the ```head``` tag up to date between pages can become error prone and annoying. Piko lets you extract the ```head``` tag into a separate snippet that can be included and reused on multiple pages.
 
 ## Requirements
 
-To use Piko, you need to [install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.2```
+You need to [install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.2``` in order to use Piko.
 
 ## Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.2/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.3/piko.js
 ```
 
 Verify the installation:
@@ -22,23 +21,23 @@ Verify the installation:
 ```bash
 $ piko -v
 
-piko 0.9.2
+piko 0.9.3
 ```
 
 ## Upgrading
 
 ```bash
-$ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.2/piko.js
+$ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.3/piko.js
 ```
 
 ## Getting started
 
-1. Create a new site with the **```create```** command:
+1. Create a new site:
 
     ```bash
     $ piko create my-site
     ```
-2. Start the dev server with the **```dev```** command:
+2. Start the dev server:
 
     ```bash
     $ cd my-site
@@ -53,7 +52,7 @@ $ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.2/piko.js
 
 6. Deploy the ```docs``` folder to your web host.
 
-## The folder structure
+## Piko folder structure
 
 ```
 my-site
@@ -70,7 +69,7 @@ my-site
 
 There are three important folders in Piko:
 
-- The **```docs```** folder contains your build (compiled) site. This folder is what you deploy to a web host. Avoid making manual edits in this folder. Let Piko manage its content.
+- The **```docs```** folder contains your build (compiled) site. This is the folder you would deploy to a web host. Avoid making manual edits in this folder. Let Piko manage its content.
 
 - The **```src```** folder is where you do your html writing.
 
@@ -78,9 +77,9 @@ There are three important folders in Piko:
 
 ## Using snippets
 
-Each file in the ```src/snippets``` folder is a snippet.
+Place all your snippets in the ```src/snippets``` folder.
 
-Include snippets with ```<!--  -->``` syntax:
+Include a snippet on a page with ```<!--  -->``` syntax:
 
 ```html
 <!-- header.html -->
@@ -90,7 +89,7 @@ Include snippets with ```<!--  -->``` syntax:
 <!-- footer.html -->
 ```
 
-You can pass props snippets with a JavaScript object. Use a comma to separate the object from the name of the snippet:
+You can pass props to a snippet using a JavaScript object. Use a comma to separate the object from the name of the snippet:
 
 ```html
 <!-- header.html, { title: "Welcome" } -->
@@ -116,7 +115,7 @@ You can provide a default value with ```||``` syntax:
 
 You can write your pages in markdown.
 
-Markdown pages can include snippets:
+Snippets can be included in markdown pages:
 
 ```md
 <!-- header.html, { title: "Welcome"} -->
@@ -130,7 +129,7 @@ Note that snippets cannot be written in markdown. Pages can be written in markdo
 
 ## A note on the CNAME file for GitHub Pages
 
-When you enable GitHub Pages, GitHub creates a ```CNAME``` file in the ```docs``` folder. You should copy this file into the ```src``` folder. This way, you can safely delete the entire ```docs``` folder if there are any file mismatch problems, and restart the Piko dev server to rebuild the site without loosing the ```CNAME``` file.
+If you enable GitHub Pages, GitHub creates a ```CNAME``` file in the ```docs``` folder. You should make a copy of this file in the ```src``` folder. This way, you can safely delete the entire ```docs``` folder if there are any file mismatch problems, and restart the Piko dev server to rebuild the site without loosing the file.
 
 ## A note on Git Bash for Windows
 

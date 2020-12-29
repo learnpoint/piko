@@ -1,5 +1,5 @@
-import { path, bold, yellow } from "./deps.js";
-import { marked } from "./deps.js";
+import { path, bold, yellow, marked } from "./deps.js";
+import { exists } from "./exists.js";
 
 const markdown = marked.default;
 markdown.setOptions({
@@ -19,9 +19,11 @@ export async function build(options) {
 
     options = { ...defaults, ...options };
 
+    await ensureDirectories(options);
+
     buildArgs.snippetsPath = options.snippetsPath;
     buildArgs.forceRebuild = options.forceRebuild;
-    buildArgs.snippetsMTime = await getSnippetsMTime();
+    buildArgs.snippetsLastModifiedTime = await getSnippetsLastModifiedTime();
 
     recursiveBuild(options.sourcePath, options.buildPath);
 
@@ -36,7 +38,7 @@ export async function build(options) {
             }
 
             lastBuild = Date.now();
-            buildArgs.snippetsMTime = await getSnippetsMTime();
+            buildArgs.snippetsLastModifiedTime = await getSnippetsLastModifiedTime();
             recursiveBuild(options.sourcePath, options.buildPath);
 
             console.log();
@@ -44,6 +46,28 @@ export async function build(options) {
             console.log();
         }
     }
+}
+
+async function ensureDirectories(options) {
+    if (!await exists(options.sourcePath)) {
+        console.log();
+        console.error('Source folder not found:', options.sourcePath);
+        console.log();
+        console.log('Create the folder and try again.');
+        console.log();
+        Deno.exit(1);
+    }
+
+    if (!await exists(options.snippetsPath)) {
+        console.log();
+        console.error('Snippets folder not found:', options.snippetsPath);
+        console.log();
+        console.log('Create the folder and try again.');
+        console.log();
+        Deno.exit(1);
+    }
+
+    // Do not test build path. Will be created if not exists.
 }
 
 async function recursiveBuild(sourcePath, buildPath) {
@@ -75,18 +99,18 @@ async function recursiveBuild(sourcePath, buildPath) {
     }
 }
 
-async function getSnippetsMTime() {
-    let snippetsMTime = new Date(0);
+async function getSnippetsLastModifiedTime() {
+    let snippetsLastModifiedTime = new Date(0);
 
     for await (const item of Deno.readDir(buildArgs.snippetsPath)) {
         const itemPath = path.join(buildArgs.snippetsPath, item.name);
         const itemInfo = await Deno.lstat(itemPath);
 
-        if (itemInfo.mtime > snippetsMTime) {
-            snippetsMTime = itemInfo.mtime;
+        if (itemInfo.mtime > snippetsLastModifiedTime) {
+            snippetsLastModifiedTime = itemInfo.mtime;
         }
     }
-    return snippetsMTime;
+    return snippetsLastModifiedTime;
 }
 
 async function isBuildNeeded(sourceFilePath, buildFilePath) {
@@ -104,7 +128,7 @@ async function isBuildNeeded(sourceFilePath, buildFilePath) {
             return [true, path.relative(Deno.cwd(), sourceFilePath) + ' was modified'];
         }
 
-        if (isHtmlFile(buildFilePath) && buildArgs.snippetsMTime > buildFileInfo.mtime) {
+        if (isHtmlFile(buildFilePath) && buildArgs.snippetsLastModifiedTime > buildFileInfo.mtime) {
             return [true, 'Snippet(s) was modified'];
         }
     } catch (error) {
@@ -175,11 +199,11 @@ const renderSnippet = snippetString => {
             snippetData = eval(`(${snippetDataString})`);
 
             if (snippetData === null || typeof snippetData !== 'object') {
-                error = 'Snippet data is not a valid javascript object: ' + snippetDataString;
+                error = 'Snippet props is not a valid javascript object: ' + snippetDataString;
                 snippetData = {};
             }
         } catch (err) {
-            error = 'Snippet data is not valid javascript: ' + snippetDataString;
+            error = 'Snippet props is not a valid javascript object: ' + snippetDataString;
             snippetData = {};
         }
     }

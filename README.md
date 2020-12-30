@@ -13,7 +13,7 @@ You need to [install Deno](https://deno.land/manual/getting_started/installation
 ## Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.3/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.4/piko.js
 ```
 
 Verify the installation:
@@ -21,13 +21,13 @@ Verify the installation:
 ```bash
 $ piko -v
 
-piko 0.9.3
+piko 0.9.4
 ```
 
 ## Upgrading
 
 ```bash
-$ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.3/piko.js
+$ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.4/piko.js
 ```
 
 ## Getting started

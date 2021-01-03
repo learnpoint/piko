@@ -2,32 +2,32 @@
 
 _A minimal toolkit for html writing_
 
-We use Piko at [Learnpoint](https://github.com/learnpoint) for writing html sites. Piko is not a frontend framework, or a static site generator with pre-processing, bundling, or any other fancy features. Rather, it's the smallest step up possible from writing every single html page completely by hand.
+We use Piko at [Learnpoint](https://github.com/learnpoint) for writing static html sites. Piko is not a frontend framework or a fancy site generator. Rather, it's the smallest step up possible from writing all html completely by hand.
 
-A typical scenario for Piko would be a static portfolio site with a couple of html pages. You don't need Piko if your site consists of a single html page. But when your site has more than one page, keeping the ```head``` tag up to date between pages can become error prone and annoying. Piko lets you extract the ```head``` tag into a separate snippet that can be included and reused on multiple pages.
+If your site has one single html page, you don't need Piko. But when your site has several pages, keeping the ```head``` tag up to date can become error prone and annoying. Piko lets you extract the ```head``` tag into a separate snippet that can be included and reused on multiple pages.
 
 ## Requirements
 
-You need to [install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.2``` in order to use Piko.
+[Install Deno](https://deno.land/manual/getting_started/installation) version ```1.6.3``` in order to use Piko.
 
 ## Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.4/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.5/piko.js
 ```
 
-Verify the installation:
+Verify installation:
 
 ```bash
 $ piko -v
 
-piko 0.9.4
+piko 0.9.5
 ```
 
 ## Upgrading
 
 ```bash
-$ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.4/piko.js
+$ piko upgrade
 ```
 
 ## Getting started
@@ -44,7 +44,7 @@ $ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.4/piko.js
     $ piko dev
     ```
 
-3. Verify that you site is running at ```http://127.0.0.1:3333```
+3. Verify that your site is running at ```http://127.0.0.1:3333```
 
 4. Edit ```src/index.html```. The dev server should rebuild your site and reload your browser.
 
@@ -52,7 +52,7 @@ $ deno install -f -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.4/piko.js
 
 6. Deploy the ```docs``` folder to your web host.
 
-## Piko folder structure
+## Understanding the Piko folder structure
 
 ```
 my-site
@@ -151,7 +151,7 @@ If you don't like typing the file extension, there is a simple workaround:
 
 1. Create a file named ```piko``` (without file extension).
 
-2. Save the file _in the same folder_ as ```piko.cmd```. On Windows, this folder is typically ```C:\Users\USER\.deno\bin```. If you have trouble finding the folder in which ```piko.cmd``` is installed, you can consult the documentation for the [Deno script installer](https://deno.land/manual@v1.6.2/tools/script_installer) which is used for the Piko installation.
+2. Save the file _in the same folder_ as ```piko.cmd```. On Windows, this folder is typically ```C:\Users\USER\.deno\bin```. If you have trouble finding the folder in which ```piko.cmd``` is installed, you can consult the documentation for the [Deno script installer](https://deno.land/manual@v1.6.3/tools/script_installer) which is used for the Piko installation.
 
 3. Add the following content to the ```piko``` file:
 

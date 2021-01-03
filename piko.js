@@ -4,6 +4,7 @@ import { dev } from "./dev.js";
 import { create } from "./create.js";
 import { serve } from "./serve.js";
 import { build } from "./build.js";
+import { upgrade } from "./upgrade.js";
 import { version } from "./version.js";
 
 if (!import.meta.main) {
@@ -25,6 +26,9 @@ switch (command) {
         break;
     case 'build':
         build();
+        break;
+    case 'upgrade':
+        upgrade();
         break;
     case '-v':
     case '--version':

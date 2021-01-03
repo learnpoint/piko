@@ -1,6 +1,6 @@
 import {
     path,
-    listenAndServe,
+    Server,
     Status,
     STATUS_TEXT,
     acceptWebSocket,
@@ -12,47 +12,88 @@ import {
 
 import { exists } from "./exists.js";
 
+const PORT_CANDIDATES = [3333, 4444, 5555, 6666, 7777, 8888];
+
 let serverRoot;
+let serverPort;
 let sockets = [];
 let closingSockets = false;
 
 export async function serve(servePath) {
     servePath = servePath || Deno.cwd();
 
-    if (typeof servePath !== 'string') {
-        console.log();
-        console.error(`Parameter servePath must be a string. Recieved ${typeof servePath}.`);
-        Deno.exit(1);
-    }
-
-    if (!path.isAbsolute(servePath)) {
-        console.log();
-        console.error('Parameter servePath must represent an absolute path.');
-        Deno.exit(1);
-    }
-
     if (!await exists(servePath)) {
-        console.log();
-        console.error(`servePath ${servePath} was not found.`);
-        Deno.exit(1);
+        exit([`Directory ${servePath} does not exist.`, 'Create the directory and try again.']);
     }
 
     serverRoot = servePath;
 
-    listenAndServe({ port: 3333 }, async req => {
-        if (req.url === "/ws" && acceptable(req)) {
-            const { conn, r: bufReader, w: bufWriter, headers } = req;
-            acceptWebSocket({ conn, bufReader, bufWriter, headers }).then(ws => sockets.push(ws));
-        } else {
-            httpHandler(req);
-        }
-    });
+    const [server, port, error] = await createServer(Array.from(PORT_CANDIDATES)); // Don't touch the const
+
+    if (error) {
+        exit(['Could not start the server.', error]);
+    }
+
+    serverPort = port;
+
+    startServer(server, mainHandler);
 
     watchAndReload();
 
     console.log();
-    console.log(bold(brightGreen('Server started at http://127.0.0.1:3333/')));
+    console.log(bold(brightGreen(`Server started at http://127.0.0.1:${serverPort}/`)));
     console.log();
+}
+
+function exit(messages) {
+    if (typeof messages === 'string') {
+        messages = [messages];
+    }
+    console.log();
+    messages.forEach(msg => console.log(msg));
+    Deno.exit(1);
+}
+
+async function createServer(portCandidates) {
+
+    // Recursively try listen on port candidates.
+    // Return server and port if successful.
+    // Return error if all candidates unsuccessfully tried.
+
+    if (portCandidates.length < 1) {
+        return [null, null, 'No available server port was found.'];
+    }
+
+    const p = portCandidates.shift();
+
+    try {
+        const listener = await Deno.listen({ port: p });
+        return [new Server(listener), p, null];
+    } catch (err) {
+        if (err instanceof Deno.errors.AddrInUse) {
+            return createServer(portCandidates);
+        }
+        return [null, null, err];
+    }
+}
+
+async function startServer(server, handler) {
+    for await (const request of server) {
+        handler(request);
+    }
+}
+
+async function mainHandler(req) {
+    if (req.url === "/ws" && acceptable(req)) {
+        socketHandler(req);
+    } else {
+        httpHandler(req);
+    }
+}
+
+async function socketHandler(req) {
+    const { conn, r: bufReader, w: bufWriter, headers } = req;
+    acceptWebSocket({ conn, bufReader, bufWriter, headers }).then(ws => sockets.push(ws));  
 }
 
 async function httpHandler(req) {
@@ -77,7 +118,7 @@ async function httpHandler(req) {
         if (mimeType[path.extname(filePath)].includes('text/html')) {
             const fileContent = await Deno.readTextFile(filePath);
 
-            const body = fileContent.replace("</body>", `${browserReloadScript}</body>`);
+            const body = fileContent.replace("</body>", `${browserReloadScript(serverPort)}</body>`);
 
             // Because we've already stored the file data directly in the body variable,
             // Deno will automatically calculate and add the content-length header.
@@ -224,12 +265,12 @@ const mimeType = {
     '.svg': 'image/svg+xml'
 };
 
-const browserReloadScript = `
+const browserReloadScript = port => `
 <script>
     window.addEventListener('load', function () {
 
         let reloading = false;
-        let ws = new WebSocket('ws://127.0.0.1:3333/ws');
+        let ws = new WebSocket('ws://127.0.0.1:${port}/ws');
 
         // Ping to keep connection alive.
         setInterval(function () {

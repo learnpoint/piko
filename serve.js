@@ -214,6 +214,7 @@ async function notFound(req) {
 
     try {
         content = await Deno.readTextFile(path.join(serverRoot, '404.html'));
+        content = content.replace("</body>", `${browserReloadScript(serverPort)}</body>`);
     } catch {
         content = 'Not Found';
     }
@@ -226,7 +227,7 @@ async function respond(req, status, body, headers) {
 
     headers = headers || new Headers();
     headers.set("access-control-allow-origin", "*");
-    headers.set("server", "serv");
+    headers.set("server", "piko");
 
     req.respond({ status, body, headers });
 
@@ -293,7 +294,7 @@ const browserReloadScript = port => `
             try {
                 let res = await fetch(location.href);
 
-                if (res.ok) {
+                if (res.ok || res.status === 404) {
                     console.log('Reloading page...');
                     location.reload();
                 } else {

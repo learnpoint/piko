@@ -13,7 +13,7 @@ If your site has one single html page, you don't need Piko. But when your site h
 ## Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.5/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.6/piko.js
 ```
 
 Verify installation:
@@ -21,7 +21,7 @@ Verify installation:
 ```bash
 $ piko -v
 
-piko 0.9.5
+piko 0.9.6
 ```
 
 ## Upgrading
@@ -46,7 +46,7 @@ $ piko upgrade
 
 3. Verify that your site is running at ```http://127.0.0.1:3333```
 
-4. Edit ```src/index.html```. The dev server should rebuild your site and reload your browser.
+4. Make a change to ```src/index.html``` and save the file. The dev server will rebuild your site and reload your browser.
 
 5. Stop the dev server using ```Ctrl+C```.
 
@@ -66,8 +66,6 @@ my-site
       ├── about.md
       └── index.html
 ```
-
-There are three important folders in Piko:
 
 - The **```docs```** folder contains your build (compiled) site. This is the folder you would deploy to a web host. Avoid making manual edits in this folder. Let Piko manage its content.
 
@@ -89,7 +87,7 @@ Include a snippet on a page with ```<!--  -->``` syntax:
 <!-- footer.html -->
 ```
 
-You can pass props to a snippet using a JavaScript object. Use a comma to separate the object from the name of the snippet:
+You can pass props to a snippet using a JavaScript object:
 
 ```html
 <!-- header.html, { title: "Welcome" } -->
@@ -125,7 +123,7 @@ Snippets can be included in markdown pages:
 <!-- footer.html -->
 ```
 
-Note that snippets cannot be written in markdown. Pages can be written in markdown, but snippets must be written in html.
+Note that snippets cannot be written in markdown. They must be written in html.
 
 ## A note on the CNAME file for GitHub Pages
 

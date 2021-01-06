@@ -1,4 +1,4 @@
-import { path, bold, yellow, marked } from "./deps.js";
+import { path, bold, yellow, red, marked } from "./deps.js";
 import { exists } from "./exists.js";
 
 const markdown = marked.default;
@@ -29,12 +29,14 @@ export async function build(options) {
 
     await recursiveBuild(options.sourcePath, options.buildPath);
 
+    await recursiveDelete(options.sourcePath, options.buildPath);
+
     options.firstBuildDoneCallback();
 
     if (options.buildWatch) {
         const watcher = Deno.watchFs(options.sourcePath);
 
-        let lastBuild = 0;
+        let lastBuild = Date.now();
 
         for await (const event of watcher) {
             if ((Date.now() - lastBuild) < 200) {
@@ -49,6 +51,8 @@ export async function build(options) {
             console.log();
 
             await recursiveBuild(options.sourcePath, options.buildPath);
+
+            await recursiveDelete(options.sourcePath, options.buildPath);
 
             options.watchBuildDoneCallback();
         }
@@ -103,6 +107,48 @@ async function recursiveBuild(sourcePath, buildPath) {
             console.log('Building', path.relative(Deno.cwd(), bPath), '--', buildReason);
             await buildFile(sPath, bPath);
         }
+    }
+}
+
+async function recursiveDelete(sourcePath, buildPath) {
+
+    // Delete all files and folders in buildPath
+    // that don't exist in sourcePath.
+
+    for await (const dirEntry of Deno.readDir(buildPath)) {
+        const bPath = path.join(buildPath, dirEntry.name);
+        let sPath = path.join(sourcePath, dirEntry.name);
+
+        if (dirEntry.isDirectory) {
+            if (await exists(sPath)) {
+                await recursiveDelete(sPath, bPath);
+                continue;
+            } else {
+                await Deno.remove(bPath, { recursive: true });
+                console.log(red(bold('Deleted')), red(bold(path.relative(Deno.cwd(), bPath))));
+                continue;
+            }
+        }
+
+        if (await exists(sPath)) {
+            continue;
+        }
+
+        if (dirEntry.name.toLowerCase() === 'cname') {
+            await Deno.copyFile(bPath, sPath);
+            console.log('Copied', path.relative(Deno.cwd(), bPath), 'to', path.relative(Deno.cwd(), sPath));
+            continue;
+        }
+
+        if (isHtmlFile(sPath)) {
+            const sMarkdownPath = sPath.slice(0, -4) + 'md';
+            if (await exists(sMarkdownPath)) {
+                continue;
+            }
+        }
+
+        await Deno.remove(bPath);
+        console.log(red(bold('Deleted')), red(bold(path.relative(Deno.cwd(), bPath))));
     }
 }
 

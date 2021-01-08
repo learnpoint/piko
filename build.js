@@ -196,15 +196,19 @@ async function isBuildNeeded(sourceFilePath, buildFilePath) {
 }
 
 async function buildFile(sourceFilePath, buildFilePath) {
-    if (isHtmlFile(sourceFilePath)) {
-        const sourceContent = await Deno.readTextFile(sourceFilePath);
-        await Deno.writeTextFile(buildFilePath, renderHtmlFile(sourceContent, sourceFilePath, sourceContent));
-    } else if (isMarkdownFile(sourceFilePath)) {
-        const sourceContent = await Deno.readTextFile(sourceFilePath);
-        const markedupContent = markdown(sourceContent);
-        await Deno.writeTextFile(buildFilePath, renderHtmlFile(markedupContent, sourceFilePath, sourceContent));
-    } else {
-        await Deno.copyFile(sourceFilePath, buildFilePath);
+    try {
+        if (isHtmlFile(sourceFilePath)) {
+            const sourceContent = await Deno.readTextFile(sourceFilePath);
+            await Deno.writeTextFile(buildFilePath, renderHtmlFile(sourceContent, sourceFilePath, sourceContent));
+        } else if (isMarkdownFile(sourceFilePath)) {
+            const sourceContent = await Deno.readTextFile(sourceFilePath);
+            const markedupContent = markdown(sourceContent);
+            await Deno.writeTextFile(buildFilePath, renderHtmlFile(markedupContent, sourceFilePath, sourceContent));
+        } else {
+            await Deno.copyFile(sourceFilePath, buildFilePath);
+        }
+    } catch (err) {
+        console.log('Could not build file', path.relative(Deno.cwd(), sourceFilePath));
     }
 }
 

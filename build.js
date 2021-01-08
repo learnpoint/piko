@@ -219,7 +219,7 @@ const renderHtmlFile = (data, sourceFilePath, originalSourceContent) => {
     const originalSourceContentString = originalSourceContent.toString();
     const dataString = data.toString();
 
-    return dataString.replace(/<!--.*-->/g, (match, matchPos) => {
+    return dataString.replace(/<!--.*?-->/g, (match, matchPos) => {
         const [error, renderedContent] = renderSnippet(match.replace('<!--', '').replace('-->', ''));
 
         if (error) {
@@ -265,10 +265,13 @@ const renderSnippet = snippetString => {
         }
     }
 
-    return [error, snippetContent.replace(/{{.*}}/g, match => renderSnippetData(match.replace('{{', '').replace('}}', ''), snippetData))];
+    return [error, snippetContent.replace(/{{.*?}}/g, match => renderSnippetData(match.replace('{{', '').replace('}}', ''), snippetData))];
 };
 
 const renderSnippetData = (snippetDataString, snippetData) => {
+    console.log("snippetDataString", snippetDataString);
+    console.log("snippetData", snippetData);
+
     let dataKey = snippetDataString.split('||')[0].trim();
 
     if (snippetData[dataKey]) {

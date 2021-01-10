@@ -269,9 +269,6 @@ const renderSnippet = snippetString => {
 };
 
 const renderSnippetData = (snippetDataString, snippetData) => {
-    console.log("snippetDataString", snippetDataString);
-    console.log("snippetData", snippetData);
-
     let dataKey = snippetDataString.split('||')[0].trim();
 
     if (snippetData[dataKey]) {

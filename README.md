@@ -125,41 +125,6 @@ Snippets can be included in markdown pages:
 
 Note that snippets cannot be written in markdown. They must be written in html.
 
-## A note on the CNAME file for GitHub Pages
-
-If you enable GitHub Pages, GitHub creates a ```CNAME``` file in the ```docs``` folder. You should make a copy of this file in the ```src``` folder. This way, you can safely delete the entire ```docs``` folder if there are any file mismatch problems, and restart the Piko dev server to rebuild the site without loosing the file.
-
-## A note on Git Bash for Windows
-
-On Windows, Piko is installed as a ```.cmd``` executable. Unfortunately, Git Bash for Windows does not recognize ```.cmd``` as an executable file extension.
-
-```bash
-$ piko
-
-bash: piko: command not found
-```
-
-To run Piko with Git Bash for Windows, you must specify the ```.cmd``` extension:
-
-```bash
-$ piko.cmd
-```
-
-If you don't like typing the file extension, there is a simple workaround:
-
-1. Create a file named ```piko``` (without file extension).
-
-2. Save the file _in the same folder_ as ```piko.cmd```. On Windows, this folder is typically ```C:\Users\USER\.deno\bin```. If you have trouble finding the folder in which ```piko.cmd``` is installed, you can consult the documentation for the [Deno script installer](https://deno.land/manual@v1.6.3/tools/script_installer) which is used for the Piko installation.
-
-3. Add the following content to the ```piko``` file:
-
-    ```bash
-    #!/bin/sh
-    piko.cmd "$@"
-    ```
-
-You should now be able to run Piko without specifying the file extension.
-
 ## Contributing
 
 Piko is written with our own specific use cases at [Learnpoint](https://github.com/learnpoint) in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written Piko for fun and for our own use.

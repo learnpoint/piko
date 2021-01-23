@@ -26,10 +26,12 @@ export async function build(options) {
     buildArgs.snippetsPath = options.snippetsPath;
     buildArgs.forceRebuild = options.forceRebuild;
     buildArgs.snippetsLastModifiedTime = await getSnippetsLastModifiedTime();
+    buildArgs.pages = [];
 
     await recursiveBuild(options.sourcePath, options.buildPath);
-
     await recursiveDelete(options.sourcePath, options.buildPath);
+    await recursiveBuildPagesData(options.buildPath, options.buildPath, buildArgs.pages);
+    Deno.writeTextFile(path.join(options.buildPath, 'pages.json'), JSON.stringify(buildArgs.pages, null, 4));
 
     options.firstBuildDoneCallback();
 
@@ -45,14 +47,17 @@ export async function build(options) {
 
             lastBuild = Date.now();
             buildArgs.snippetsLastModifiedTime = await getSnippetsLastModifiedTime();
+            buildArgs.pages = [];
 
             console.log();
             console.log("Rebuilding...");
             console.log();
 
             await recursiveBuild(options.sourcePath, options.buildPath);
-
             await recursiveDelete(options.sourcePath, options.buildPath);
+            buildArgs.pages = [];
+            await recursiveBuildPagesData(options.buildPath, options.buildPath, buildArgs.pages);
+            Deno.writeTextFile(path.join(options.buildPath, 'pages.json'), JSON.stringify(buildArgs.pages, null, 4));
 
             options.watchBuildDoneCallback();
         }
@@ -137,6 +142,10 @@ async function recursiveDelete(sourcePath, buildPath) {
         if (dirEntry.name.toLowerCase() === 'cname') {
             await Deno.copyFile(bPath, sPath);
             console.log('Copied', path.relative(Deno.cwd(), bPath), 'to', path.relative(Deno.cwd(), sPath));
+            continue;
+        }
+
+        if (dirEntry.name === 'pages.json') {
             continue;
         }
 
@@ -281,3 +290,57 @@ const renderSnippetData = (snippetDataString, snippetData) => {
 
     return '';
 };
+
+async function recursiveBuildPagesData(buildPath, rootBuildPath, pagesArray) {
+    for await (const dirEntry of Deno.readDir(buildPath)) {
+        const pagePath = path.join(buildPath, dirEntry.name);
+
+        if (dirEntry.isDirectory) {
+            await recursiveBuildPagesData(pagePath, rootBuildPath, pagesArray);
+            continue;
+        }
+
+        if (!isHtmlFile(pagePath)) {
+            continue;
+        }
+
+        if (dirEntry.name === '404.html') {
+            continue;
+        }
+
+        const pageObject = await createPageObject(pagePath, rootBuildPath);
+
+        pagesArray.push(pageObject);
+    }
+}
+
+async function createPageObject(pagePath, buildPath) {
+    const pageMarkup = await Deno.readTextFile(pagePath);
+    return {
+        title: titleTagContent(pageMarkup),
+        url: '/' + path.relative(buildPath, pagePath).replace('\\', '/'),
+        content: collapseSpaces(stripTags(bodyTagContent(pageMarkup)))
+    };
+}
+
+function titleTagContent(str) {
+    let titleContent = '';
+    const m = str.match("<title>(.*?)</title>");
+    if (m) titleContent = m[1];
+    return titleContent;
+}
+
+function bodyTagContent(str) {
+    let bodyContent = '';
+    const m = str.match(/<body[^>]*>([^<]*(?:(?!<\/?body)<[^<]*)*)<\/body\s*>/i);
+    if (m) bodyContent = m[1];
+    return bodyContent;
+}
+
+function collapseSpaces(str) {
+    return str.replace(/\s+/g, " ").trim();
+}
+
+function stripTags(str) {
+    return str.replace(/<\/?[^>]+>/g, "");
+}

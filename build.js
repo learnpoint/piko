@@ -31,7 +31,7 @@ export async function build(options) {
     await recursiveBuild(options.sourcePath, options.buildPath);
     await recursiveDelete(options.sourcePath, options.buildPath);
     await recursiveBuildPagesData(options.buildPath, options.buildPath, buildArgs.pages);
-    Deno.writeTextFile(path.join(options.buildPath, 'pages.json'), JSON.stringify(buildArgs.pages, null, 4));
+    await Deno.writeTextFile(path.join(options.buildPath, 'pages.json'), JSON.stringify(buildArgs.pages, null, 4));
 
     options.firstBuildDoneCallback();
 
@@ -57,7 +57,7 @@ export async function build(options) {
             await recursiveDelete(options.sourcePath, options.buildPath);
             buildArgs.pages = [];
             await recursiveBuildPagesData(options.buildPath, options.buildPath, buildArgs.pages);
-            Deno.writeTextFile(path.join(options.buildPath, 'pages.json'), JSON.stringify(buildArgs.pages, null, 4));
+            await Deno.writeTextFile(path.join(options.buildPath, 'pages.json'), JSON.stringify(buildArgs.pages, null, 4));
 
             options.watchBuildDoneCallback();
         }

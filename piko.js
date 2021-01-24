@@ -5,7 +5,7 @@ import { create } from "./create.js";
 import { serve } from "./serve.js";
 import { build } from "./build.js";
 import { upgrade } from "./upgrade.js";
-import { version } from "./version.js";
+import { version, denoVersion } from "./version.js";
 
 if (!import.meta.main) {
     console.error('Error: piko.js was not invoked as main module.');
@@ -40,19 +40,31 @@ switch (command) {
 }
 
 function printVersion() {
-    console.log();
     console.log(`piko ${version}`);
+    console.log(`deno ${Deno.version.deno} (installed)`);
+    console.log(`deno ${denoVersion} (recommended)`);
     console.log();
 }
 
 function printUsage() {
-    console.log();
     console.log(`piko ${version}`);
+    console.log('A minimal toolkit for html writing');
+    console.log();
+    console.log(`Docs: https://github.com/learnpoint/piko`);
     console.log();
     console.log('Create new site:');
-    console.log('$ piko create SITE_NAME');
+    console.log('  piko create [name]');
     console.log();
     console.log('Start dev server:');
-    console.log('$ piko dev');
+    console.log('  piko dev');
+    console.log();
+    console.log('Start web server:')
+    console.log('  piko serve');
+    console.log();
+    console.log('Build site:');
+    console.log('  piko build');
+    console.log();
+    console.log('Upgrade:');
+    console.log('  piko upgrade');
     console.log();
 }

@@ -17,7 +17,7 @@ const PORT_CANDIDATES = [3333, 4444, 5555, 6666, 7777, 8888];
 let serverRoot;
 let serverPort;
 let sockets = [];
-let closingSockets = false;
+const RELOAD_DEBOUNCE_WAIT = 50;
 
 export async function serve(servePath) {
     servePath = servePath || Deno.cwd();
@@ -93,7 +93,7 @@ async function mainHandler(req) {
 
 async function socketHandler(req) {
     const { conn, r: bufReader, w: bufWriter, headers } = req;
-    acceptWebSocket({ conn, bufReader, bufWriter, headers }).then(ws => sockets.push(ws));  
+    acceptWebSocket({ conn, bufReader, bufWriter, headers }).then(ws => sockets.push(ws));
 }
 
 async function httpHandler(req) {
@@ -163,38 +163,30 @@ async function watchAndReload() {
     // reloading the browser(s) on file changes.
 
     const watcher = Deno.watchFs(serverRoot);
+    let timeout = null;
 
     for await (const event of watcher) {
-        if (closingSockets) {
-            continue;
-        }
-
-        closingSockets = true;
-
-        // We don't want to close any new incoming
-        // connections, only the currently established.
-        let socketsToClose = sockets;
-        sockets = [];
-
+        
         // Some OS's trigger several fs events on a single
         // file change, and sometimes many files are
-        // changed at once. Let's wait for the storm
-        // to pass before reloading the browser(s).
-        setTimeout(async () => {
+        // changed at once. Therefore, reload is debounced
+        // until the fs event storm has passed.
+
+        clearTimeout(timeout);
+
+        timeout = setTimeout(async () => {
             console.log();
             console.log('Reloading browser...');
             console.log();
 
             let s = null;
 
-            while (s = socketsToClose.pop()) {
+            while (s = sockets.pop()) {
                 if (!s.isClosed) {
                     await s.close(1000).catch(console.error);
                 }
             }
-
-            closingSockets = false;
-        }, 800);
+        }, RELOAD_DEBOUNCE_WAIT);
     }
 }
 
@@ -295,14 +287,14 @@ const browserReloadScript = port => `
                 let res = await fetch(location.href);
 
                 if (res.ok || res.status === 404) {
-                    console.log('Reloading page...');
+                    console.log('Piko reloading page...');
                     location.reload();
                 } else {
-                    console.log('Server not responding, will not reload.');
+                    console.log('Piko server not responding, will not reload.');
                     reloading = false;
                 }
             } catch {
-                console.log('Server not responding, will not reload.');
+                console.log('Piko server not responding, will not reload.');
                 reloading = false;
             }
         }
@@ -322,7 +314,7 @@ const browserReloadScript = port => `
         }, 3000); 
 
         ws.onopen = function (event) {
-            console.log('Reload socket connection established.');
+            console.log('Piko reload socket connection established.');
         }
 
         ws.onerror = function (event) {

@@ -255,7 +255,8 @@ const mimeType = {
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
     '.gif': 'image/gif',
-    '.svg': 'image/svg+xml'
+    '.svg': 'image/svg+xml',
+    '.avif': 'image/avif'
 };
 
 const browserReloadScript = port => `

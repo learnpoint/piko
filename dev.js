@@ -6,7 +6,7 @@ export async function dev(options) {
     const defaults = {
         sourcePath: path.join(Deno.cwd(), 'src'),
         buildPath: path.join(Deno.cwd(), 'docs'),
-        snippetsPath: path.join(Deno.cwd(), 'src', 'snippets'),
+        componentsPath: path.join(Deno.cwd(), 'src', 'components'),
         forceRebuild: false,
         buildWatch: true,
         firstBuildDoneCallback: () => serve(path.join(Deno.cwd(), 'docs'))

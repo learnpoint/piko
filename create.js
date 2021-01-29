@@ -12,7 +12,7 @@ export async function create(projectName) {
     const projectPath = path.join(Deno.cwd(), projectName);
     const sourcePath = path.join(projectPath, 'src');
     const buildPath = path.join(projectPath, 'docs');
-    const snippetsPath = path.join(sourcePath, 'snippets');
+    const componentsPath = path.join(sourcePath, 'components');
 
     // Create directories
     try {
@@ -31,13 +31,13 @@ export async function create(projectName) {
     }
     await Deno.mkdir(sourcePath);
     await Deno.mkdir(buildPath);
-    await Deno.mkdir(snippetsPath);
+    await Deno.mkdir(componentsPath);
 
     // Create files
     Deno.writeTextFile(path.join(sourcePath, 'index.html'), indexFileContent());
     Deno.writeTextFile(path.join(sourcePath, 'about.md'), aboutFileContent());
-    Deno.writeTextFile(path.join(snippetsPath, 'header.html'), headerFileContent(projectName));
-    Deno.writeTextFile(path.join(snippetsPath, 'footer.html'), footerFileContent());
+    Deno.writeTextFile(path.join(componentsPath, 'header.html'), headerFileContent(projectName));
+    Deno.writeTextFile(path.join(componentsPath, 'footer.html'), footerFileContent());
 
     // Logging and next steps
     console.log();

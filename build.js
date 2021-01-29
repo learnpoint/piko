@@ -12,7 +12,7 @@ export async function build(options) {
     const defaults = {
         sourcePath: path.join(Deno.cwd(), 'src'),
         buildPath: path.join(Deno.cwd(), 'docs'),
-        snippetsPath: path.join(Deno.cwd(), 'src', 'snippets'),
+        componentsPath: path.join(Deno.cwd(), 'src', 'components'),
         forceRebuild: false,
         buildWatch: false,
         firstBuildDoneCallback: () => { },
@@ -23,9 +23,9 @@ export async function build(options) {
 
     await ensureDirectories(options);
 
-    buildArgs.snippetsPath = options.snippetsPath;
+    buildArgs.componentsPath = options.componentsPath;
     buildArgs.forceRebuild = options.forceRebuild;
-    buildArgs.snippetsLastModifiedTime = await getSnippetsLastModifiedTime();
+    buildArgs.componentsLastModifiedTime = await getComponentsLastModifiedTime();
     buildArgs.pages = [];
 
     await recursiveBuild(options.sourcePath, options.buildPath);
@@ -46,7 +46,7 @@ export async function build(options) {
             }
 
             lastBuild = Date.now();
-            buildArgs.snippetsLastModifiedTime = await getSnippetsLastModifiedTime();
+            buildArgs.componentsLastModifiedTime = await getComponentsLastModifiedTime();
             buildArgs.pages = [];
 
             console.log();
@@ -74,9 +74,9 @@ async function ensureDirectories(options) {
         Deno.exit(1);
     }
 
-    if (!await exists(options.snippetsPath)) {
+    if (!await exists(options.componentsPath)) {
         console.log();
-        console.error('Snippets folder not found:', options.snippetsPath);
+        console.error('Components folder not found:', options.componentsPath);
         console.log();
         console.log('Create the folder and try again.');
         console.log();
@@ -93,7 +93,7 @@ async function recursiveBuild(sourcePath, buildPath) {
         const sPath = path.join(sourcePath, dirEntry.name);
         let bPath = path.join(buildPath, dirEntry.name);
 
-        if (sPath === buildArgs.snippetsPath) {
+        if (sPath === buildArgs.componentsPath) {
             continue;
         }
 
@@ -161,18 +161,18 @@ async function recursiveDelete(sourcePath, buildPath) {
     }
 }
 
-async function getSnippetsLastModifiedTime() {
-    let snippetsLastModifiedTime = new Date(0);
+async function getComponentsLastModifiedTime() {
+    let componentsLastModifiedTime = new Date(0);
 
-    for await (const item of Deno.readDir(buildArgs.snippetsPath)) {
-        const itemPath = path.join(buildArgs.snippetsPath, item.name);
+    for await (const item of Deno.readDir(buildArgs.componentsPath)) {
+        const itemPath = path.join(buildArgs.componentsPath, item.name);
         const itemInfo = await Deno.lstat(itemPath);
 
-        if (itemInfo.mtime > snippetsLastModifiedTime) {
-            snippetsLastModifiedTime = itemInfo.mtime;
+        if (itemInfo.mtime > componentsLastModifiedTime) {
+            componentsLastModifiedTime = itemInfo.mtime;
         }
     }
-    return snippetsLastModifiedTime;
+    return componentsLastModifiedTime;
 }
 
 async function isBuildNeeded(sourceFilePath, buildFilePath) {
@@ -190,8 +190,8 @@ async function isBuildNeeded(sourceFilePath, buildFilePath) {
             return [true, path.relative(Deno.cwd(), sourceFilePath) + ' was modified'];
         }
 
-        if (isHtmlFile(buildFilePath) && buildArgs.snippetsLastModifiedTime > buildFileInfo.mtime) {
-            return [true, 'Snippet(s) was modified'];
+        if (isHtmlFile(buildFilePath) && buildArgs.componentsLastModifiedTime > buildFileInfo.mtime) {
+            return [true, 'Component(s) was modified'];
         }
     } catch (error) {
         if (error instanceof Deno.errors.NotFound) {
@@ -229,7 +229,7 @@ const renderHtmlFile = (data, sourceFilePath, originalSourceContent) => {
     const dataString = data.toString();
 
     return dataString.replace(/<!--.*?-->/g, (match, matchPos) => {
-        const [error, renderedContent] = renderSnippet(match.replace('<!--', '').replace('-->', ''));
+        const [error, renderedContent] = renderComponent(match.replace('<!--', '').replace('-->', ''));
 
         if (error) {
             console.log();
@@ -245,47 +245,47 @@ const renderHtmlFile = (data, sourceFilePath, originalSourceContent) => {
 
 const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
 
-const renderSnippet = snippetString => {
+const renderComponent = componentString => {
     let error = null;
 
-    const snippetName = snippetString.split(',')[0].trim();
+    const componentName = componentString.split(',')[0].trim();
 
-    let snippetContent = '';
+    let componentContent = '';
     try {
-        snippetContent = Deno.readTextFileSync(path.join(buildArgs.snippetsPath, snippetName));
+        componentContent = Deno.readTextFileSync(path.join(buildArgs.componentsPath, componentName));
     } catch {
-        error = 'Snippet file not found: "' + snippetName + '"';
+        error = 'Component file not found: "' + componentName + '"';
     }
 
-    let snippetData = {};
+    let componentData = {};
 
-    if (!error && snippetString.includes(',')) {
-        const snippetDataString = snippetString.substring(snippetString.indexOf(',') + 1).trim();
+    if (!error && componentString.includes(',')) {
+        const componentDataString = componentString.substring(componentString.indexOf(',') + 1).trim();
         try {
-            snippetData = eval(`(${snippetDataString})`);
+            componentData = eval(`(${componentDataString})`);
 
-            if (snippetData === null || typeof snippetData !== 'object') {
-                error = 'Snippet props is not a valid javascript object: ' + snippetDataString;
-                snippetData = {};
+            if (componentData === null || typeof componentData !== 'object') {
+                error = 'Component props is not a valid javascript object: ' + componentDataString;
+                componentData = {};
             }
         } catch (err) {
-            error = 'Snippet props is not a valid javascript object: ' + snippetDataString;
-            snippetData = {};
+            error = 'Component props is not a valid javascript object: ' + componentDataString;
+            componentData = {};
         }
     }
 
-    return [error, snippetContent.replace(/{{.*?}}/g, match => renderSnippetData(match.replace('{{', '').replace('}}', ''), snippetData))];
+    return [error, componentContent.replace(/{{.*?}}/g, match => renderComponentData(match.replace('{{', '').replace('}}', ''), componentData))];
 };
 
-const renderSnippetData = (snippetDataString, snippetData) => {
-    let dataKey = snippetDataString.split('||')[0].trim();
+const renderComponentData = (componentDataString, componentData) => {
+    let dataKey = componentDataString.split('||')[0].trim();
 
-    if (snippetData[dataKey]) {
-        return snippetData[dataKey];
+    if (componentData[dataKey]) {
+        return componentData[dataKey];
     }
 
-    if (snippetDataString.includes('||')) {
-        return snippetDataString.substring(snippetDataString.indexOf('||') + 2).trim();
+    if (componentDataString.includes('||')) {
+        return componentDataString.substring(componentDataString.indexOf('||') + 2).trim();
     }
 
     return '';

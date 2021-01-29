@@ -4,16 +4,16 @@ _A minimal toolkit for html writing_
 
 We use Piko at [Learnpoint](https://github.com/learnpoint) for writing static html sites. Piko is not a frontend framework or a fancy site generator. Rather, it's the smallest step up possible from writing all html completely by hand.
 
-If your site has one single html page, you don't need Piko. But when your site has several pages, keeping the ```head``` tag up to date can become error prone and annoying. Piko lets you extract the ```head``` tag into a separate snippet that can be included and reused on multiple pages.
+If your site has one single html page, you don't need Piko. But if it has several pages, keeping the ```head``` tag up to date can become error prone and annoying. Piko lets you extract the ```head``` tag into a separate component that can be included and reused on multiple pages.
 
 ## Requirements
 
-[Install Deno](https://deno.land/manual/getting_started/installation) version ```1.7.0``` in order to use Piko.
+[Deno](https://deno.land/manual/getting_started/installation) version ```1.7.1``` is required to use Piko.
 
 ## Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.10/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.11/piko.js
 ```
 
 Verify installation:
@@ -21,7 +21,7 @@ Verify installation:
 ```bash
 $ piko -v
 
-piko 0.9.10
+piko 0.9.11
 ```
 
 ## Upgrading
@@ -60,7 +60,7 @@ my-site
  |    ├── about.html
  |    └── index.html
  └── src
-      ├── snippets
+      ├── components
       |    ├── header.html
       |    └── footer.html
       ├── about.md
@@ -71,13 +71,15 @@ my-site
 
 - The **```src```** folder is where you do your html writing.
 
-- The **```src/snippets```** folder contains snippets that can be included in pages.
+- The **```src/components```** folder contains components that can be included in pages.
 
-## Using snippets
+## Using components
 
-Place all your snippets in the ```src/snippets``` folder.
+A Piko component is just a file with some html markup. A component file can be included in any page.
 
-Include a snippet on a page with ```<!--  -->``` syntax:
+Place all your components in the ```src/components``` folder.
+
+Include a component on a page using ```<!--  -->``` syntax:
 
 ```html
 <!-- header.html -->
@@ -87,7 +89,7 @@ Include a snippet on a page with ```<!--  -->``` syntax:
 <!-- footer.html -->
 ```
 
-You can pass props to a snippet using a JavaScript object:
+You can pass props to a component using a JavaScript object:
 
 ```html
 <!-- header.html, { title: "Welcome" } -->
@@ -97,7 +99,7 @@ You can pass props to a snippet using a JavaScript object:
 <!-- footer.html -->
 ```
 
-Inside the snippet, you can access passed props with ```{{ prop }}``` syntax:
+Inside a component, you can access passed props with ```{{ prop }}``` syntax:
 
 ```html
 <title>{{ title }}</title>
@@ -113,7 +115,7 @@ You can provide a default value with ```||``` syntax:
 
 You can write your pages in markdown.
 
-Snippets can be included in markdown pages:
+Components can be included in markdown pages:
 
 ```md
 <!-- header.html, { title: "Welcome"} -->
@@ -123,7 +125,7 @@ Snippets can be included in markdown pages:
 <!-- footer.html -->
 ```
 
-Note that snippets cannot be written in markdown. They must be written in html.
+Note that components cannot be written in markdown. They must be written in html.
 
 ## Contributing
 

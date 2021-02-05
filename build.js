@@ -318,7 +318,7 @@ async function createPageObject(pagePath, buildPath) {
     const pageMarkup = await Deno.readTextFile(pagePath);
     return {
         title: titleTagContent(pageMarkup),
-        url: '/' + path.relative(buildPath, pagePath).replace('\\', '/'),
+        url: '/' + path.relative(buildPath, pagePath).replaceAll('\\', '/'),
         content: collapseSpaces(stripTags(bodyTagContent(pageMarkup)))
     };
 }

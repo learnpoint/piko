@@ -8,12 +8,12 @@ If your site has one single html page, you don't need Piko. But if it has severa
 
 ## Requirements
 
-[Deno](https://deno.land/manual/getting_started/installation) version ```1.7.5``` is required to use Piko.
+[Deno](https://deno.land/manual/getting_started/installation) version ```1.8.0``` is required to use Piko.
 
 ## Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.13/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.14/piko.js
 ```
 
 Verify installation:
@@ -21,7 +21,7 @@ Verify installation:
 ```bash
 $ piko -v
 
-piko 0.9.13
+piko 0.9.14
 ```
 
 ## Upgrading

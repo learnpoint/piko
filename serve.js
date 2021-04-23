@@ -254,6 +254,7 @@ const mimeType = {
     '.css': 'text/css',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
     '.gif': 'image/gif',
     '.svg': 'image/svg+xml',
     '.avif': 'image/avif'

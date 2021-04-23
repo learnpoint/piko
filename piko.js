@@ -32,6 +32,7 @@ switch (command) {
         break;
     case '-v':
     case '--version':
+    case 'version':
         printVersion();
         break;
     default:

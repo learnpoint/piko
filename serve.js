@@ -251,6 +251,7 @@ const mimeType = {
     '.html': 'text/html; charset=utf-8',
     '.js': 'application/javascript',
     '.json': 'application/json',
+    '.webmanifest': 'application/manifest+json',
     '.css': 'text/css',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',

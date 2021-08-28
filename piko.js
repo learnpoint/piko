@@ -2,6 +2,7 @@
 
 import { dev } from "./dev.js";
 import { create } from "./create.js";
+import { sketch } from "./sketch.js";
 import { serve } from "./serve.js";
 import { build } from "./build.js";
 import { upgrade } from "./upgrade.js";
@@ -20,6 +21,9 @@ switch (command) {
         break;
     case 'create':
         create(Deno.args[1]);
+        break;
+    case 'sketch':
+        sketch(Deno.args[1]);
         break;
     case 'serve':
         serve();
@@ -55,6 +59,9 @@ function printUsage() {
     console.log();
     console.log('Create new site:');
     console.log('  piko create [name]');
+    console.log();
+    console.log('Create new html sketch:');
+    console.log('  piko sketch [name]');
     console.log();
     console.log('Start dev server:');
     console.log('  piko dev');

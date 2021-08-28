@@ -30,6 +30,14 @@ piko 0.9.23
 $ piko upgrade
 ```
 
+If you encounter any problems during upgrading, the easiest solution is to install Piko from scratch:
+
+1. Make sure you have the required Deno version installed (see section **Requirements** above).
+2. Delete the Piko binaries (one or two files, depending on operating system). Binaries are located here:
+    - Windows: ```%USERPROFILE%\.deno\bin```
+    - Mac: ```$HOME/.deno/bin```
+3. Install Piko (see section **Installation** above).
+
 ## Getting started
 
 1. Create a new site:

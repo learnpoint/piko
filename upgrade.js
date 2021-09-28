@@ -1,5 +1,4 @@
 import { version as currentPikoVersion } from "./version.js";
-import { red, bold } from "./deps.js";
 
 const TAGS_URL = "https://api.github.com/repos/learnpoint/piko/tags";
 const pikoUrl = version => `https://cdn.jsdelivr.net/gh/learnpoint/piko@${version}/piko.js`;
@@ -41,7 +40,7 @@ export async function upgrade() {
 
     if (isDenoUpgradeRecommended(Deno.version.deno, recommendedDenoVersion)) {
         console.log('You have Deno', `${Deno.version.deno}.`, 'You should upgrade to', `${recommendedDenoVersion}:`);
-        console.log(bold('deno upgrade --version'), bold(recommendedDenoVersion));
+        console.log(`deno upgrade --version ${recommendedDenoVersion}`);
     } else {
         // Deno upgrade not recommended.
     }
@@ -54,9 +53,9 @@ async function getLatestPikoVersion() {
         const sortedVersions = versions.sort(compareVersions);
         return sortedVersions.pop(); // Latest is last
     } catch (err) {
-        console.log(bold(red('Error:')), 'Could not fetch latest version.');
+        console.log('%cCould not fetch latest version.', 'font-weight:bold;color:#f44;');
         console.log('=> Check internet connection and try again.');
-        console.log();
+        console.log(err);
         Deno.exit(1);
     }
 }
@@ -106,7 +105,7 @@ async function upgradePikoTo(version) {
         }
     } catch (err) {
         console.log();
-        console.log(bold(red('Error.')), 'Could not upgrade Piko.');
+        console.log('%cError. Could not upgrade Piko.', 'font-weight:bold;color:#f44;');
         console.log();
     }
 }

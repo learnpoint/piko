@@ -1,99 +1,34 @@
-import {
-    path,
-    Server,
-    Status,
-    STATUS_TEXT,
-    acceptWebSocket,
-    acceptable,
-    bold,
-    yellow,
-    brightGreen
-} from "./deps.js";
-
 import { exists } from "./exists.js";
+import { listenAndServe } from "./listen_and_serve.js";
+import { Status, STATUS_TEXT } from "./http_status.js";
+import { path } from "./deps.js";
 
-const PORT_CANDIDATES = [3333, 4444, 5555, 6666, 7777, 8888];
-
-let serverRoot;
-let serverPort;
-let sockets = [];
 const RELOAD_DEBOUNCE_WAIT = 50;
 
+const server = {
+    root: null,
+    sockets: []
+};
+
 export async function serve(servePath) {
-    servePath = servePath || Deno.cwd();
+    server.root = servePath || Deno.cwd();
 
-    if (!await exists(servePath)) {
-        exit([`Directory ${servePath} does not exist.`, 'Create the directory and try again.']);
+    if (!await exists(server.root)) {
+        console.log();
+        console.log(`%cFolder ${server.root} does not exist.`, 'font-weight:bold;color:#f44;');
+        console.log('Create the folder and try again.');
+        console.log();
+        Deno.exit(1);
     }
 
-    serverRoot = servePath;
-
-    const [server, port, error] = await createServer(Array.from(PORT_CANDIDATES)); // Don't touch the const
-
-    if (error) {
-        exit(['Could not start the server.', error]);
-    }
-
-    serverPort = port;
-
-    startServer(server, mainHandler);
-
+    listenAndServe(httpHandler, webSocketHandler);
     watchAndReload();
-
-    console.log();
-    console.log(bold(brightGreen(`Server started at http://127.0.0.1:${serverPort}/`)));
-    console.log();
 }
 
-function exit(messages) {
-    if (typeof messages === 'string') {
-        messages = [messages];
-    }
-    console.log();
-    messages.forEach(msg => console.log(msg));
-    Deno.exit(1);
-}
-
-async function createServer(portCandidates) {
-
-    // Recursively try listen on port candidates.
-    // Return server and port if successful.
-    // Return error if all candidates unsuccessfully tried.
-
-    if (portCandidates.length < 1) {
-        return [null, null, 'No available server port was found.'];
-    }
-
-    const p = portCandidates.shift();
-
-    try {
-        const listener = await Deno.listen({ port: p });
-        return [new Server(listener), p, null];
-    } catch (err) {
-        if (err instanceof Deno.errors.AddrInUse) {
-            return createServer(portCandidates);
-        }
-        return [null, null, err];
-    }
-}
-
-async function startServer(server, handler) {
-    for await (const request of server) {
-        handler(request);
-    }
-}
-
-async function mainHandler(req) {
-    if (req.url === "/ws" && acceptable(req)) {
-        socketHandler(req);
-    } else {
-        httpHandler(req);
-    }
-}
-
-async function socketHandler(req) {
-    const { conn, r: bufReader, w: bufWriter, headers } = req;
-    acceptWebSocket({ conn, bufReader, bufWriter, headers }).then(ws => sockets.push(ws));
+async function webSocketHandler(req) {
+    const { socket, response } = Deno.upgradeWebSocket(req);
+    server.sockets.push(socket);
+    return response;
 }
 
 async function httpHandler(req) {
@@ -118,34 +53,27 @@ async function httpHandler(req) {
         if (mimeType[path.extname(filePath)].includes('text/html')) {
             const fileContent = await Deno.readTextFile(filePath);
 
-            const body = fileContent.replace("</body>", `${browserReloadScript(serverPort)}</body>`);
+            const body = fileContent.replace("</body>", `${browserReloadScript}</body>`);
 
-            // Because we've already stored the file data directly in the body variable,
-            // Deno will automatically calculate and add the content-length header.
             const headers = new Headers();
             headers.set("content-type", mimeType[path.extname(filePath)]);
 
-            respond(req, Status.OK, body, headers);
+            return respond(req, Status.OK, body, headers);
         } else {
-            const [file, fileInfo] = await Promise.all([
-                Deno.open(filePath, { read: true }),
-                Deno.stat(filePath),
-            ]);
 
-            req.done.then(() => file.close());
+            const file = await Deno.readFile(filePath);
 
             const headers = new Headers();
-            headers.set("content-length", fileInfo.size.toString());
             headers.set("content-type", mimeType[path.extname(filePath)]);
 
-            respond(req, Status.OK, file, headers);
+            return respond(req, Status.OK, file, headers);
         }
     } catch (error) {
         if (error instanceof Deno.errors.NotFound) {
-            notFound(req);
+            return notFound(req);
         } else {
-            respond(req, Status.InternalServerError, error.message);
             console.error(error);
+            return respond(req, Status.InternalServerError, error.message);
         }
     }
 }
@@ -162,11 +90,11 @@ async function watchAndReload() {
     // established connections on any fs event, effectively
     // reloading the browser(s) on file changes.
 
-    const watcher = Deno.watchFs(serverRoot);
+    const watcher = Deno.watchFs(server.root);
     let timeout = null;
 
     for await (const event of watcher) {
-        
+
         // Some OS's trigger several fs events on a single
         // file change, and sometimes many files are
         // changed at once. Therefore, reload is debounced
@@ -179,12 +107,13 @@ async function watchAndReload() {
             console.log('Reloading browser...');
             console.log();
 
-            let s = null;
+            let socket = null;
 
-            while (s = sockets.pop()) {
-                if (!s.isClosed) {
-                    await s.close(1000).catch(console.error);
+            while (socket = server.sockets.pop()) {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.close(1000);
                 }
+
             }
         }, RELOAD_DEBOUNCE_WAIT);
     }
@@ -195,7 +124,7 @@ async function redirect(req, location) {
     headers.set("content-type", mimeType['.html']);
     headers.set("location", location);
 
-    respond(req, 302, null, headers);
+    return respond(req, 302, null, headers);
 }
 
 async function notFound(req) {
@@ -206,12 +135,12 @@ async function notFound(req) {
 
     try {
         content = await Deno.readTextFile(path.join(serverRoot, '404.html'));
-        content = content.replace("</body>", `${browserReloadScript(serverPort)}</body>`);
+        content = content.replace("</body>", `${browserReloadScript}</body>`);
     } catch {
         content = 'Not Found';
     }
 
-    respond(req, 404, content, headers);
+    return respond(req, 404, content, headers);
 }
 
 async function respond(req, status, body, headers) {
@@ -221,29 +150,29 @@ async function respond(req, status, body, headers) {
     headers.set("access-control-allow-origin", "*");
     headers.set("server", "piko");
 
-    req.respond({ status, body, headers });
-
     if (status === 302) {
         console.log(status.toString(), pathname(req), "=> Redirected to", headers.get('location'));
     } else if (status >= 100 && status < 400) {
         console.log(status.toString(), pathname(req), "=>", path.relative(Deno.cwd(), getFilePath(req)));
     } else {
-        console.log(bold(yellow(status.toString())), pathname(req), "=>", bold(yellow(STATUS_TEXT.get(status))));
+        console.log(`%c${status.toString()} ${pathname(req)} => ${STATUS_TEXT.get(status)}`, 'color:#ff4;');
     }
+
+    return new Response(body, { status, headers });
 }
 
 function getFilePath(req) {
     const urlPathname = pathname(req);
 
     if (urlPathname.endsWith('/')) {
-        return path.join(serverRoot, urlPathname, 'index.html');
+        return path.join(server.root, urlPathname, 'index.html');
     }
 
-    return path.join(serverRoot, urlPathname);
+    return path.join(server.root, urlPathname);
 }
 
 function pathname(req) {
-    return new URL('http://localhost' + req.url).pathname;
+    return new URL(req.url).pathname;
 }
 
 const mimeType = {
@@ -261,12 +190,12 @@ const mimeType = {
     '.avif': 'image/avif'
 };
 
-const browserReloadScript = port => `
+const browserReloadScript = `
 <script>
     window.addEventListener('load', function () {
 
         let reloading = false;
-        let ws = new WebSocket('ws://127.0.0.1:${port}/ws');
+        let ws = new WebSocket('ws://' + location.host + '/ws');
 
         // Ping to keep connection alive.
         setInterval(function () {

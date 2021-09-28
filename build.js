@@ -1,4 +1,4 @@
-import { path, bold, yellow, red, marked } from "./deps.js";
+import { path, marked } from "./deps.js";
 import { exists } from "./exists.js";
 
 const markdown = marked.default;
@@ -130,7 +130,7 @@ async function recursiveDelete(sourcePath, buildPath) {
                 continue;
             } else {
                 await Deno.remove(bPath, { recursive: true });
-                console.log(red(bold('Deleted')), red(bold(path.relative(Deno.cwd(), bPath))));
+                console.log(`%cDeleted ${path.relative(Deno.cwd(), bPath)}`, 'font-weight:bold;color:#f44;');
                 continue;
             }
         }
@@ -157,7 +157,8 @@ async function recursiveDelete(sourcePath, buildPath) {
         }
 
         await Deno.remove(bPath);
-        console.log(red(bold('Deleted')), red(bold(path.relative(Deno.cwd(), bPath))));
+        console.log(`%cDeleted ${path.relative(Deno.cwd(), bPath)}`, 'font-weight:bold;color:#f44;');
+
     }
 }
 
@@ -217,7 +218,7 @@ async function buildFile(sourceFilePath, buildFilePath) {
             await Deno.copyFile(sourceFilePath, buildFilePath);
         }
     } catch (err) {
-        console.log('Could not build file', path.relative(Deno.cwd(), sourceFilePath));
+        console.log(`%cCould not build file ${path.relative(Deno.cwd(), sourceFilePath)}`, 'font-weight:bold;color:#f44;');
     }
 }
 
@@ -233,8 +234,8 @@ const renderHtmlFile = (data, sourceFilePath, originalSourceContent) => {
 
         if (error) {
             console.log();
-            console.log(bold(yellow('Error in:')), bold(yellow(path.relative(Deno.cwd(), sourceFilePath))), 'line', lineNumber(matchPos, originalSourceContentString));
-            console.log(bold('=== >'), bold(error));
+            console.log(`%cError in: ${path.relative(Deno.cwd(), sourceFilePath)} line ${lineNumber(matchPos, originalSourceContentString)}`, 'font-weight:bold;color:#f44;');
+            console.log(`%c===> ${error}`, 'font-weight:bold;');
             console.log();
             return match; // Leave unchanged
         }

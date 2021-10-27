@@ -1,54 +1,63 @@
 import { path } from "./deps.js";
 
 export async function create(projectName) {
+    console.log();
+
     if (!projectName) {
-        console.log();
-        console.log('Missing name of folder to create.');
-        console.log();
-        Deno.exit(1);
+        exitWithError('Missing name of folder to create.');
     }
 
-    // Define paths
     const projectPath = path.join(Deno.cwd(), projectName);
+
+    try {
+        await Deno.mkdir(projectPath);
+    } catch (err) {
+        if (err instanceof Deno.errors.AlreadyExists) {
+            exitWithError(`Folder ${projectName} already exists.`);
+        } else {
+            exitWithError('Error', err);
+        }
+    }
+
     const sourcePath = path.join(projectPath, 'src');
     const buildPath = path.join(projectPath, 'docs');
     const componentsPath = path.join(sourcePath, 'components');
 
-    // Create directories
-    try {
-        await Deno.mkdir(projectPath);
-    } catch (error) {
-        if (error instanceof Deno.errors.AlreadyExists) {
-            console.log();
-            console.error(`Folder ${projectName} already exists.`);
-            console.log();
-            console.log('Delete the folder or choose another name.');
-            console.log();
-            Deno.exit(1);
-        } else {
-            throw error;
-        }
-    }
     await Deno.mkdir(sourcePath);
     await Deno.mkdir(buildPath);
     await Deno.mkdir(componentsPath);
 
-    // Create files
     Deno.writeTextFile(path.join(sourcePath, 'index.html'), indexFileContent());
     Deno.writeTextFile(path.join(sourcePath, 'about.md'), aboutFileContent());
     Deno.writeTextFile(path.join(componentsPath, 'header.html'), headerFileContent(projectName));
     Deno.writeTextFile(path.join(componentsPath, 'footer.html'), footerFileContent());
 
-    // Logging and next steps
+    console.log(`piko successfully created the folder /${projectName}`);
     console.log();
-    console.log(`piko successfully created the folder ${projectName}`);
-    console.log();
-    console.log(`1. Open the folder in your html editor.`);
-    console.log(`2. Start a terminal and move to the folder.`);
+    console.log(`1. Open /${projectName} in your html editor.`);
+    console.log(`2. Start a terminal in /${projectName}.`);
     console.log('3. Run the command "piko dev" in the terminal.');
     console.log();
     console.log('Happy html writing!');
     console.log();
+}
+
+function exitWithError(messages, error) {
+    if (typeof messages === 'string') {
+        console.log(messages);
+        console.log();
+    } else {
+        for (const message of messages) {
+            console.log(message);
+            console.log();
+        }
+    }
+
+    if (error) {
+        console.log(error);
+    }
+
+    Deno.exit(1);
 }
 
 const indexFileContent = () => `<!-- header.html -->

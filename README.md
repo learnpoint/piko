@@ -135,6 +135,27 @@ Components can be included in markdown pages:
 
 Note that components cannot be written in markdown. They must be written in html.
 
+## Static web server
+
+Piko has a build in static web server that can be used on its own.
+
+The server can be started in any folder:
+
+```bash
+$ piko serve
+```
+
+## Copy github repos
+
+Piko has a build in tool for copying github template repos. It downloads the files from a github repo to your machine, excluding files like ```LICENSE```, ```CNAME``` and ```README.md```. It will also not download the ```.git``` database.
+
+Copy github repo ```learnpoint/draft``` into a new folder named ```experiment```:
+
+```bash
+$ piko copy learnpoint/draft experiment
+```
+
+
 ## Contributing
 
 Piko is written with our own specific use cases at [Learnpoint](https://github.com/learnpoint) in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written Piko for fun and for our own use.

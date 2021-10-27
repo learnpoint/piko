@@ -13,7 +13,7 @@ If your site has one single html page, you don't need Piko. But if it has severa
 ## Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.26/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.27/piko.js
 ```
 
 Verify installation:
@@ -21,7 +21,7 @@ Verify installation:
 ```bash
 $ piko -v
 
-piko 0.9.26
+piko 0.9.27
 ```
 
 ## Upgrading

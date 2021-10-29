@@ -89,7 +89,7 @@ Piko components are files with html markup. They can be included in pages.
 
 Components are located in the ```src/components``` folder.
 
-Include a component using html comment syntax:
+Use html comment syntax to include a component in a page:
 
 ```html
 <!-- header.html -->
@@ -99,7 +99,7 @@ Include a component using html comment syntax:
 <!-- footer.html -->
 ```
 
-Pass props to a component using JavaScript object syntax:
+Use JavaScript object syntax to pass props to a component:
 
 ```html
 <!-- header.html, { title: "Welcome" } -->
@@ -109,7 +109,7 @@ Pass props to a component using JavaScript object syntax:
 <!-- footer.html -->
 ```
 
-Inside a component, render props with ```{{ prop }}``` syntax:
+Use ```{{ prop }}``` syntax inside a component to render props:
 
 ```html
 <title>{{ title }}</title>
@@ -139,7 +139,7 @@ Note that components must be written in html. Markdown is only supported in page
 
 Piko has a very fast static web server that can be used on its own. It's completely cache-less and has build-in browser reload.
 
-You can start the server from any folder:
+The server can be started from any folder:
 
 ```bash
 $ piko serve

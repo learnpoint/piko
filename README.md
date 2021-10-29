@@ -123,17 +123,17 @@ You can provide a default prop value with ```||``` syntax:
 
 ## Using markdown
 
-Pages can be written in markdown. You can include components in markdown pages:
+Pages can be written in markdown. Components can be included in markdown pages:
 
 ```md
-<!-- header.html, { title: "Welcome"} -->
+<!-- header.html, { title: "Welcome" } -->
 
 # Welcome
 
 <!-- footer.html -->
 ```
 
-Note that components must be written in html. Markdown is only supported in pages.
+***NOTE:*** Components must be written in html. Markdown is only supported in pages.
 
 ## Static web server
 

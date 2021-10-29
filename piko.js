@@ -63,9 +63,6 @@ function printUsage() {
     console.log('Copy github repo:');
     console.log('  piko copy [owner/repo] [name]');
     console.log();
-    console.log('Create new html sketch:');
-    console.log('  piko sketch [name]');
-    console.log();
     console.log('Start dev server:');
     console.log('  piko dev');
     console.log();

@@ -1,5 +1,7 @@
 export async function listenAndServe(httpHandler, webSocketHandler) {
-    const listener = createListener([3333, 4444, 5555, 6666, 7777, 8888, 9999]);
+    const PORT_CANDIDATES = [3333, 4444, 5555, 6666, 7777, 8888, 9999];
+
+    const listener = createListener(PORT_CANDIDATES);
 
     console.log();
     console.log(`%cServer started at http://127.0.0.1:${listener.addr.port}/`, 'color:#4f4;');

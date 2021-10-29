@@ -1,5 +1,7 @@
 import { path, decode } from "./deps.js";
 
+const EXCLUDE_FILES = ['LICENSE', 'CNAME', 'README.md', 'CODE_OF_CONDUCT.md', 'CONTRIBUTING.md', 'SECURITY.md', '.gitignore', '.gitattributes'];
+
 const state = {
     projectName: null,
     githubPath: null,
@@ -7,8 +9,6 @@ const state = {
         return path.join(Deno.cwd(), this.projectName);
     }
 }
-
-const EXCLUDE_FILES = ['LICENSE', 'CNAME', 'README.md', 'CODE_OF_CONDUCT.md', 'CONTRIBUTING.md', 'SECURITY.md', '.gitignore', '.gitattributes'];
 
 export async function copy(githubPath, projectname) {
     console.log();

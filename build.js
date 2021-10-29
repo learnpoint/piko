@@ -1,5 +1,5 @@
 import { path, marked } from "./deps.js";
-import { exists } from "./exists.js";
+import { exists } from "./utils/exists.js";
 
 const markdown = marked.default;
 markdown.setOptions({

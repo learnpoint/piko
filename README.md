@@ -1,69 +1,71 @@
 <img src="piko.svg" height="24px">
 
-_A minimal toolkit for html writing_
+_Piko is a minimal toolkit for html writing._
 
-We use Piko at [Learnpoint](https://github.com/learnpoint) for writing static html sites. Piko is not a frontend framework or a fancy site generator. Rather, it's the smallest step up possible from writing all html completely by hand.
+Piko is not a frontend framework or fancy site generator. Instead, Piko is the smallest step up possible from writing html completely by hand.
 
-If your site has one single html page, you don't need Piko. But if it has several pages, keeping the ```head``` tag up to date can become error prone and annoying. Piko lets you extract the ```head``` tag into a separate component that can be included and reused on multiple pages.
+You don't need Piko if your site has a single html page. But if your site has more than one page, keeping the ```head``` tag synchronized between all pages can become annoying and error prone. Piko lets you extract the ```head``` tag into a separate file that can be reused and included on any page.
+
+Piko also has a fast static web server with browser reload, and a tool for copying github template repos.
 
 ## Requirements
 
-[Deno](https://deno.land/manual/getting_started/installation) version ```1.15.3``` is required to use Piko.
+- [Install Deno](https://deno.land/manual/getting_started/installation) v1.15.3 on your computer.
 
-## Installation
+## Install Piko
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.27/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.28/piko.js
 ```
 
-Verify installation:
+Verify the installation:
 
 ```bash
 $ piko -v
 
-piko 0.9.27
+piko 0.9.28
 ```
 
-## Upgrading
+## Upgrade Piko
 
 ```bash
 $ piko upgrade
 ```
 
-If you encounter any problems during upgrading, the easiest solution is to install Piko from scratch:
+If you encounter any problems during the upgrade, the easiest way out is to install Piko from scratch:
 
-1. Make sure you have the required Deno version installed (see section **Requirements** above).
-2. Delete the Piko binaries (one or two files, depending on operating system). Binaries are located here:
+1. Make sure you have the required version of Deno installed (see **Requirements** above).
+2. Delete the Piko binaries (one or two files, depending on operating system). The binaries are located here:
     - Windows: ```%USERPROFILE%\.deno\bin```
     - Mac: ```$HOME/.deno/bin```
-3. Install Piko (see section **Installation** above).
+3. Install Piko from scratch (see **Installation** above).
 
 ## Getting started
 
 1. Create a new site:
 
     ```bash
-    $ piko create my-site
+    $ piko create new-site
     ```
 2. Start the dev server:
 
     ```bash
-    $ cd my-site
+    $ cd new-site
     $ piko dev
     ```
 
 3. Verify that your site is running at ```http://127.0.0.1:3333```
 
-4. Make a change to ```src/index.html``` and save the file. The dev server will rebuild your site and reload your browser.
+4. Edit the file ```new-site/src/index.html``` and save. The dev server should rebuild your site and reload the browser.
 
 5. Stop the dev server using ```Ctrl+C```.
 
-6. Deploy the ```docs``` folder to your web host.
+6. When done, deploy the ```docs``` folder to a static web host.
 
 ## Understanding the Piko folder structure
 
 ```
-my-site
+new-site
  ├── docs
  |    ├── about.html
  |    └── index.html
@@ -75,19 +77,19 @@ my-site
       └── index.html
 ```
 
-- The **```docs```** folder contains your build (compiled) site. This is the folder you would deploy to a web host. Avoid making manual edits in this folder. Let Piko manage its content.
+- The **```docs```** folder contains your compiled site. This folder can be deployed to a static web host like Netlify or GitHub Pages. Don't edit the files in this folder. Let Piko manage its content.
 
 - The **```src```** folder is where you do your html writing.
 
 - The **```src/components```** folder contains components that can be included in pages.
 
-## Using components
+## Understanding Piko components
 
-A Piko component is just a file with some html markup. A component file can be included in any page.
+Piko components are files with html markup. They can be included in pages.
 
-Place all your components in the ```src/components``` folder.
+Components are located in the ```src/components``` folder.
 
-Include a component on a page using ```<!--  -->``` syntax:
+Include a component using html comment syntax:
 
 ```html
 <!-- header.html -->
@@ -97,7 +99,7 @@ Include a component on a page using ```<!--  -->``` syntax:
 <!-- footer.html -->
 ```
 
-You can pass props to a component using a JavaScript object:
+Pass props to a component using JavaScript object syntax:
 
 ```html
 <!-- header.html, { title: "Welcome" } -->
@@ -107,13 +109,13 @@ You can pass props to a component using a JavaScript object:
 <!-- footer.html -->
 ```
 
-Inside a component, you can access passed props with ```{{ prop }}``` syntax:
+Inside a component, render props with ```{{ prop }}``` syntax:
 
 ```html
 <title>{{ title }}</title>
 ```
 
-You can provide a default value with ```||``` syntax:
+You can provide a default prop value with ```||``` syntax:
 
 ```html
 <title>{{ title || Home }}</title>
@@ -121,9 +123,7 @@ You can provide a default value with ```||``` syntax:
 
 ## Using markdown
 
-You can write your pages in markdown.
-
-Components can be included in markdown pages:
+Pages can be written in markdown. You can include components in markdown pages:
 
 ```md
 <!-- header.html, { title: "Welcome"} -->
@@ -133,31 +133,31 @@ Components can be included in markdown pages:
 <!-- footer.html -->
 ```
 
-Note that components cannot be written in markdown. They must be written in html.
+Note that components must be written in html. Markdown is only supported in pages.
 
 ## Static web server
 
-Piko has a build in static web server that can be used on its own.
+Piko has a very fast static web server that can be used on its own. It's completely cache-less and has build-in browser reload.
 
-The server can be started in any folder:
+You can start the server from any folder:
 
 ```bash
 $ piko serve
 ```
 
-## Copy github repos
+## Copy github template repositories
 
-Piko has a build in tool for copying github template repos. It downloads the files from a github repo to your machine, excluding files like ```LICENSE```, ```CNAME``` and ```README.md```. It will also not download the ```.git``` database.
+Piko has a tool for copying github repos. It downloads the files from a repo to your local computer, excluding files like ```LICENSE```, ```CNAME```, ```README.md```, ```.gitignore```, etc. It doesn't download the ```.git``` database, just the files in the latest commited tree.
 
-Copy github repo ```learnpoint/draft``` into a new folder named ```experiment```:
+Here's how to copy the github repo ```learnpoint/draft``` into a new folder named ```gradebook-idea```:
 
 ```bash
-$ piko copy learnpoint/draft experiment
+$ piko copy learnpoint/draft gradebook-idea
 ```
 
 
 ## Contributing
 
-Piko is written with our own specific use cases at [Learnpoint](https://github.com/learnpoint) in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written Piko for fun and for our own use.
+Piko is written with our specific use cases at [Learnpoint](https://github.com/learnpoint) in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written Piko for fun and for our own use.
 
 That said, feel free to [create your own fork](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo), or use Piko in any way you wish! ❤️

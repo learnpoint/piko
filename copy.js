@@ -8,7 +8,7 @@ const state = {
     }
 }
 
-const EXCLUDE_FILES = ['LICENSE', 'README.md', 'CNAME'];
+const EXCLUDE_FILES = ['LICENSE', 'CNAME', 'README.md', 'CODE_OF_CONDUCT.md', 'CONTRIBUTING.md', 'SECURITY.md', '.gitignore', '.gitattributes'];
 
 export async function copy(githubPath, projectname) {
     console.log();
@@ -66,21 +66,24 @@ async function copyGithubRepoOrExit() {
             if (EXCLUDE_FILES.includes(node.path)) {
                 continue;
             }
-            await downloadGithubBlobOrExit(path.join(state.projectPath, node.path), node.url, node.type);
+            await downloadGithubBlobOrExit(path.join(state.projectPath, node.path), node);
         }
+        console.log();
     } catch (err) {
         exitWithError(`Error when copying ${state.githubPath}`);
     }
 }
 
-async function downloadGithubBlobOrExit(path, url, type) {
+async function downloadGithubBlobOrExit(path, node) {
     try {
-        if (type !== 'blob') {
+        if (node.type !== 'blob') {
             Deno.mkdir(path);
             return;
         }
 
-        const blobResponse = await fetch(url);
+        console.log(`Downloading ${node.path}`);
+
+        const blobResponse = await fetch(node.url);
         const blobData = await blobResponse.json();
         ensureGithubResponseOrExit(blobResponse, blobData);
 

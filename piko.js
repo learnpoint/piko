@@ -3,7 +3,6 @@
 import { dev } from "./dev.js";
 import { create } from "./create.js";
 import { copy } from "./copy.js";
-import { sketch } from "./sketch.js";
 import { serve } from "./serve.js";
 import { build } from "./build.js";
 import { upgrade } from "./upgrade.js";
@@ -25,9 +24,6 @@ switch (command) {
         break;
     case 'copy':
         copy(Deno.args[1], Deno.args[2]);
-        break;
-    case 'sketch':
-        sketch(Deno.args[1]);
         break;
     case 'serve':
         serve();

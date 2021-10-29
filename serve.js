@@ -1,6 +1,6 @@
-import { exists } from "./exists.js";
-import { listenAndServe } from "./listen_and_serve.js";
-import { Status, STATUS_TEXT } from "./http_status.js";
+import { exists } from "./utils/exists.js";
+import { listenAndServe } from "./utils/listen_and_serve.js";
+import { Status, STATUS_TEXT } from "./utils/http_status.js";
 import { path } from "./deps.js";
 
 const RELOAD_DEBOUNCE_WAIT = 50;

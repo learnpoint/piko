@@ -38,7 +38,7 @@ If you encounter any problems during the upgrade, the easiest way out is to inst
 2. Delete the Piko binaries (one or two files, depending on operating system). The binaries are located here:
     - Windows: ```%USERPROFILE%\.deno\bin```
     - Mac: ```$HOME/.deno/bin```
-3. Install Piko from scratch (see **Installation** above).
+3. Install Piko from scratch (see **Install Piko** above).
 
 ## Getting started
 

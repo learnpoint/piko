@@ -15,7 +15,7 @@ Piko also has a fast static web server with browser reload, and a tool for copyi
 ## Install Piko
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.30/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.31/piko.js
 ```
 
 Verify the installation:
@@ -23,7 +23,7 @@ Verify the installation:
 ```bash
 $ piko -v
 
-piko 0.9.30
+piko 0.9.31
 ```
 
 ## Upgrade Piko

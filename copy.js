@@ -38,13 +38,13 @@ export async function copy(githubPath, newFolderName) {
 
 function ensureGithubPathOrExit(githubPath) {
     if (!githubPath) {
-        exitWithError('Missing github path.', null, false);
+        exitWithError('Missing github path.');
     }
 
     const pathParts = githubPath.split('/');
 
     if (!pathParts.length === 2) {
-        exitWithError('Unvalid github path. Must have format {owner}/{repo}.', null, false);
+        exitWithError('Unvalid github path. Must have format {owner}/{repo}.');
     }
 }
 
@@ -53,25 +53,15 @@ async function createFolderOrExit(folderPath) {
         await Deno.mkdir(folderPath);
     } catch (err) {
         if (err instanceof Deno.errors.AlreadyExists) {
-            exitWithError([`Folder ${folderPath} already exists.`, 'Delete the folder or choose another name.'], null, false);
+            exitWithError([`Folder ${folderPath} already exists.`, 'Delete the folder or choose another name.']);
         } else {
-            exitWithError('Unexpected error.', err, false);
+            exitWithError('Unexpected error.', err);
         }
     }
 }
 
 function getRepoNameFromGithubPath(githubPath) {
-    if (!githubPath) {
-        exitWithError('Missing github path.', null, false);
-    }
-
-    const pathParts = githubPath.split('/');
-
-    if (!pathParts.length === 2) {
-        exitWithError('Unvalid github path. Must have format {owner}/{repo}.', null, false);
-    }
-
-    return pathParts[1];
+    return githubPath.split('/')[1];
 }
 
 async function copyGithubRepoOrExit() {

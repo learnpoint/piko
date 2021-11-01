@@ -3,29 +3,32 @@ import { path, decode } from "./deps.js";
 const EXCLUDE_FILES = ['LICENSE', 'CNAME', 'README.md', 'CODE_OF_CONDUCT.md', 'CONTRIBUTING.md', 'SECURITY.md', '.gitignore', '.gitattributes'];
 
 const state = {
-    projectName: null,
     githubPath: null,
-    get projectPath() {
-        return path.join(Deno.cwd(), this.projectName);
-    }
+    downloadPath: null,
+    downloadFolderName: null,
+    deleteDownloadPathOnExitWithError: false
 }
 
-export async function copy(githubPath, projectname) {
+export async function copy(githubPath, newFolderName) {
     console.log();
 
-    const githubRepoName = getRepoNameFromGithubPathOrExit(githubPath);
-
-    state.projectName = projectname || githubRepoName;
+    ensureGithubPathOrExit(githubPath);
     state.githubPath = githubPath;
 
-    try {
-        await Deno.mkdir(state.projectPath);
-    } catch (err) {
-        if (err instanceof Deno.errors.AlreadyExists) {
-            exitWithError([`Folder ${state.projectName} already exists.`, 'Delete the folder or choose another name.'], null, false);
-        } else {
-            exitWithError('Unexpected error.', err, false);
-        }
+    if (!newFolderName) {
+        const githubRepoName = getRepoNameFromGithubPath(state.githubPath);
+        state.downloadPath = path.join(Deno.cwd(), githubRepoName);
+        createFolderOrExit(state.downloadPath);
+        state.deleteDownloadPathOnExitWithError = true;
+        state.downloadFolderName = githubRepoName;
+    } else if (newFolderName === '.') {
+        state.downloadPath = Deno.cwd();
+        state.downloadFolderName = 'current folder';
+    } else {
+        state.downloadPath = path.join(Deno.cwd(), newFolderName);
+        createFolderOrExit(state.downloadPath);
+        state.deleteDownloadPathOnExitWithError = true;
+        state.downloadFolderName = newFolderName;
     }
 
     await copyGithubRepoOrExit();
@@ -33,7 +36,31 @@ export async function copy(githubPath, projectname) {
     writeSuccess();
 }
 
-function getRepoNameFromGithubPathOrExit(githubPath) {
+function ensureGithubPathOrExit(githubPath) {
+    if (!githubPath) {
+        exitWithError('Missing github path.', null, false);
+    }
+
+    const pathParts = githubPath.split('/');
+
+    if (!pathParts.length === 2) {
+        exitWithError('Unvalid github path. Must have format {owner}/{repo}.', null, false);
+    }
+}
+
+async function createFolderOrExit(folderPath) {
+    try {
+        await Deno.mkdir(folderPath);
+    } catch (err) {
+        if (err instanceof Deno.errors.AlreadyExists) {
+            exitWithError([`Folder ${folderPath} already exists.`, 'Delete the folder or choose another name.'], null, false);
+        } else {
+            exitWithError('Unexpected error.', err, false);
+        }
+    }
+}
+
+function getRepoNameFromGithubPath(githubPath) {
     if (!githubPath) {
         exitWithError('Missing github path.', null, false);
     }
@@ -66,7 +93,7 @@ async function copyGithubRepoOrExit() {
             if (EXCLUDE_FILES.includes(node.path)) {
                 continue;
             }
-            await downloadGithubBlobOrExit(path.join(state.projectPath, node.path), node);
+            await downloadGithubBlobOrExit(path.join(state.downloadPath, node.path), node);
         }
         console.log();
     } catch (err) {
@@ -89,7 +116,7 @@ async function downloadGithubBlobOrExit(path, node) {
 
         await Deno.writeFile(path, decode(blobData.content));
     } catch (err) {
-        exitWithError([`Created folder ${projectName}`, `Error when copying ${githubTemplatePath}`]);
+        exitWithError(`Error when downloading ${node.path} from github.`);
     }
 }
 
@@ -100,7 +127,7 @@ function ensureGithubResponseOrExit(res, data) {
     }
 }
 
-function exitWithError(messages, error, clean = true) {
+function exitWithError(messages, error) {
     if (typeof messages === 'string') {
         console.log(messages);
         console.log();
@@ -115,11 +142,11 @@ function exitWithError(messages, error, clean = true) {
         console.log(error);
     }
 
-    if (clean) {
+    if (state.deleteDownloadPathOnExitWithError) {
         try {
-            Deno.remove(state.projectPath, { recursive: true });
+            Deno.remove(state.downloadPath, { recursive: true });
         } catch (err) {
-            // Write that folder was created?
+            // Created folder could not be removed.
         }
     }
 
@@ -127,6 +154,6 @@ function exitWithError(messages, error, clean = true) {
 }
 
 function writeSuccess() {
-    console.log(`Copied repo ${state.githubPath} into ${state.projectName}.`);
+    console.log(`Successfully copied ${state.githubPath} into ${state.downloadFolderName}`);
     console.log();
 }

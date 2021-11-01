@@ -53,26 +53,29 @@ function printVersion() {
 
 function printUsage() {
     console.log(`piko ${version}`);
-    console.log('A minimal toolkit for html writing');
+    console.log('A minimal toolkit for html writing.');
     console.log();
     console.log(`Docs: https://github.com/learnpoint/piko`);
     console.log();
     console.log('Create new site:');
     console.log('  piko create [name]');
     console.log();
-    console.log('Copy github repo:');
-    console.log('  piko copy [owner/repo] [name]');
-    console.log();
     console.log('Start dev server:');
     console.log('  piko dev');
     console.log();
-    console.log('Start web server:')
+    console.log('Start static web server:')
     console.log('  piko serve');
+    console.log();
+    console.log('Copy github repo:');
+    console.log('  piko copy [owner/repo] [name]');
     console.log();
     console.log('Build site:');
     console.log('  piko build');
     console.log();
     console.log('Upgrade:');
     console.log('  piko upgrade');
+    console.log();
+    console.log('Print installed version of Piko:');
+    console.log('  piko version');
     console.log();
 }

@@ -3,7 +3,7 @@ import { listenAndServe } from "./utils/listen_and_serve.js";
 import { Status, STATUS_TEXT } from "./utils/http_status.js";
 import { path } from "./deps.js";
 
-const RELOAD_DEBOUNCE_WAIT = 50;
+const RELOAD_DEBOUNCE_WAIT = 10;
 
 const server = {
     root: null,
@@ -38,7 +38,7 @@ async function httpHandler(req) {
         try {
             const pathInfo = await Deno.stat(filePath);
             if (pathInfo.isDirectory) {
-                return redirect(req, pathname(req) + "/");
+                return redirect(req, pathname(req) + "/" + searchString(req));
             }
         } catch { }
 
@@ -134,7 +134,7 @@ async function notFound(req) {
     let content;
 
     try {
-        content = await Deno.readTextFile(path.join(serverRoot, '404.html'));
+        content = await Deno.readTextFile(path.join(server.root, '404.html'));
         content = content.replace("</body>", `${browserReloadScript}</body>`);
     } catch {
         content = 'Not Found';
@@ -173,6 +173,10 @@ function getFilePath(req) {
 
 function pathname(req) {
     return new URL(req.url).pathname;
+}
+
+function searchString(req) {
+    return new URL(req.url).search;
 }
 
 const mimeType = {

@@ -55,6 +55,13 @@ $ piko copy <OWNER/REPO> [FOLDER_NAME]
 
 > Name of folder ...
 
+## serve
+
+Start server in current folder:
+```bash
+$ piko serve
+```
+
 
 # Getting started
 

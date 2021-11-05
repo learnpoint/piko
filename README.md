@@ -42,7 +42,7 @@ If you encounter any problems when upgrading, the easiest way out is to install 
 
 
 
-# CLI Usage
+# CLI Manual
 
 Piko is a CLI with a minimal collection of commands.
 
@@ -96,13 +96,13 @@ Start a static web server in current folder:
 $ piko serve
 ```
 
-> The ```piko serve``` command will start a very fast static web server in the current folder. The server will automatically reload the browser(s) upon file changes.
+> The ```piko serve``` command will start a fast static web server in the current folder. The server will automatically reload the browser(s) upon file changes.
 >
-> The server is 100% non-cached. It will never ask the client to cache any resources whatsoever. This is great during html writing. When you need to test your caching logic, you should use another tool.
+> The server is completely non-cached. It will never ask the client to cache any resources. If you what to test your http caching logic, you should use another server.
 > 
-> Any request to a folder will be redirected to the file ```index.html```.
+> Requests to folders will be redirected to ```/index.html```.
 >
-> Any request to a file or folder that doesn't exist, will get the reponse 404. If there's a file named ```404.html``` in the root folder, the reponse body will populated with the contents of that file.
+> Requests to non-existing files or folders will recieve a 404 response. If there's a file named ```404.html``` in the root folder (the folder where ```piko serve``` was started), the reponse body will be populated with the contents of that file.
 
 
 

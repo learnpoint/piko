@@ -56,7 +56,7 @@ $ piko copy <OWNER/REPO> [FOLDER_NAME]
 
 **Description**
 
-> The ```piko copy``` command is somewhat similar to ```git clone```, except it only downloads the latest commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you have a github repo as a template for your html writing.
+> The ```piko copy``` command is somewhat similar to ```git clone```, except it only downloads the latest commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you want to use a github repo as a template for your html writing.
 
 **```<OWNER/REPO>```** _required_
 
@@ -112,11 +112,33 @@ $ piko serve
 
 ## ```build```
 
-Build to docs folder:
+Find all pages in the ```src``` folder, stitch them together with components in the ```src/components``` folder and output the result in the ```docs``` folder:
+
 ```bash
 $ piko build
 ```
 
+**Description**
+
+> The ```piko build``` command will copy all files from the ```src``` folder, stitch them together with the files in ```src/components``` folder, and output the result in the ```docs``` folder.
+>
+> You should typically not use the ```piko build``` command. When using Piko components in your html writing, your should instead use the ```piko dev``` command.
+>
+> For more information about pages and components, see _Piko Components_ below.
+
+
+
+## ```dev```
+
+Continuously run the ```piko build``` command on file changes and also start the ```piko serve``` server in the folder ```docs```:
+
+```bash
+piko dev
+```
+
+**Description**
+
+> Hey
 
 
 # Getting started

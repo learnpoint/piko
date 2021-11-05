@@ -4,9 +4,11 @@ _A minimal CLI toolkit for html writing._
 
 
 
+
 # Requirements
 
 - [Deno](https://deno.land/manual/getting_started/installation) v1.15.3 or later.
+
 
 
 
@@ -26,6 +28,7 @@ piko 0.9.34
 
 
 
+
 # Upgrading
 
 ```bash
@@ -42,9 +45,12 @@ If you encounter any problems when upgrading, the easiest way out is to install 
 
 
 
-# CLI Manual
+
+# CLI Reference
 
 Piko is a CLI with a small collection of commands.
+
+
 
 
 ## ```copy```
@@ -91,6 +97,8 @@ $ piko copy <OWNER/REPO> [FOLDER_NAME]
 > ```
 
 
+
+
 ## ```serve```
 
 Start a static web server in current folder:
@@ -112,6 +120,7 @@ $ piko serve
 
 
 
+
 ## ```build```
 
 Find all pages in the ```src``` folder, stitch them together with components in the ```src/components``` folder and output the result in the ```docs``` folder:
@@ -130,6 +139,7 @@ $ piko build
 
 
 
+
 ## ```dev```
 
 Continuously run the ```piko build``` command in the current folder, and start ```piko serve``` in the folder ```docs```:
@@ -141,6 +151,8 @@ piko dev
 **Description**
 
 > The ```piko dev``` command will run ```piko build``` and ```piko serve``` together at the same time.
+
+
 
 
 ## ```create```
@@ -166,6 +178,40 @@ $ piko crate <FOLDER_NAME>
 ```bash
 $ piko create test
 ```
+
+
+
+
+## ```upgrade```
+
+Upgrade Piko:
+
+```bash
+$ piko upgrade
+```
+
+
+
+
+## ```version```
+
+Show currently installed version of Piko:
+
+```bash
+$ piko version
+```
+
+
+
+## ```help```
+
+Show CLI Usage information:
+
+```bash
+$ piko help
+```
+
+
 
 
 # Getting started

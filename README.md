@@ -1,14 +1,16 @@
-<img src="piko.svg" height="32px">
+<img src="piko.svg" height="24px">
 
 _A minimal CLI toolkit for html writing._
 
 
-# Requirements
+
+## Requirements
 
 - [Deno](https://deno.land/manual/getting_started/installation) v1.15.3 or later.
 
 
-# Installation
+
+## Installation
 
 ```bash
 $ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.34/piko.js
@@ -23,7 +25,8 @@ piko 0.9.34
 ```
 
 
-# Upgrading
+
+## Upgrading
 
 ```bash
 $ piko upgrade
@@ -38,22 +41,24 @@ If you encounter any problems when upgrading, the easiest way out is to install 
 3. Install Piko from scratch (see _Installation_ above).
 
 
-# Commands
+
+## Commands
 
 Piko is a CLI with a small collection of commands.
 
-## ```copy```
+
+### ```copy```
 
 Copy a github repo to your computer:
 ```bash
 $ piko copy <OWNER/REPO> [FOLDER_NAME]
 ```
 
-**```OWNER/REPO```** _required_
+**```<OWNER/REPO>```** _required_
 
 > Path to github repository.
 
-**```FOLDER_NAME```** _optional_
+**```[FOLDER_NAME]```** _optional_
 
 > Name of folder that Piko should create and copy repo files into.
 >
@@ -61,7 +66,7 @@ $ piko copy <OWNER/REPO> [FOLDER_NAME]
 >
 > If value is ```.``` then Piko will not create a new folder, but instead copy the repo files into current folder.
 
-**Examples**
+***Examples***
 
 Create the folder ```test``` and copy the files from ```https://github.com/ekmwest/empty``` into that folder:
 
@@ -82,8 +87,7 @@ $ piko copy ekmwest/empty .
 ```
 
 
-
-## ```serve```
+### ```serve```
 
 Start server in current folder:
 ```bash
@@ -99,7 +103,7 @@ $ piko build
 
 
 
-# Getting started
+## Getting started
 
 1. Create a new site:
 
@@ -121,7 +125,9 @@ $ piko build
 
 6. When done, deploy the ```docs``` folder to a static web host.
 
-# Understanding the Piko folder structure
+
+
+## Understanding the Piko folder structure
 
 ```
 new-site

@@ -151,13 +151,15 @@ piko dev
 **Description**
 
 > The ```piko dev``` command will run ```piko build``` and ```piko serve``` together at the same time.
+>
+> For more information about pages and components, see _Piko Components_ below.
 
 
 
 
 ## ```create```
 
-Create an example folder with some pages and Piko components:
+Create a folder with example pages and Piko components:
 
 ```bash
 $ piko crate <FOLDER_NAME>
@@ -165,7 +167,7 @@ $ piko crate <FOLDER_NAME>
 
 **Description**
 
-> The ```piko create``` command should be used a will crate a folder with some example pages and Piko components.
+> The ```piko create``` command will create a new folder with some example pages and some example Piko components.
 
 **```<FOLDER_NAME>```** _required_
 
@@ -190,6 +192,9 @@ Upgrade Piko:
 $ piko upgrade
 ```
 
+**Description**
+
+> The ```piko upgrade``` command will upgrade your local installation of Piko. It will also indicate the recommended version of Deno. If you have the latest version of Piko and Deno installed, this command will do nothing.
 
 
 
@@ -205,11 +210,14 @@ $ piko version
 
 ## ```help```
 
-Show CLI Usage information:
+Display the CLI Reference:
 
 ```bash
 $ piko help
 ```
+
+
+# Piko Components
 
 
 

@@ -1,24 +1,20 @@
-<img src="piko.svg" height="24px">
+<img src="piko.svg" height="32px">
 
-_Piko is a minimal toolkit for html writing._
+_A minimal CLI toolkit for html writing._
 
-Piko is not a frontend framework or fancy site generator. Instead, Piko is the smallest step up possible from writing html completely by hand.
 
-You don't need Piko if your site has a single html page. But if your site has more than one page, keeping the ```head``` tag synchronized between all pages can become annoying and error prone. Piko lets you extract the ```head``` tag into a separate file that can be reused and included on any page.
+# Requirements
 
-Piko also has a fast static web server with browser reload, and a tool for copying github template repos.
+- [Deno](https://deno.land/manual/getting_started/installation) v1.15.3 or later.
 
-## Requirements
 
-- [Install Deno](https://deno.land/manual/getting_started/installation) v1.15.3 on your computer.
-
-## Install Piko
+# Installation
 
 ```bash
 $ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.34/piko.js
 ```
 
-Verify the installation:
+Verify installation:
 
 ```bash
 $ piko -v
@@ -26,21 +22,41 @@ $ piko -v
 piko 0.9.34
 ```
 
-## Upgrade Piko
+
+# Upgrading
 
 ```bash
 $ piko upgrade
 ```
 
-If you encounter any problems during the upgrade, the easiest way out is to install Piko from scratch:
+If you encounter any problems when upgrading, the easiest way out is to install Piko from scratch:
 
-1. Make sure you have the required version of Deno installed (see **Requirements** above).
-2. Delete the Piko binaries (one or two files, depending on operating system). The binaries are located here:
+1. Make sure you have the required version of Deno installed (see _Requirements_ above).
+2. Delete the Piko binaries (there are one or two files, depending on operating system). The binaries are located here:
     - Windows: ```%USERPROFILE%\.deno\bin```
     - Mac: ```$HOME/.deno/bin```
-3. Install Piko from scratch (see **Install Piko** above).
+3. Install Piko from scratch (see _Installation_ above).
 
-## Getting started
+
+# Commands
+
+### copy
+
+Copy a github repository to your computer:
+```bash
+$ piko copy <OWNER/REPO> [FOLDER_NAME]
+```
+
+**```OWNER/REPO```** required
+
+> Path to github repository to copy.
+
+**```FOLDER_NAME```** optional
+
+> Name of folder ...
+
+
+# Getting started
 
 1. Create a new site:
 
@@ -62,7 +78,7 @@ If you encounter any problems during the upgrade, the easiest way out is to inst
 
 6. When done, deploy the ```docs``` folder to a static web host.
 
-## Understanding the Piko folder structure
+# Understanding the Piko folder structure
 
 ```
 new-site
@@ -83,7 +99,7 @@ new-site
 
 - The **```src/components```** folder contains components that can be included in pages.
 
-## Understanding Piko components
+# Understanding Piko components
 
 Piko components are files with html markup. They can be included in pages.
 
@@ -121,7 +137,8 @@ You can provide a default prop value with ```||``` syntax:
 <title>{{ title || Home }}</title>
 ```
 
-## Using markdown
+
+# Using markdown
 
 Pages can be written in markdown. Components can be included in markdown pages:
 
@@ -135,7 +152,8 @@ Pages can be written in markdown. Components can be included in markdown pages:
 
 ***NOTE:*** Components must be written in html. Markdown is only supported in pages.
 
-## Static web server
+
+# Static web server
 
 Piko has a very fast static web server that can be used on its own. It's completely cache-less and has build-in browser reload.
 
@@ -145,7 +163,8 @@ The server can be started from any folder:
 $ piko serve
 ```
 
-## Copy github template repositories
+
+# Copy github template repositories
 
 Piko has a tool for copying github repos. It downloads the files from a repo to your local computer, excluding files like ```LICENSE```, ```CNAME```, ```README.md```, ```.gitignore```, etc. It doesn't download the ```.git``` database, just the files in the latest commited tree.
 
@@ -156,7 +175,7 @@ $ piko copy learnpoint/draft gradebook-idea
 ```
 
 
-## Contributing
+# Contributing
 
 Piko is written with our specific use cases at [Learnpoint](https://github.com/learnpoint) in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written Piko for fun and for our own use.
 

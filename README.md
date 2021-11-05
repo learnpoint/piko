@@ -1,3 +1,5 @@
+
+
 <img src="piko.svg" height="20px">
 
 _A minimal CLI toolkit for html writing._
@@ -100,7 +102,9 @@ The ```piko serve``` command will start a very fast static web server in the cur
 
 The server is 100% non-cached. It will never ask the client to cache any resources whatsoever. This is great during html writing. When you need to test your caching logic, you should use another tool.
 
-The server  
+Any request to a folder will be redirected to the file ```index.html```.
+
+Any request to a file or folder that doesn't exist, will get the reponse 404. If there's a file named ```404.html``` in the root folder, the reponse body will populated with the contents of that file.
 
 
 

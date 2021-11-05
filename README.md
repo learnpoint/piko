@@ -40,22 +40,50 @@ If you encounter any problems when upgrading, the easiest way out is to install 
 
 # Commands
 
-### copy
+Piko is a CLI with a small collection of commands.
 
-Copy a github repository to your computer:
+## ```copy```
+
+Copy a github repo to your computer:
 ```bash
 $ piko copy <OWNER/REPO> [FOLDER_NAME]
 ```
 
-**```OWNER/REPO```** required
+**```OWNER/REPO```** _required_
 
-> Path to github repository to copy.
+> Path to github repository.
 
-**```FOLDER_NAME```** optional
+**```FOLDER_NAME```** _optional_
 
-> Name of folder ...
+> Name of folder that Piko should create and copy repo files into.
+>
+> Default value is ```REPO``` (extracted from first argument).
+>
+> If value is ```.``` then Piko will not create a new folder, but instead copy the repo files into current folder.
 
-## serve
+**Examples**
+
+Create the folder ```test``` and copy the files from ```https://github.com/ekmwest/empty``` into that folder:
+
+```bash
+$ piko copy ekmwest/empty
+```
+
+Create the folder ```fake``` and copy the files from  ```https://github.com/ekmwest/empty``` into that folder:
+
+```bash
+$ piko copy ekmwest/empty fake
+```
+
+Copy the files from ```https://github.com/ekmwest/empty``` into the current folder:
+
+```bash
+$ piko copy ekmwest/empty .
+```
+
+
+
+## ```serve```
 
 Start server in current folder:
 ```bash

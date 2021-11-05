@@ -62,6 +62,14 @@ Start server in current folder:
 $ piko serve
 ```
 
+### ```build```
+
+Build to docs folder:
+```bash
+$ piko build
+```
+
+
 
 # Getting started
 

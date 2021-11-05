@@ -1,6 +1,4 @@
-
-
-<img src="piko.svg" height="20px">
+<img src="piko.svg" height="20px" style="margin-top:1em;">
 
 _A minimal CLI toolkit for html writing._
 

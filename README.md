@@ -208,6 +208,7 @@ $ piko version
 
 
 
+
 ## ```help```
 
 Display the CLI Reference:
@@ -217,39 +218,18 @@ $ piko help
 ```
 
 
+
+
 # Piko Components
 
+If you're writing a site with several pages, keeping the head tag synchronized between the pages is annoying and error prone. Piko let's you extract the head tag into a separate file that can be included on all the pages in your site.
 
+Piko components are not just for the head tag. They can be used to include any html fragment on a page.
 
-
-# Getting started
-
-1. Create a new site:
-
-    ```bash
-    $ piko create new-site
-    ```
-2. Start the dev server:
-
-    ```bash
-    $ cd new-site
-    $ piko dev
-    ```
-
-3. Verify that your site is running at ```http://127.0.0.1:3333```
-
-4. Edit the file ```new-site/src/index.html``` and save. The dev server should rebuild your site and reload the browser.
-
-5. Stop the dev server using ```Ctrl+C```.
-
-6. When done, deploy the ```docs``` folder to a static web host.
-
-
-
-# Understanding the Piko folder structure
+In order to use Piko components, your site needs to include the folders ```docs```, ```src```, and ```src/components```:
 
 ```
-new-site
+your-site
  ├── docs
  |    ├── about.html
  |    └── index.html
@@ -267,7 +247,7 @@ new-site
 
 - The **```src/components```** folder contains components that can be included in pages.
 
-# Understanding Piko components
+### Understanding Piko components
 
 Piko components are files with html markup. They can be included in pages.
 
@@ -306,7 +286,7 @@ You can provide a default prop value with ```||``` syntax:
 ```
 
 
-# Using markdown
+### Using markdown
 
 Pages can be written in markdown. Components can be included in markdown pages:
 
@@ -319,28 +299,6 @@ Pages can be written in markdown. Components can be included in markdown pages:
 ```
 
 ***NOTE:*** Components must be written in html. Markdown is only supported in pages.
-
-
-# Static web server
-
-Piko has a very fast static web server that can be used on its own. It's completely cache-less and has build-in browser reload.
-
-The server can be started from any folder:
-
-```bash
-$ piko serve
-```
-
-
-# Copy github template repositories
-
-Piko has a tool for copying github repos. It downloads the files from a repo to your local computer, excluding files like ```LICENSE```, ```CNAME```, ```README.md```, ```.gitignore```, etc. It doesn't download the ```.git``` database, just the files in the latest commited tree.
-
-Here's how to copy the github repo ```learnpoint/draft``` into a new folder named ```gradebook-idea```:
-
-```bash
-$ piko copy learnpoint/draft gradebook-idea
-```
 
 
 # Contributing

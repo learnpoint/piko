@@ -70,23 +70,23 @@ $ piko copy <OWNER/REPO> [FOLDER_NAME]
 
 ***Examples***
 
-Create the folder ```empty``` and copy the files from ```https://github.com/ekmwest/empty``` into that folder:
-
-```bash
-$ piko copy ekmwest/empty
-```
-
-Create the folder ```fake``` and copy the files from  ```https://github.com/ekmwest/empty``` into that folder:
-
-```bash
-$ piko copy ekmwest/empty fake
-```
-
-Copy the files from ```https://github.com/ekmwest/empty``` into the current folder:
-
-```bash
-$ piko copy ekmwest/empty .
-```
+> Create the folder ```empty``` and copy the files from ```https://github.com/ekmwest/empty``` into that folder:
+>
+> ```bash
+> $ piko copy ekmwest/empty
+> ```
+>
+> Create the folder ```fake``` and copy the files from  ```https://github.com/ekmwest/empty``` into that folder:
+>
+>```bash
+>$ piko copy ekmwest/empty fake
+>```
+>
+>Copy the files from ```https://github.com/ekmwest/empty``` into the current folder:
+>
+>```bash
+>$ piko copy ekmwest/empty .
+>```
 
 
 ## ```serve```

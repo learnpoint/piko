@@ -54,7 +54,9 @@ Copy a github repo to your computer:
 $ piko copy <OWNER/REPO> [FOLDER_NAME]
 ```
 
-> The ```piko copy``` command is somewhat similar to ```git clone```, except it only downloads the last commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you want to use a github repo as a template.
+**Description**
+
+> The ```piko copy``` command is somewhat similar to ```git clone```, except it only downloads the latest commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you have a github repo as a template for your html writing.
 
 **```<OWNER/REPO>```** _required_
 
@@ -95,6 +97,8 @@ Start a static web server in current folder:
 ```bash
 $ piko serve
 ```
+
+**Description**
 
 > The ```piko serve``` command will start a fast static web server in the current folder. The server will automatically reload the browser(s) upon file changes.
 >

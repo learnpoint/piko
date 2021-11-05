@@ -42,7 +42,7 @@ If you encounter any problems when upgrading, the easiest way out is to install 
 
 
 
-# API
+# CLI Usage
 
 Piko is a CLI with a small collection of commands.
 
@@ -54,7 +54,7 @@ Copy a github repo to your computer:
 $ piko copy <OWNER/REPO> [FOLDER_NAME]
 ```
 
-This command is somewhat similar to ```git clone```, except it only downloads the last commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you want to use a github repo as a template.
+The ```piko copy``` command is somewhat similar to ```git clone```, except it only downloads the last commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you want to use a github repo as a template.
 
 **```<OWNER/REPO>```** _required_
 
@@ -91,10 +91,18 @@ $ piko copy ekmwest/empty .
 
 ## ```serve```
 
-Start server in current folder:
+Start a static web server in current folder:
 ```bash
 $ piko serve
 ```
+
+The ```piko serve``` command will start a very fast static web server in the current folder. The server will automatically reload the browser(s) upon file changes.
+
+The server is 100% non-cached. It will never ask the client to cache any resources whatsoever. This is great during html writing. When you need to test your caching logic, you should use another tool.
+
+The server  
+
+
 
 ## ```build```
 

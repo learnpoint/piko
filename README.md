@@ -44,7 +44,7 @@ If you encounter any problems when upgrading, the easiest way out is to install 
 
 # CLI Manual
 
-Piko is a CLI with a minimal collection of commands.
+Piko is a CLI with a small collection of commands.
 
 
 ## ```copy```
@@ -100,9 +100,11 @@ $ piko serve
 
 **Description**
 
-> The ```piko serve``` command will start a fast static web server in the current folder. The server will automatically reload the browser(s) upon file changes.
+> The ```piko serve``` command will start a fast static web server in the current folder.
 >
-> The server is completely non-cached. It will never ask the client to cache any resources. If you what to test your http caching logic, you should use another server.
+> The server will automatically reload the browser(s) upon file changes.
+>
+> The server is completely non-cached. It never asks clients to cache resources. If you need to test http caching logic, you should use another server.
 > 
 > Requests to folders will be redirected to ```/index.html```.
 >
@@ -120,9 +122,9 @@ $ piko build
 
 **Description**
 
-> The ```piko build``` command will copy all files from the ```src``` folder, stitch them together with the files in ```src/components``` folder, and output the result in the ```docs``` folder.
+> The ```piko build``` command will copy the files from the ```src``` folder, stitch them together with the files in ```src/components``` folder, and output the result in the ```docs``` folder.
 >
-> You should typically not use the ```piko build``` command. When using Piko components in your html writing, your should instead use the ```piko dev``` command.
+> You should typically not use the ```piko build``` command. When using Piko, you should use the ```piko dev``` command instead.
 >
 > For more information about pages and components, see _Piko Components_ below.
 
@@ -130,7 +132,7 @@ $ piko build
 
 ## ```dev```
 
-Continuously run the ```piko build``` command on file changes and also start the ```piko serve``` server in the folder ```docs```:
+Continuously run the ```piko build``` command in the current folder, and start ```piko serve``` in the folder ```docs```:
 
 ```bash
 piko dev
@@ -138,7 +140,32 @@ piko dev
 
 **Description**
 
-> Hey
+> The ```piko dev``` command will run ```piko build``` and ```piko serve``` together at the same time.
+
+
+## ```create```
+
+Create an example folder with some pages and Piko components:
+
+```bash
+$ piko crate <FOLDER_NAME>
+```
+
+**Description**
+
+> The ```piko create``` command should be used a will crate a folder with some example pages and Piko components.
+
+**```<FOLDER_NAME>```** _required_
+
+> Name of folder that Piko should create.
+
+**Example**
+
+> Create a new folder named ```test``` with some example pages and Piko components:
+
+```bash
+$ piko create test
+```
 
 
 # Getting started

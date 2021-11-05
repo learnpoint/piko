@@ -42,7 +42,7 @@ If you encounter any problems when upgrading, the easiest way out is to install 
 
 
 
-# Commands
+# API
 
 Piko is a CLI with a small collection of commands.
 
@@ -53,6 +53,8 @@ Copy a github repo to your computer:
 ```bash
 $ piko copy <OWNER/REPO> [FOLDER_NAME]
 ```
+
+This command is somewhat similar to ```git clone```, except it only downloads the last commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you want to use a github repo as a template.
 
 **```<OWNER/REPO>```** _required_
 
@@ -66,9 +68,9 @@ $ piko copy <OWNER/REPO> [FOLDER_NAME]
 >
 > If value is ```.``` then Piko will not create a new folder, but instead copy the repo files into the current folder.
 
-***Examples***
+**Examples**
 
-Create the folder ```test``` and copy the files from ```https://github.com/ekmwest/empty``` into that folder:
+Create the folder ```empty``` and copy the files from ```https://github.com/ekmwest/empty``` into that folder:
 
 ```bash
 $ piko copy ekmwest/empty

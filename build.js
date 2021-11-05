@@ -6,7 +6,9 @@ markdown.setOptions({
     headerIds: false
 });
 
-const buildArgs = {};
+const WATCH_BUILD_DEBOUNCE = 200;
+
+let state = {};
 
 export async function build(options) {
     const defaults = {
@@ -19,80 +21,80 @@ export async function build(options) {
         watchBuildDoneCallback: () => { }
     };
 
-    options = { ...defaults, ...options };
+    state = { ...defaults, ...options };
+    state.pages = [];
+    state.lastBuild = 0;
 
-    await ensureDirectories(options);
+    await ensureDirectories();
 
-    buildArgs.componentsPath = options.componentsPath;
-    buildArgs.forceRebuild = options.forceRebuild;
-    buildArgs.componentsLastModifiedTime = await getComponentsLastModifiedTime();
-    buildArgs.pages = [];
+    await runBuild(state.firstBuildDoneCallback);
 
-    await recursiveBuild(options.sourcePath, options.buildPath);
-    await recursiveDelete(options.sourcePath, options.buildPath);
-
-    await recursiveBuildPagesData(options.buildPath, options.buildPath, buildArgs.pages);
-    let stringifiedPagesData = JSON.stringify(buildArgs.pages, null, 4)
-    if (Deno.build.os === 'windows') {
-        stringifiedPagesData = stringifiedPagesData.replaceAll("\n", "\r\n");
-    }
-    await Deno.writeTextFile(path.join(options.buildPath, 'pages.json'), stringifiedPagesData);
-
-    options.firstBuildDoneCallback();
-
-    if (options.buildWatch) {
-        const watcher = Deno.watchFs(options.sourcePath);
-
-        let lastBuild = Date.now();
-
-        for await (const event of watcher) {
-            if ((Date.now() - lastBuild) < 200) {
+    if (state.buildWatch) {
+        for await (const event of Deno.watchFs(state.sourcePath)) {
+            if ((Date.now() - state.lastBuild) < WATCH_BUILD_DEBOUNCE) {
                 continue;
             }
-
-            lastBuild = Date.now();
-            buildArgs.componentsLastModifiedTime = await getComponentsLastModifiedTime();
-            buildArgs.pages = [];
-
-            console.log();
-            console.log("Rebuilding...");
-            console.log();
-
-            await recursiveBuild(options.sourcePath, options.buildPath);
-            await recursiveDelete(options.sourcePath, options.buildPath);
-
-            await recursiveBuildPagesData(options.buildPath, options.buildPath, buildArgs.pages);
-            let stringifiedPagesData = JSON.stringify(buildArgs.pages, null, 4)
-            if (Deno.build.os === 'windows') {
-                stringifiedPagesData = stringifiedPagesData.replaceAll("\n", "\r\n");
-            }
-            await Deno.writeTextFile(path.join(options.buildPath, 'pages.json'), stringifiedPagesData);
-
-            options.watchBuildDoneCallback();
+            runBuild(state.watchBuildDoneCallback);
         }
     }
 }
 
-async function ensureDirectories(options) {
-    if (!await exists(options.sourcePath)) {
+async function ensureDirectories() {
+    if (!await exists(state.sourcePath)) {
         console.log();
-        console.error('Source folder not found:', options.sourcePath);
-        console.log();
-        console.log('Create the folder and try again.');
-        console.log();
-        Deno.exit(1);
-    }
-
-    if (!await exists(options.componentsPath)) {
-        console.log();
-        console.error('Components folder not found:', options.componentsPath);
+        console.error('Source folder not found:', state.sourcePath);
         console.log();
         console.log('Create the folder and try again.');
         console.log();
         Deno.exit(1);
     }
 
-    // Do not test build path. Will be created if not exists.
+    if (!await exists(state.componentsPath)) {
+        console.log();
+        console.error('Components folder not found:', state.componentsPath);
+        console.log();
+        console.log('Create the folder and try again.');
+        console.log();
+        Deno.exit(1);
+    }
+
+    // Don't ensure build path. It will be created if not exists.
+}
+
+async function runBuild(doneCallback) {
+    state.lastBuild = Date.now();
+    state.componentsLastModifiedTime = await getComponentsLastModifiedTime();
+
+    console.log();
+    console.log('Building...');
+    console.log();
+
+    await recursiveBuild(state.sourcePath, state.buildPath);
+    await recursiveDelete(state.sourcePath, state.buildPath);
+
+    state.pages = [];
+    await recursiveBuildPagesData(state.buildPath);
+    let stringifiedPagesData = JSON.stringify(state.pages, null, 4)
+    if (Deno.build.os === 'windows') {
+        stringifiedPagesData = stringifiedPagesData.replaceAll("\n", "\r\n");
+    }
+    await Deno.writeTextFile(path.join(state.buildPath, 'pages.json'), stringifiedPagesData);
+
+    doneCallback();
+}
+
+async function getComponentsLastModifiedTime() {
+    let componentsLastModifiedTime = new Date(0);
+
+    for await (const item of Deno.readDir(state.componentsPath)) {
+        const itemPath = path.join(state.componentsPath, item.name);
+        const itemInfo = await Deno.lstat(itemPath);
+
+        if (itemInfo.mtime > componentsLastModifiedTime) {
+            componentsLastModifiedTime = itemInfo.mtime;
+        }
+    }
+    return componentsLastModifiedTime;
 }
 
 async function recursiveBuild(sourcePath, buildPath) {
@@ -102,7 +104,7 @@ async function recursiveBuild(sourcePath, buildPath) {
         const sPath = path.join(sourcePath, dirEntry.name);
         let bPath = path.join(buildPath, dirEntry.name);
 
-        if (sPath === buildArgs.componentsPath) {
+        if (sPath === state.componentsPath) {
             continue;
         }
 
@@ -171,22 +173,8 @@ async function recursiveDelete(sourcePath, buildPath) {
     }
 }
 
-async function getComponentsLastModifiedTime() {
-    let componentsLastModifiedTime = new Date(0);
-
-    for await (const item of Deno.readDir(buildArgs.componentsPath)) {
-        const itemPath = path.join(buildArgs.componentsPath, item.name);
-        const itemInfo = await Deno.lstat(itemPath);
-
-        if (itemInfo.mtime > componentsLastModifiedTime) {
-            componentsLastModifiedTime = itemInfo.mtime;
-        }
-    }
-    return componentsLastModifiedTime;
-}
-
 async function isBuildNeeded(sourceFilePath, buildFilePath) {
-    if (buildArgs.forceRebuild) {
+    if (state.forceRebuild) {
         return [true, 'Build forced'];
     }
 
@@ -200,7 +188,7 @@ async function isBuildNeeded(sourceFilePath, buildFilePath) {
             return [true, path.relative(Deno.cwd(), sourceFilePath) + ' was modified'];
         }
 
-        if (isHtmlFile(buildFilePath) && buildArgs.componentsLastModifiedTime > buildFileInfo.mtime) {
+        if (isHtmlFile(buildFilePath) && state.componentsLastModifiedTime > buildFileInfo.mtime) {
             return [true, 'Component(s) was modified'];
         }
     } catch (error) {
@@ -262,7 +250,7 @@ const renderComponent = componentString => {
 
     let componentContent = '';
     try {
-        componentContent = Deno.readTextFileSync(path.join(buildArgs.componentsPath, componentName));
+        componentContent = Deno.readTextFileSync(path.join(state.componentsPath, componentName));
     } catch {
         error = 'Component file not found: "' + componentName + '"';
     }
@@ -301,12 +289,12 @@ const renderComponentData = (componentDataString, componentData) => {
     return '';
 };
 
-async function recursiveBuildPagesData(buildPath, rootBuildPath, pagesArray) {
+async function recursiveBuildPagesData(buildPath) {
     for await (const dirEntry of Deno.readDir(buildPath)) {
         const pagePath = path.join(buildPath, dirEntry.name);
 
         if (dirEntry.isDirectory) {
-            await recursiveBuildPagesData(pagePath, rootBuildPath, pagesArray);
+            await recursiveBuildPagesData(pagePath);
             continue;
         }
 
@@ -318,17 +306,17 @@ async function recursiveBuildPagesData(buildPath, rootBuildPath, pagesArray) {
             continue;
         }
 
-        const pageObject = await createPageObject(pagePath, rootBuildPath);
+        const pageObject = await createPageObject(pagePath);
 
-        pagesArray.push(pageObject);
+        state.pages.push(pageObject);
     }
 }
 
-async function createPageObject(pagePath, buildPath) {
+async function createPageObject(pagePath) {
     const pageMarkup = await Deno.readTextFile(pagePath);
     return {
         title: titleTagContent(pageMarkup),
-        url: '/' + path.relative(buildPath, pagePath).replaceAll('\\', '/'),
+        url: '/' + path.relative(state.buildPath, pagePath).replaceAll('\\', '/'),
         content: collapseSpaces(stripTags(bodyTagContent(pageMarkup)))
     };
 }

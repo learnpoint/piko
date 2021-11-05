@@ -3,7 +3,7 @@ import { listenAndServe } from "./utils/listen_and_serve.js";
 import { Status, STATUS_TEXT } from "./utils/http_status.js";
 import { path } from "./deps.js";
 
-const RELOAD_DEBOUNCE_WAIT = 10;
+const RELOAD_DEBOUNCE = 100;
 
 const server = {
     root: null,
@@ -115,7 +115,7 @@ async function watchAndReload() {
                 }
 
             }
-        }, RELOAD_DEBOUNCE_WAIT);
+        }, RELOAD_DEBOUNCE);
     }
 }
 

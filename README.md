@@ -1,4 +1,4 @@
-<img src="piko.svg" height="20px" style="margin-top:1em;">
+<img src="piko.svg" height="20px">
 
 _A minimal CLI toolkit for html writing._
 
@@ -44,7 +44,7 @@ If you encounter any problems when upgrading, the easiest way out is to install 
 
 # CLI Usage
 
-Piko is a CLI with a small collection of commands.
+Piko is a CLI with a minimal collection of commands.
 
 
 ## ```copy```
@@ -54,7 +54,7 @@ Copy a github repo to your computer:
 $ piko copy <OWNER/REPO> [FOLDER_NAME]
 ```
 
-The ```piko copy``` command is somewhat similar to ```git clone```, except it only downloads the last commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you want to use a github repo as a template.
+> The ```piko copy``` command is somewhat similar to ```git clone```, except it only downloads the last commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you want to use a github repo as a template.
 
 **```<OWNER/REPO>```** _required_
 
@@ -64,11 +64,11 @@ The ```piko copy``` command is somewhat similar to ```git clone```, except it on
 
 > Name of folder that Piko should create and copy repo files into.
 >
-> Default value is ```REPO``` (extracted from first argument).
+> Default value is ```REPO``` (extracted from the first argument).
 >
 > If value is ```.``` then Piko will not create a new folder, but instead copy the repo files into the current folder.
 
-**Examples**
+***Examples***
 
 Create the folder ```empty``` and copy the files from ```https://github.com/ekmwest/empty``` into that folder:
 

@@ -68,25 +68,25 @@ $ piko copy <OWNER/REPO> [FOLDER_NAME]
 >
 > If value is ```.``` then Piko will not create a new folder, but instead copy the repo files into the current folder.
 
-***Examples***
+**Examples**
 
-> Create the folder ```empty``` and copy the files from ```https://github.com/ekmwest/empty``` into that folder:
+> Create a folder named ```empty``` and copy the files from ```https://github.com/ekmwest/empty``` into that folder:
 >
 > ```bash
 > $ piko copy ekmwest/empty
 > ```
 >
-> Create the folder ```fake``` and copy the files from  ```https://github.com/ekmwest/empty``` into that folder:
+> Create a folder named ```fake``` and copy the files from  ```https://github.com/ekmwest/empty``` into that folder:
 >
 >```bash
 >$ piko copy ekmwest/empty fake
 >```
 >
->Copy the files from ```https://github.com/ekmwest/empty``` into the current folder:
+> Copy the files from ```https://github.com/ekmwest/empty``` into the current folder:
 >
->```bash
->$ piko copy ekmwest/empty .
->```
+> ```bash
+> $ piko copy ekmwest/empty .
+> ```
 
 
 ## ```serve```
@@ -96,13 +96,13 @@ Start a static web server in current folder:
 $ piko serve
 ```
 
-The ```piko serve``` command will start a very fast static web server in the current folder. The server will automatically reload the browser(s) upon file changes.
-
-The server is 100% non-cached. It will never ask the client to cache any resources whatsoever. This is great during html writing. When you need to test your caching logic, you should use another tool.
-
-Any request to a folder will be redirected to the file ```index.html```.
-
-Any request to a file or folder that doesn't exist, will get the reponse 404. If there's a file named ```404.html``` in the root folder, the reponse body will populated with the contents of that file.
+> The ```piko serve``` command will start a very fast static web server in the current folder. The server will automatically reload the browser(s) upon file changes.
+>
+> The server is 100% non-cached. It will never ask the client to cache any resources whatsoever. This is great during html writing. When you need to test your caching logic, you should use another tool.
+> 
+> Any request to a folder will be redirected to the file ```index.html```.
+>
+> Any request to a file or folder that doesn't exist, will get the reponse 404. If there's a file named ```404.html``` in the root folder, the reponse body will populated with the contents of that file.
 
 
 

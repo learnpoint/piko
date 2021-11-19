@@ -1,8 +1,7 @@
 import { path, marked } from "./deps.js";
 import { exists } from "./utils/exists.js";
 
-const markdown = marked.default;
-markdown.setOptions({
+marked.setOptions({
     headerIds: false
 });
 
@@ -209,7 +208,7 @@ async function buildFile(sourceFilePath, buildFilePath) {
             await Deno.writeTextFile(buildFilePath, renderHtmlFile(sourceContent, sourceFilePath, sourceContent));
         } else if (isMarkdownFile(sourceFilePath)) {
             const sourceContent = await Deno.readTextFile(sourceFilePath);
-            const markedupContent = markdown(sourceContent);
+            const markedupContent = marked.parse(sourceContent);
             await Deno.writeTextFile(buildFilePath, renderHtmlFile(markedupContent, sourceFilePath, sourceContent));
         } else {
             await Deno.copyFile(sourceFilePath, buildFilePath);

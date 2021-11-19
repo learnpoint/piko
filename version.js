@@ -1,2 +1,2 @@
-export const version = "0.9.35";
-export const denoVersion = "1.15.3";
+export const version = "0.9.36";
+export const denoVersion = "1.16.2";

@@ -226,11 +226,11 @@ const browserReloadScript = `
                     console.log('Piko reloading page...');
                     location.reload();
                 } else {
-                    console.log('Piko server not responding, will not reload.');
+                    console.debug('Piko server not responding, will not reload.');
                     reloading = false;
                 }
             } catch {
-                console.log('Piko server not responding, will not reload.');
+                console.debug('Piko server not responding, will not reload.');
                 reloading = false;
             }
         }
@@ -250,11 +250,11 @@ const browserReloadScript = `
         }, 3000); 
 
         ws.onopen = function (event) {
-            console.log('Piko reload socket connection established.');
+            console.debug('Piko reload socket connection established.');
         }
 
         ws.onerror = function (event) {
-            console.log(event);
+            console.error(event);
         };
     });
 </script>

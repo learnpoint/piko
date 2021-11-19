@@ -316,6 +316,7 @@ async function createPageObject(pagePath) {
     const pageMarkup = await Deno.readTextFile(pagePath);
     return {
         title: titleTagContent(pageMarkup),
+        description: descriptionMetaContent(pageMarkup),
         url: '/' + path.relative(state.buildPath, pagePath).replaceAll('\\', '/'),
         content: collapseSpaces(stripTags(bodyTagContent(pageMarkup)))
     };
@@ -326,6 +327,13 @@ function titleTagContent(str) {
     const m = str.match("<title>(.*?)</title>");
     if (m) titleContent = m[1];
     return titleContent;
+}
+
+function descriptionMetaContent(str) {
+    let descriptionContent = '';
+    const d = str.match('<meta name="description" content="(.*?)" />');
+    if (d) descriptionContent = d[1];
+    return descriptionContent;
 }
 
 function bodyTagContent(str) {

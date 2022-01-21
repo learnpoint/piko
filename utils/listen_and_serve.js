@@ -15,7 +15,11 @@ export async function listenAndServe(httpHandler, webSocketHandler) {
 async function connectionHandler(connection, httpHandler, webSocketHandler) {
     const httpConnection = Deno.serveHttp(connection);
     for await (const requestEvent of httpConnection) {
-        await requestEvent.respondWith(requestHandler(requestEvent.request, httpHandler, webSocketHandler));
+        try {
+            await requestEvent.respondWith(requestHandler(requestEvent.request, httpHandler, webSocketHandler));
+        } catch {
+            // Typically: Connection Closed by Client.
+        }
     }
 }
 

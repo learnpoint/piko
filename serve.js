@@ -33,39 +33,45 @@ async function webSocketHandler(req) {
 
 async function httpHandler(req) {
     const filePath = getFilePath(req);
+    let stat;
 
-    if (!path.extname(filePath)) {
-        try {
-            const pathInfo = await Deno.stat(filePath);
-            if (pathInfo.isDirectory) {
-                return redirect(req, pathname(req) + "/" + searchString(req));
-            }
-        } catch { }
-
+    // Exists?
+    try {
+        stat = await Deno.stat(filePath);
+    } catch {
         return notFound(req);
     }
 
+    // Directory?
+    if (stat.isDirectory) {
+        return redirect(req, pathname(req) + "/" + searchString(req));
+    }
+
+    // Valid mime type?
     if (!mimeType.hasOwnProperty(path.extname(filePath))) {
         return respond(req, Status.BadRequest, `Not Supported File Extension ${path.extname(filePath)}`);
     }
 
+    // Set Etag
+    const etag = stat.mtime.getTime().toString();
+    const headers = new Headers();
+    headers.set('etag', etag);
+
+    // Use cache?
+    if (req.headers.get('if-none-match') && req.headers.get('if-none-match') === etag) {
+        return respond(req, Status.NotModified);
+    }
+
     try {
+        // html?
         if (mimeType[path.extname(filePath)].includes('text/html')) {
             const fileContent = await Deno.readTextFile(filePath);
-
             const body = fileContent.replace("</body>", `${browserReloadScript}</body>`);
-
-            const headers = new Headers();
             headers.set("content-type", mimeType[path.extname(filePath)]);
-
             return respond(req, Status.OK, body, headers);
         } else {
-
             const file = await Deno.readFile(filePath);
-
-            const headers = new Headers();
             headers.set("content-type", mimeType[path.extname(filePath)]);
-
             return respond(req, Status.OK, file, headers);
         }
     } catch (error) {
@@ -144,21 +150,30 @@ async function notFound(req) {
 }
 
 async function respond(req, status, body, headers) {
-    body = body || STATUS_TEXT.get(status);
+    try {
+        body = body || STATUS_TEXT.get(status);
 
-    headers = headers || new Headers();
-    headers.set("access-control-allow-origin", "*");
-    headers.set("server", "piko");
+        // body must be null on 304, otherwise exception thrown
+        if (status === Status.NotModified) {
+            body = null;
+        }
 
-    if (status === 302) {
-        console.log(status.toString(), pathname(req), "=> Redirected to", headers.get('location'));
-    } else if (status >= 100 && status < 400) {
-        console.log(status.toString(), pathname(req), "=>", path.relative(Deno.cwd(), getFilePath(req)));
-    } else {
-        console.log(`%c${status.toString()} ${pathname(req)} => ${STATUS_TEXT.get(status)}`, 'color:#ff4;');
+        headers = headers || new Headers();
+        headers.set("access-control-allow-origin", "*");
+        headers.set("server", "piko");
+
+        if (status === 302) {
+            console.log(status.toString(), pathname(req), "=> Redirected to", headers.get('location'));
+        } else if (status >= 100 && status < 400) {
+            console.log(status.toString(), pathname(req), "=>", path.relative(Deno.cwd(), getFilePath(req)));
+        } else {
+            console.log(`%c${status.toString()} ${pathname(req)} => ${STATUS_TEXT.get(status)}`, 'color:#ff4;');
+        }
+
+        return new Response(body, { status, headers });
+    } catch (err) {
+        console.log(err)
     }
-
-    return new Response(body, { status, headers });
 }
 
 function getFilePath(req) {

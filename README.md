@@ -7,7 +7,7 @@ _A minimal CLI toolkit for html writing._
 
 # Requirements
 
-- [Deno](https://deno.land/manual/getting_started/installation) v1.16.2 or later.
+- [Deno](https://deno.land/manual/getting_started/installation) v1.18.1 or later.
 
 
 
@@ -15,7 +15,7 @@ _A minimal CLI toolkit for html writing._
 # Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.37/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.38/piko.js
 ```
 
 Verify installation:
@@ -23,7 +23,7 @@ Verify installation:
 ```bash
 $ piko -v
 
-piko 0.9.37
+piko 0.9.38
 ```
 
 

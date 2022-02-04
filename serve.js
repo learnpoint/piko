@@ -7,10 +7,12 @@ const RELOAD_DEBOUNCE = 100;
 
 const server = {
     root: null,
-    sockets: []
+    sockets: [],
+    startTime: 0
 };
 
 export async function serve(servePath) {
+    server.startTime = Date.now();
     server.root = servePath || Deno.cwd();
 
     if (!await exists(server.root)) {
@@ -53,7 +55,7 @@ async function httpHandler(req) {
     }
 
     // Set Etag
-    const etag = stat.mtime.getTime().toString();
+    const etag = stat.mtime.getTime().toString() + server.startTime.toString(); // flush cache on server boot
     const headers = new Headers();
     headers.set('etag', etag);
 

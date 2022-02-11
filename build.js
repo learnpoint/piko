@@ -220,8 +220,9 @@ async function buildFile(sourceFilePath, buildFilePath) {
 
 const isHtmlFile = sourceFilePath => path.extname(sourceFilePath) === '.html';
 const isMarkdownFile = sourceFilePath => path.extname(sourceFilePath) === '.md';
+const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
 
-const renderHtmlFile = (data, sourceFilePath, originalSourceContent) => {
+function renderHtmlFile(data, sourceFilePath, originalSourceContent) {
     const originalSourceContentString = originalSourceContent.toString();
     const dataString = data.toString();
 
@@ -238,18 +239,18 @@ const renderHtmlFile = (data, sourceFilePath, originalSourceContent) => {
 
         return renderedContent;
     });
-};
+}
 
-const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
-
-const renderComponent = componentString => {
+function renderComponent(componentString) {
     let error = null;
 
     const componentName = componentString.split(',')[0].trim();
+    const componentPath = path.join(state.componentsPath, componentName);
 
     let componentContent = '';
     try {
-        componentContent = Deno.readTextFileSync(path.join(state.componentsPath, componentName));
+        componentContent = Deno.readTextFileSync(componentPath);
+        componentContent = renderHtmlFile(componentContent, componentPath, componentContent)
     } catch {
         error = 'Component file not found: "' + componentName + '"';
     }
@@ -272,7 +273,7 @@ const renderComponent = componentString => {
     }
 
     return [error, componentContent.replace(/{{.*?}}/g, match => renderComponentData(match.replace('{{', '').replace('}}', ''), componentData))];
-};
+}
 
 const renderComponentData = (componentDataString, componentData) => {
     let dataKey = componentDataString.split('||')[0].trim();

@@ -21,7 +21,7 @@ export async function build(options) {
     };
 
     state = { ...defaults, ...options };
-    state.pages = [];
+    state.siteDb = [];
     state.lastBuild = 0;
 
     await ensureDirectories();
@@ -71,13 +71,13 @@ async function runBuild(doneCallback) {
     await recursiveBuild(state.sourcePath, state.buildPath);
     await recursiveDelete(state.sourcePath, state.buildPath);
 
-    state.pages = [];
-    await recursiveBuildPagesData(state.buildPath);
-    let stringifiedPagesData = JSON.stringify(state.pages, null, 4)
+    state.siteDb = [];
+    await recursiveBuildSiteDb(state.buildPath);
+    let stringifiedSiteDb = JSON.stringify(state.siteDb, null, 4)
     if (Deno.build.os === 'windows') {
-        stringifiedPagesData = stringifiedPagesData.replaceAll("\n", "\r\n");
+        stringifiedSiteDb = stringifiedSiteDb.replaceAll("\n", "\r\n");
     }
-    await Deno.writeTextFile(path.join(state.buildPath, 'pages.json'), stringifiedPagesData);
+    await Deno.writeTextFile(path.join(state.buildPath, 'site_db.json'), stringifiedSiteDb);
 
     doneCallback();
 }
@@ -155,7 +155,7 @@ async function recursiveDelete(sourcePath, buildPath) {
             continue;
         }
 
-        if (dirEntry.name === 'pages.json') {
+        if (dirEntry.name === 'site_db.json') {
             continue;
         }
 
@@ -227,6 +227,10 @@ function renderHtmlFile(data, sourceFilePath, originalSourceContent) {
     const dataString = data.toString();
 
     return dataString.replace(/<!--.*?-->/g, (match, matchPos) => {
+        if (match === '<!-- site_db:off -->' || match === '<!-- site_db:on -->') {
+            return match;
+        }
+
         const [error, renderedContent] = renderComponent(match.replace('<!--', '').replace('-->', ''));
 
         if (error) {
@@ -289,12 +293,12 @@ const renderComponentData = (componentDataString, componentData) => {
     return '';
 };
 
-async function recursiveBuildPagesData(buildPath) {
+async function recursiveBuildSiteDb(buildPath) {
     for await (const dirEntry of Deno.readDir(buildPath)) {
         const pagePath = path.join(buildPath, dirEntry.name);
 
         if (dirEntry.isDirectory) {
-            await recursiveBuildPagesData(pagePath);
+            await recursiveBuildSiteDb(pagePath);
             continue;
         }
 
@@ -306,19 +310,19 @@ async function recursiveBuildPagesData(buildPath) {
             continue;
         }
 
-        const pageObject = await createPageObject(pagePath);
+        const siteDbRecord = await createSiteDbRecord(pagePath);
 
-        state.pages.push(pageObject);
+        state.siteDb.push(siteDbRecord);
     }
 }
 
-async function createPageObject(pagePath) {
+async function createSiteDbRecord(pagePath) {
     const pageMarkup = await Deno.readTextFile(pagePath);
     return {
         title: titleTagContent(pageMarkup),
         description: descriptionMetaContent(pageMarkup),
         url: '/' + path.relative(state.buildPath, pagePath).replaceAll('\\', '/'),
-        content: collapseSpaces(stripTags(bodyTagContent(pageMarkup)))
+        content: collapseSpaces(stripTags(stripEscapedFragments(bodyTagContent(pageMarkup))))
     };
 }
 
@@ -345,6 +349,10 @@ function bodyTagContent(str) {
 
 function collapseSpaces(str) {
     return str.replace(/\s+/g, " ").trim();
+}
+
+function stripEscapedFragments(str) {
+    return str.replace(/<!-- site_db:off -->([\s\S]*?)<!-- site_db:on -->/g, '');
 }
 
 function stripTags(str) {

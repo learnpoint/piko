@@ -342,7 +342,7 @@ function descriptionMetaContent(str) {
 
 function mainTagContent(str) {
     let mainContent = '';
-    const m = str.match(/<main[^>]*>([^<]*(?:(?!<\/?body)<[^<]*)*)<\/main\s*>/i);
+    const m = str.match(/<main[^>]*>([^<]*(?:(?!<\/?main)<[^<]*)*)<\/main\s*>/i);
     if (m) mainContent = m[1];
     return mainContent;
 }

@@ -322,7 +322,7 @@ async function createSiteDbRecord(pagePath) {
         title: titleTagContent(pageMarkup),
         description: descriptionMetaContent(pageMarkup),
         url: '/' + path.relative(state.buildPath, pagePath).replaceAll('\\', '/'),
-        content: collapseSpaces(stripTags(stripEscapedFragments(bodyTagContent(pageMarkup))))
+        content: collapseSpaces(stripTags(stripEscapedFragments(mainTagContent(pageMarkup))))
     };
 }
 
@@ -340,11 +340,11 @@ function descriptionMetaContent(str) {
     return descriptionContent;
 }
 
-function bodyTagContent(str) {
-    let bodyContent = '';
-    const m = str.match(/<body[^>]*>([^<]*(?:(?!<\/?body)<[^<]*)*)<\/body\s*>/i);
-    if (m) bodyContent = m[1];
-    return bodyContent;
+function mainTagContent(str) {
+    let mainContent = '';
+    const m = str.match(/<main[^>]*>([^<]*(?:(?!<\/?body)<[^<]*)*)<\/main\s*>/i);
+    if (m) mainContent = m[1];
+    return mainContent;
 }
 
 function collapseSpaces(str) {

@@ -1,5 +1,6 @@
 import { path, marked } from "./deps.js";
 import { exists } from "./utils/exists.js";
+import { parse as frontmatterParse } from "./utils/frontmatter.js";
 
 marked.setOptions({
     headerIds: false
@@ -201,26 +202,61 @@ async function isBuildNeeded(sourceFilePath, buildFilePath) {
     return [false, ''];
 }
 
+const isHtmlFile = sourceFilePath => path.extname(sourceFilePath) === '.html';
+const isMarkdownFile = sourceFilePath => path.extname(sourceFilePath) === '.md';
+const isHtmlOrMarkdownFile = sourceFilePath => isHtmlFile(sourceFilePath) || isMarkdownFile(sourceFilePath);
+const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
+
 async function buildFile(sourceFilePath, buildFilePath) {
     try {
-        if (isHtmlFile(sourceFilePath)) {
+        if (isHtmlOrMarkdownFile(sourceFilePath)) {
+
             const sourceContent = await Deno.readTextFile(sourceFilePath);
-            await Deno.writeTextFile(buildFilePath, renderHtmlFile(sourceContent, sourceFilePath, sourceContent));
-        } else if (isMarkdownFile(sourceFilePath)) {
-            const sourceContent = await Deno.readTextFile(sourceFilePath);
-            const markedupContent = marked.parse(sourceContent);
-            await Deno.writeTextFile(buildFilePath, renderHtmlFile(markedupContent, sourceFilePath, sourceContent));
+            const sourceItem = frontmatterParse(sourceContent);
+
+            if (isMarkdownFile(sourceFilePath)) {
+                sourceItem.content = marked.parse(sourceItem.content);
+            }
+
+            await applyLayout(sourceItem);
+
+            await Deno.writeTextFile(buildFilePath, renderHtmlFile(sourceItem.content, sourceFilePath, sourceItem.content));
+
         } else {
             await Deno.copyFile(sourceFilePath, buildFilePath);
         }
     } catch (err) {
+        console.log();
+        console.log(err);
         console.log(`%cCould not build file ${path.relative(Deno.cwd(), sourceFilePath)}`, 'font-weight:bold;color:#f44;');
+        console.log();
     }
 }
 
-const isHtmlFile = sourceFilePath => path.extname(sourceFilePath) === '.html';
-const isMarkdownFile = sourceFilePath => path.extname(sourceFilePath) === '.md';
-const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
+async function applyLayout(sourceItem) {
+    if (!sourceItem.data.layout) {
+        return;
+    }
+
+    const layoutPath = path.join(state.sourcePath, '_layouts', sourceItem.data.layout);
+
+    const layoutContent = await Deno.readTextFile(layoutPath);
+    
+    sourceItem.content = renderTemplate(sourceItem.content, sourceItem.data);
+    sourceItem.content = renderTemplate(layoutContent, { ...sourceItem.data, content: sourceItem.content });
+}
+
+function renderTemplate(text, data) {
+    return text.replace(/{{.*?}}/g, match => {
+        const variableExpression = match.replace('{{', '').replace('}}', '').trim();
+        const [variableName, defaultValue = ''] = variableExpression.split('||').map(x => x.trim());
+        if (data[variableName]) {
+            return data[variableName];
+        } else {
+            return defaultValue;
+        }
+    });
+}
 
 function renderHtmlFile(data, sourceFilePath, originalSourceContent) {
     const originalSourceContentString = originalSourceContent.toString();

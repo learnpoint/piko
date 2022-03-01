@@ -15,6 +15,7 @@ export async function build(options) {
         sourcePath: path.join(Deno.cwd(), 'src'),
         buildPath: path.join(Deno.cwd(), 'docs'),
         componentsPath: path.join(Deno.cwd(), 'src', 'components'),
+        layoutsPath:  path.join(Deno.cwd(), 'src', '_layouts'),
         forceRebuild: false,
         buildWatch: false,
         firstBuildDoneCallback: () => { },
@@ -105,6 +106,10 @@ async function recursiveBuild(sourcePath, buildPath) {
         let bPath = path.join(buildPath, dirEntry.name);
 
         if (sPath === state.componentsPath) {
+            continue;
+        }
+
+        if (sPath === state.layoutsPath) {
             continue;
         }
 
@@ -220,6 +225,7 @@ async function buildFile(sourceFilePath, buildFilePath) {
 
             await applyLayout(sourceItem);
 
+            // TODO: How to pass original content to renderHtmlFile? Right now, error messages don't know the correct line number in source file.
             await Deno.writeTextFile(buildFilePath, renderHtmlFile(sourceItem.content, sourceFilePath, sourceItem.content));
 
         } else {
@@ -238,10 +244,11 @@ async function applyLayout(sourceItem) {
         return;
     }
 
-    const layoutPath = path.join(state.sourcePath, '_layouts', sourceItem.data.layout);
+    const layoutPath = path.join(state.layoutsPath, sourceItem.data.layout);
 
     const layoutContent = await Deno.readTextFile(layoutPath);
     
+    // Render content first, then the whole layout.
     sourceItem.content = renderTemplate(sourceItem.content, sourceItem.data);
     sourceItem.content = renderTemplate(layoutContent, { ...sourceItem.data, content: sourceItem.content });
 }

@@ -1,5 +1,6 @@
 import { path, marked } from "./deps.js";
 import { exists } from "./utils/exists.js";
+import { walk } from "./utils/walk.js";
 import { parse as frontmatterParse } from "./utils/frontmatter.js";
 
 marked.setOptions({
@@ -59,12 +60,21 @@ async function ensureDirectories() {
         Deno.exit(1);
     }
 
+    if (!await exists(state.layoutsPath)) {
+        console.log();
+        console.error('Layouts folder not found:', state.layoutsPath);
+        console.log();
+        console.log('Create the folder and try again.');
+        console.log();
+        Deno.exit(1);
+    }
+
     // Don't ensure build path. It will be created if not exists.
 }
 
 async function runBuild(doneCallback) {
     state.lastBuild = Date.now();
-    state.componentsLastModifiedTime = await getComponentsLastModifiedTime();
+    state.componentsAndLayoutsLastModifiedTime = await getComponentsAndLayoutsLastModifiedTime();
 
     console.log();
     console.log('Building...');
@@ -84,18 +94,27 @@ async function runBuild(doneCallback) {
     doneCallback();
 }
 
-async function getComponentsLastModifiedTime() {
-    let componentsLastModifiedTime = new Date(0);
+async function getComponentsAndLayoutsLastModifiedTime() {
+    let componentsAndLayoutsLastModifiedTime = new Date(0);
 
-    for await (const item of Deno.readDir(state.componentsPath)) {
-        const itemPath = path.join(state.componentsPath, item.name);
-        const itemInfo = await Deno.lstat(itemPath);
+    const componentFiles = await walk(state.componentsPath);
+    const layoutFiles = await walk(state.layoutsPath);
 
-        if (itemInfo.mtime > componentsLastModifiedTime) {
-            componentsLastModifiedTime = itemInfo.mtime;
+    for (const cf of componentFiles) {
+        const itemInfo = await Deno.lstat(cf);
+        if (itemInfo.mtime > componentsAndLayoutsLastModifiedTime) {
+            componentsAndLayoutsLastModifiedTime = itemInfo.mtime;
         }
     }
-    return componentsLastModifiedTime;
+
+    for (const lf of layoutFiles) {
+        const itemInfo = await Deno.lstat(lf);
+        if (itemInfo.mtime > componentsAndLayoutsLastModifiedTime) {
+            componentsAndLayoutsLastModifiedTime = itemInfo.mtime;
+        }
+    }
+
+    return componentsAndLayoutsLastModifiedTime;
 }
 
 async function recursiveBuild(sourcePath, buildPath) {
@@ -193,8 +212,8 @@ async function isBuildNeeded(sourceFilePath, buildFilePath) {
             return [true, path.relative(Deno.cwd(), sourceFilePath) + ' was modified'];
         }
 
-        if (isHtmlFile(buildFilePath) && state.componentsLastModifiedTime > buildFileInfo.mtime) {
-            return [true, 'Component(s) was modified'];
+        if (isHtmlFile(buildFilePath) && state.componentsAndLayoutsLastModifiedTime > buildFileInfo.mtime) {
+            return [true, 'Components or layouts were modified'];
         }
     } catch (error) {
         if (error instanceof Deno.errors.NotFound) {

@@ -366,11 +366,7 @@ function renderVariables(text, data) {
         }
 
         if (typeof defaultValue === "undefined") {
-            console.log();
-            console.log(`%cCouldn't find the value for ${match}`, 'font-weight:bold;color:#f44;');
-            console.log('=> Set the value in frontmatter or component props');
-            console.log();
-            defaultValue = '';
+            return match;
         }
 
         return defaultValue;

@@ -15,7 +15,7 @@ export async function build(options) {
     const defaults = {
         sourcePath: path.join(Deno.cwd(), 'src'),
         buildPath: path.join(Deno.cwd(), 'docs'),
-        componentsPath: path.join(Deno.cwd(), 'src', 'components'),
+        componentsPath: path.join(Deno.cwd(), 'src', '_components'),
         layoutsPath: path.join(Deno.cwd(), 'src', '_layouts'),
         forceRebuild: false,
         buildWatch: false,

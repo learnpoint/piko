@@ -123,7 +123,7 @@ $ piko serve
 
 ## ```build```
 
-Find all pages in the ```src``` folder, stitch them together with components in the ```src/components``` folder and output the result in the ```docs``` folder:
+Find all pages in the ```src``` folder, stitch them together with components in the ```src/_components``` folder and output the result in the ```docs``` folder:
 
 ```bash
 $ piko build
@@ -131,7 +131,7 @@ $ piko build
 
 **Description**
 
-> The ```piko build``` command will copy the files from the ```src``` folder, stitch them together with the files in ```src/components``` folder, and output the result in the ```docs``` folder.
+> The ```piko build``` command will copy the files from the ```src``` folder, stitch them together with the files in ```src/_components``` folder, and output the result in the ```docs``` folder.
 >
 > You should typically not use the ```piko build``` command. When using Piko, you should use the ```piko dev``` command instead.
 >
@@ -226,7 +226,7 @@ If you're writing a site with several pages, keeping the head tag synchronized b
 
 Piko components are not just for the head tag. They can be used to include any html fragment on a page.
 
-In order to use Piko components, your site needs to include the folders ```docs```, ```src```, and ```src/components```:
+In order to use Piko components, your site needs to include the folders ```docs```, ```src```, and ```src/_components```:
 
 ```
 your-site
@@ -234,7 +234,7 @@ your-site
  |    ├── about.html
  |    └── index.html
  └── src
-      ├── components
+      ├── _components
       |    ├── header.html
       |    └── footer.html
       ├── about.md
@@ -245,13 +245,13 @@ your-site
 
 - The **```src```** folder is where you do your html writing.
 
-- The **```src/components```** folder contains components that can be included in pages.
+- The **```src/_components```** folder contains components that can be included in pages.
 
 ### Understanding Piko components
 
 Piko components are files with html markup. They can be included in pages.
 
-Components are located in the ```src/components``` folder.
+Components are located in the ```src/_components``` folder.
 
 Use html comment syntax to include a component in a page:
 

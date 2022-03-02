@@ -275,7 +275,7 @@ function renderComponentsAndVariables(text, data) {
         }
 
         // Assume it's just a reglar html commment, no need to log an error.
-        if (!match.includes('.')) {
+        if (!match.includes('.html') && !match.includes('.svg')) {
             return match;
         }
 

@@ -305,4 +305,4 @@ Pages can be written in markdown. Components can be included in markdown pages:
 
 Piko is written with our specific use cases at [Learnpoint](https://github.com/learnpoint) in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written Piko for fun and for our own use.
 
-That said, feel free to [create your own fork](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo), or use Piko in any way you wish! ❤️
+That said, feel free to [create your own fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo), or use Piko in any way you wish! ❤️

@@ -15,7 +15,7 @@ export async function build(options) {
         sourcePath: path.join(Deno.cwd(), 'src'),
         buildPath: path.join(Deno.cwd(), 'docs'),
         componentsPath: path.join(Deno.cwd(), 'src', 'components'),
-        layoutsPath:  path.join(Deno.cwd(), 'src', '_layouts'),
+        layoutsPath: path.join(Deno.cwd(), 'src', '_layouts'),
         forceRebuild: false,
         buildWatch: false,
         firstBuildDoneCallback: () => { },
@@ -210,23 +210,27 @@ async function isBuildNeeded(sourceFilePath, buildFilePath) {
 const isHtmlFile = sourceFilePath => path.extname(sourceFilePath) === '.html';
 const isMarkdownFile = sourceFilePath => path.extname(sourceFilePath) === '.md';
 const isHtmlOrMarkdownFile = sourceFilePath => isHtmlFile(sourceFilePath) || isMarkdownFile(sourceFilePath);
-const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
+// const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
 
 async function buildFile(sourceFilePath, buildFilePath) {
     try {
         if (isHtmlOrMarkdownFile(sourceFilePath)) {
 
             const sourceContent = await Deno.readTextFile(sourceFilePath);
+
             const sourceItem = frontmatterParse(sourceContent);
 
             if (isMarkdownFile(sourceFilePath)) {
                 sourceItem.content = marked.parse(sourceItem.content);
             }
 
-            await applyLayout(sourceItem);
+            if (sourceItem.data.layout) {
+                sourceItem.content = await renderLayout(sourceItem.content, sourceItem.data.layout);
+            }
 
-            // TODO: How to pass original content to renderHtmlFile? Right now, error messages don't know the correct line number in source file.
-            await Deno.writeTextFile(buildFilePath, renderHtmlFile(sourceItem.content, sourceFilePath, sourceItem.content));
+            sourceItem.content = renderComponentsAndVariables(sourceItem.content, sourceItem.data);
+
+            await Deno.writeTextFile(buildFilePath, sourceItem.content);
 
         } else {
             await Deno.copyFile(sourceFilePath, buildFilePath);
@@ -239,102 +243,120 @@ async function buildFile(sourceFilePath, buildFilePath) {
     }
 }
 
-async function applyLayout(sourceItem) {
-    if (!sourceItem.data.layout) {
-        return;
+function renderComponentsAndVariables(text, data) {
+    text = renderVariables(text, data);
+
+    if (!/<!--.*?-->/.test(text)) {
+        return text;
     }
 
-    const layoutPath = path.join(state.layoutsPath, sourceItem.data.layout);
-
-    const layoutContent = await Deno.readTextFile(layoutPath);
-    
-    // Render content first, then the whole layout.
-    sourceItem.content = renderTemplate(sourceItem.content, sourceItem.data);
-    sourceItem.content = renderTemplate(layoutContent, { ...sourceItem.data, content: sourceItem.content });
-}
-
-function renderTemplate(text, data) {
-    return text.replace(/{{.*?}}/g, match => {
-        const variableExpression = match.replace('{{', '').replace('}}', '').trim();
-        const [variableName, defaultValue = ''] = variableExpression.split('||').map(x => x.trim());
-        if (data[variableName]) {
-            return data[variableName];
-        } else {
-            return defaultValue;
-        }
-    });
-}
-
-function renderHtmlFile(data, sourceFilePath, originalSourceContent) {
-    const originalSourceContentString = originalSourceContent.toString();
-    const dataString = data.toString();
-
-    return dataString.replace(/<!--.*?-->/g, (match, matchPos) => {
+    return text.replace(/<!--.*?-->/g, match => {
         if (match === '<!-- site_db:off -->' || match === '<!-- site_db:on -->') {
             return match;
         }
 
-        const [error, renderedContent] = renderComponent(match.replace('<!--', '').replace('-->', ''));
-
-        if (error) {
-            console.log();
-            console.log(`%cError in: ${path.relative(Deno.cwd(), sourceFilePath)} line ${lineNumber(matchPos, originalSourceContentString)}`, 'font-weight:bold;color:#f44;');
-            console.log(`%c===> ${error}`, 'font-weight:bold;');
-            console.log();
-            return match; // Leave unchanged
+        // Assume it's just a reglar html commment, no need to log an error.
+        if (!match.includes('.')) {
+            return match;
         }
 
-        return renderedContent;
+        const [componentName, componentProps] = parseComponentExpression(match);
+
+        let componentText = '';
+
+        try {
+            componentText = Deno.readTextFileSync(path.join(state.componentsPath, componentName));
+        } catch (err) {
+            console.log();
+            console.log(`%cCouldn't find the component ${componentName}`, 'font-weight:bold;color:#f44;');
+            console.log();
+            return match;
+        }
+
+        return renderComponentsAndVariables(componentText, { ...data, ...componentProps });
     });
 }
 
-function renderComponent(componentString) {
-    let error = null;
+async function renderLayout(text, layout) {
 
-    const componentName = componentString.split(',')[0].trim();
-    const componentPath = path.join(state.componentsPath, componentName);
+    let layoutText;
 
-    let componentContent = '';
     try {
-        componentContent = Deno.readTextFileSync(componentPath);
-        componentContent = renderHtmlFile(componentContent, componentPath, componentContent)
-    } catch {
-        error = 'Component file not found: "' + componentName + '"';
+        const layoutPath = path.join(state.layoutsPath, layout);
+        layoutText = await Deno.readTextFile(layoutPath);
+    } catch (err) {
+        console.log();
+        console.log(`%cCouldn't find layout ${layout}`, 'font-weight:bold;color:#f44;');
+        console.log();
+        return text;
     }
 
-    let componentData = {};
+    const matcher = /{{ ?content ?}}/;
 
-    if (!error && componentString.includes(',')) {
-        const componentDataString = componentString.substring(componentString.indexOf(',') + 1).trim();
-        try {
-            componentData = eval(`(${componentDataString})`);
-
-            if (componentData === null || typeof componentData !== 'object') {
-                error = 'Component props is not a valid javascript object: ' + componentDataString;
-                componentData = {};
-            }
-        } catch (err) {
-            error = 'Component props is not a valid javascript object: ' + componentDataString;
-            componentData = {};
-        }
+    if (!matcher.test(layoutText)) {
+        console.log();
+        console.log(`%cThe layout ${layout} is missing a {{ content }} expression`, 'font-weight:bold;color:#f44;');
+        console.log();
+        return text;
     }
 
-    return [error, componentContent.replace(/{{.*?}}/g, match => renderComponentData(match.replace('{{', '').replace('}}', ''), componentData))];
+    return layoutText.replace(matcher, text);
 }
 
-const renderComponentData = (componentDataString, componentData) => {
-    let dataKey = componentDataString.split('||')[0].trim();
+function parseComponentExpression(match) {
+    match = match.replace('<!--', '').replace('-->', '').trim();
 
-    if (componentData[dataKey]) {
-        return componentData[dataKey];
+    const idx = match.indexOf(',');
+
+    if (idx === -1) {
+        return [match, {}];
     }
 
-    if (componentDataString.includes('||')) {
-        return componentDataString.substring(componentDataString.indexOf('||') + 2).trim();
+    const [name, propsString] = [match.slice(0, idx).trim(), match.slice(idx + 1).trim()];
+
+    let props = {};
+
+    try {
+
+        props = eval(`(${propsString})`);
+
+        if (props === null || typeof props !== 'object') {
+            throw "Not a javascript object.";
+        }
+
+    } catch (err) {
+        console.log();
+        console.log(`%cComponent ${name} was passed invalid props: ${propsString}`, 'font-weight:bold;color:#f44;');
+        console.log('=> Props should be a javascript object, like: { name: "piko" }');
+        console.log();
+        props = {};
     }
 
-    return '';
-};
+    return [name, props];
+}
+
+function renderVariables(text, data) {
+    return text.replace(/{{.*?}}/g, match => {
+
+        const variableExpression = match.replace('{{', '').replace('}}', '').trim();
+
+        let [variableName, defaultValue] = variableExpression.split('||').map(x => x.trim());
+
+        if (data[variableName]) {
+            return data[variableName];
+        }
+
+        if (typeof defaultValue === "undefined") {
+            console.log();
+            console.log(`%cCouldn't find the value for ${match}`, 'font-weight:bold;color:#f44;');
+            console.log('=> Set the value in frontmatter or component props');
+            console.log();
+            defaultValue = '';
+        }
+
+        return defaultValue;
+    });
+}
 
 async function recursiveBuildSiteDb(buildPath) {
     for await (const dirEntry of Deno.readDir(buildPath)) {

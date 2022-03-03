@@ -15,7 +15,7 @@ _A minimal CLI toolkit for html writing._
 # Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.46/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.47/piko.js
 ```
 
 Verify installation:
@@ -23,7 +23,7 @@ Verify installation:
 ```bash
 $ piko -v
 
-piko 0.9.46
+piko 0.9.47
 ```
 
 

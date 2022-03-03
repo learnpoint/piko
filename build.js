@@ -9,9 +9,28 @@ marked.setOptions({
 
 const WATCH_BUILD_DEBOUNCE = 200;
 
-let state = {};
+let state;
 
 export async function build(options) {
+    state = initState(options);
+
+    await ensureDirectories();
+
+    await runBuild(state.firstBuildDoneCallback);
+
+    if (state.buildWatch) {
+        for await (const event of Deno.watchFs(state.sourcePath)) {
+            if ((Date.now() - state.lastBuild) < WATCH_BUILD_DEBOUNCE) {
+                continue;
+            }
+            runBuild(state.watchBuildDoneCallback);
+        }
+    }
+}
+
+function initState(options) {
+    let state = {};
+
     const defaults = {
         sourcePath: path.join(Deno.cwd(), 'src'),
         buildPath: path.join(Deno.cwd(), 'docs'),
@@ -27,18 +46,7 @@ export async function build(options) {
     state.siteDb = [];
     state.lastBuild = 0;
 
-    await ensureDirectories();
-
-    await runBuild(state.firstBuildDoneCallback);
-
-    if (state.buildWatch) {
-        for await (const event of Deno.watchFs(state.sourcePath)) {
-            if ((Date.now() - state.lastBuild) < WATCH_BUILD_DEBOUNCE) {
-                continue;
-            }
-            runBuild(state.watchBuildDoneCallback);
-        }
-    }
+    return state;
 }
 
 async function ensureDirectories() {

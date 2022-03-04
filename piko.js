@@ -29,7 +29,11 @@ switch (command) {
         serve();
         break;
     case 'build':
-        build();
+        const options = {};
+        if (Deno.args[1] && Deno.args[1] === '-f') {
+            options.forceRebuild = true;
+        }
+        build(options);
         break;
     case 'upgrade':
         upgrade();

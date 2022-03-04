@@ -447,7 +447,7 @@ async function createPageItem(pagePath) {
         title: titleTagContent(pageMarkup),
         description: descriptionMetaContent(pageMarkup),
         url: '/' + path.relative(state.buildPath, pagePath).replaceAll('\\', '/'),
-        content: collapseSpaces(stripTags(stripEscapedFragments(mainTagContent(pageMarkup))))
+        content: collapseSpaces(stripTags(stripAsides(mainTagContent(pageMarkup))))
     };
 }
 
@@ -476,8 +476,8 @@ function collapseSpaces(str) {
     return str.replace(/\s+/g, " ").trim();
 }
 
-function stripEscapedFragments(str) {
-    return str.replace(/<!-- site_content:off -->([\s\S]*?)<!-- site_content:on -->/g, '');
+function stripAsides(str) {
+    return str.replace(/<aside([\s\S]*?)<\/aside>/g, '');
 }
 
 function stripTags(str) {

@@ -165,6 +165,7 @@ async function runBuild(doneCallback) {
     await recursiveBuild(state.sourcePath, state.buildPath);
     await recursiveDelete(state.sourcePath, state.buildPath);
     await buildSiteContentFile();
+    await misc();
 
     doneCallback();
 }
@@ -353,8 +354,8 @@ function parseComponentExpression(match) {
 async function recursiveDelete(sourcePath, buildPath) {
 
     // Delete all files and folders in buildPath
-    // that don't exist in sourcePath. Except for CNAME
-    // and site_content.json.
+    // that don't exist in sourcePath. Except for CNAME,
+    // site_content.json and .nojekyll.
 
     for await (const dirEntry of Deno.readDir(buildPath)) {
         const bPath = path.join(buildPath, dirEntry.name);
@@ -381,6 +382,10 @@ async function recursiveDelete(sourcePath, buildPath) {
             continue;
         }
 
+        if (dirEntry.name === '.nojekyll') {
+            continue;
+        }
+
         if (bPath === state.siteContentFilePath) {
             continue;
         }
@@ -400,7 +405,7 @@ async function recursiveDelete(sourcePath, buildPath) {
 
 
 
-/* =====================================================================
+/*  =====================================================================
     Build Site Content File
     ===================================================================== */
 
@@ -482,4 +487,21 @@ function stripAsides(str) {
 
 function stripTags(str) {
     return str.replace(/<\/?[^>]+>/g, "");
+}
+
+
+
+/*  =====================================================================
+    Misc
+    ===================================================================== */
+
+async function misc() {
+
+    // Ensure .nojekyll file exist in buildPath. This is to instruct
+    // github pages to serve underscored prefixed folders.
+    const nojekllPath = path.join(state.buildPath, '.nojekyll');
+    const nojekllExist = await exists(nojekllPath);
+    if (!nojekllExist) {
+        await Deno.writeTextFile(nojekllPath, '');
+    }
 }

@@ -477,7 +477,7 @@ function collapseSpaces(str) {
 }
 
 function stripEscapedFragments(str) {
-    return str.replace(/<!-- site_db:off -->([\s\S]*?)<!-- site_db:on -->/g, '');
+    return str.replace(/<!-- site_content:off -->([\s\S]*?)<!-- site_content:on -->/g, '');
 }
 
 function stripTags(str) {

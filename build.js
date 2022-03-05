@@ -268,12 +268,9 @@ function renderComponentsAndVariables(text, data) {
     }
 
     return text.replace(/<!--.*?-->/g, match => {
-        if (match === '<!-- site_db:off -->' || match === '<!-- site_db:on -->') {
-            return match;
-        }
-
-        // Assume it's just a reglar html commment, no need to log an error.
+        
         if (!match.includes('.html') && !match.includes('.svg')) {
+            // Assume it's just a reglar html commment, no need to log an error.
             return match;
         }
 

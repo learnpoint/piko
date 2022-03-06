@@ -20,17 +20,19 @@ export async function create(projectName) {
     }
 
     const sourcePath = path.join(projectPath, 'src');
-    const buildPath = path.join(projectPath, 'docs');
-    const componentsPath = path.join(sourcePath, 'components');
+    const componentsPath = path.join(sourcePath, '_components');
+    const layoutsPath = path.join(sourcePath, '_layouts');
 
     await Deno.mkdir(sourcePath);
-    await Deno.mkdir(buildPath);
     await Deno.mkdir(componentsPath);
+    await Deno.mkdir(layoutsPath);
 
-    Deno.writeTextFile(path.join(sourcePath, 'index.html'), indexFileContent());
-    Deno.writeTextFile(path.join(sourcePath, 'about.md'), aboutFileContent());
-    Deno.writeTextFile(path.join(componentsPath, 'header.html'), headerFileContent(projectName));
-    Deno.writeTextFile(path.join(componentsPath, 'footer.html'), footerFileContent());
+    Deno.writeTextFile(path.join(sourcePath, 'index.html'), indexPageContent());
+    Deno.writeTextFile(path.join(sourcePath, 'about.md'), aboutPageContent());
+    Deno.writeTextFile(path.join(sourcePath, '404.html'), notFoundPageContent());
+    Deno.writeTextFile(path.join(sourcePath, 'style.css'), styleContent());
+    Deno.writeTextFile(path.join(layoutsPath, 'default.html'), defaultLayoutContent());
+    Deno.writeTextFile(path.join(componentsPath, 'nav.html'), navComponentContent(projectName));
 
     console.log(`piko successfully created the folder /${projectName}`);
     console.log();
@@ -60,34 +62,75 @@ function exitWithError(messages, error) {
     Deno.exit(1);
 }
 
-const indexFileContent = () => `<!-- header.html -->
+const indexPageContent = () => `---
+layout: default.html
+---
 
-<h1>Hello world</h1>
+<h1>Hello World</h1>
 
-<!-- footer.html -->`;
+<p>This is the index page.</p>`;
 
-const aboutFileContent = () => `<!-- header.html, { title: "About" } -->
+const aboutPageContent = () => `---
+layout: default.html
+description: We're all about fast sites
+title: About
+---
 
 # About
 
-<!-- footer.html -->`;
+This is the about page.`;
 
-const headerFileContent = projectName => `<!DOCTYPE html>
+const notFoundPageContent = () => `---
+layout: default.html
+title: Page not found
+---
+
+<h1>Page not found</h1>`;
+
+const styleContent = () => `body {
+    font-family: -apple-system, 'Segoe UI', sans-serif;
+    background-color: #f0f0f0;
+}
+
+nav {
+    margin: 2em 0 1em;
+    text-align: center;
+}
+
+main {
+    width: 640px;
+    margin: 0 auto;
+    padding: 1em 1em 2em;
+    border-radius: .5em;
+    background-color: #fff;
+    text-align: center;
+}`;
+
+const defaultLayoutContent = () => `<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    <title>{{ title || Hello World }}</title>
+    <meta name="description" content="{{ description || This site was created by Piko }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title || ${projectName} }}</title>
+    <link rel="stylesheet" href="/style.css" />
 </head>
 
 <body>
-    <nav>
-        <a href="/index.html">Home</a>
-        <a href="/about.html">About</a>
-    </nav>
-`;
+    <!-- nav.html -->
+    <main>
+        {{ content }}
+    </main>
+</body>
 
-const footerFileContent = () => `</body>
-</html>
-`;
+</html>`;
+
+const navComponentContent = projectName => `<aside>
+<nav>
+    <a href="/index.html">Home</a>
+    <a href="/about.html">About</a>
+</nav>
+</aside>`;
+
+

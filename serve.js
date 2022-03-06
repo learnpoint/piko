@@ -4,7 +4,7 @@ import { Status, STATUS_TEXT } from "./utils/http_status.js";
 import { contentType } from "./utils/content_type.js";
 import { path } from "./deps.js";
 
-const RELOAD_DEBOUNCE = 60;
+const RELOAD_DEBOUNCE = 40;
 
 const server = {
     root: null,

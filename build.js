@@ -292,11 +292,9 @@ function renderComponentsAndVariables(text, data) {
 }
 
 function renderVariables(text, data) {
-    return text.replace(/{{.*?}}/g, match => {
+    return text.replace(/{{(.*?)}}/g, (match, group) => {
 
-        const variableExpression = match.replace('{{', '').replace('}}', '').trim();
-
-        let [variableName, defaultValue] = variableExpression.split('||').map(x => x.trim());
+        let [variableName, defaultValue] = group.split('||').map(x => x.trim());
 
         if (data[variableName]) {
             return data[variableName];

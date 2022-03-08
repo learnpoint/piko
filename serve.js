@@ -12,6 +12,9 @@ const server = {
     startTime: 0
 };
 
+let etagFastPaths = [];
+const etagFastPathKey = (url, etag) => url + ':' + etag;
+
 export async function serve(servePath) {
     server.startTime = Date.now();
     server.root = servePath || Deno.cwd();
@@ -35,6 +38,13 @@ async function webSocketHandler(req) {
 }
 
 async function httpHandler(req) {
+    // Use etag fast path (browser cache)?
+    if (req.headers.get('if-none-match')) {
+        if (etagFastPaths.includes(etagFastPathKey(req.url, req.headers.get('if-none-match')))) {
+            return respond(req, Status.NotModified);
+        }
+    }
+
     const filePath = getFilePath(req);
     let stat;
 
@@ -71,10 +81,12 @@ async function httpHandler(req) {
             const fileContent = await Deno.readTextFile(filePath);
             const body = fileContent.replace("</body>", `${browserReloadScript}</body>`);
             headers.set("content-type", contentType(filePath));
+            etagFastPaths.push(etagFastPathKey(req.url, etag));
             return respond(req, Status.OK, body, headers);
         } else {
             const file = await Deno.readFile(filePath);
             headers.set("content-type", contentType(filePath));
+            etagFastPaths.push(etagFastPathKey(req.url, etag));
             return respond(req, Status.OK, file, headers);
         }
     } catch (error) {
@@ -117,6 +129,7 @@ async function watchAndReload() {
             console.log();
 
             let socket = null;
+            etagFastPaths = [];
 
             while (socket = server.sockets.pop()) {
                 if (socket.readyState === WebSocket.OPEN) {

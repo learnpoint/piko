@@ -214,6 +214,7 @@ const browserReloadScript = `
 <script>
     window.addEventListener('load', function () {
 
+        let socketDisabled = false;
         let reloading = false;
         let ws = new WebSocket('ws://' + location.host + '/ws');
 
@@ -225,11 +226,24 @@ const browserReloadScript = `
         }, 50000);
 
         // The server will close the connection on file changes.
-        // Reload the page when that happens.
-        ws.onclose = reload;
+        // Reload the page if the connection was 'cleanly' closed
+        // with code 1000 (otherwise do nothing).
+        ws.addEventListener('close', event => {
+            if (event.code !== 1000) {
+                console.log('piko reload socket was unexpectedly closed.');
+                socketDisabled = true;
+                return;
+            }
+
+            reload();
+        });
 
         async function reload() {
             if (reloading) {
+                return;
+            }
+
+            if (socketDisabled) {
                 return;
             }
 
@@ -239,14 +253,14 @@ const browserReloadScript = `
                 let res = await fetch(location.href);
 
                 if (res.ok || res.status === 404) {
-                    console.log('Piko reloading page...');
+                    console.log('piko reloading page...');
                     location.reload();
                 } else {
-                    console.debug('Piko server not responding, will not reload.');
+                    console.debug('piko server not responding, will not reload.');
                     reloading = false;
                 }
             } catch {
-                console.debug('Piko server not responding, will not reload.');
+                console.debug('piko server not responding, will not reload.');
                 reloading = false;
             }
         }
@@ -266,7 +280,7 @@ const browserReloadScript = `
         }, 3000); 
 
         ws.onopen = function (event) {
-            console.debug('Piko reload socket connection established.');
+            console.debug('piko reload socket connection established.');
         }
 
         ws.onerror = function (event) {

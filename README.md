@@ -7,7 +7,7 @@ _A minimal CLI toolkit for html writing._
 
 # Requirements
 
-- [Deno](https://deno.land/manual/getting_started/installation) v1.19.2 or later.
+- [Deno](https://deno.land/manual/getting_started/installation) v1.19.3 or later.
 
 
 

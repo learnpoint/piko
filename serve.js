@@ -213,10 +213,12 @@ function searchString(req) {
 const browserReloadScript = `
 <script>
     window.addEventListener('load', function () {
-
+        
         let socketDisabled = false;
         let reloading = false;
-        let ws = new WebSocket('ws://' + location.host + '/ws');
+        const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+        let ws = new WebSocket(protocol + '//' + location.host + '/ws');
 
         // Ping to keep connection alive.
         setInterval(function () {

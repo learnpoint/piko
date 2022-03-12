@@ -155,6 +155,8 @@ async function isBuildNeeded(sourceFilePath, buildFilePath) {
     ===================================================================== */
 
 async function runBuild(doneCallback) {
+    const buildStart = Date.now();
+
     state.lastBuild = Date.now();
     state.componentsAndLayoutsLastModifiedTime = await getComponentsAndLayoutsLastModifiedTime();
 
@@ -166,6 +168,8 @@ async function runBuild(doneCallback) {
     await recursiveDelete(state.sourcePath, state.buildPath);
     await buildSiteContentFile();
     await misc();
+
+    console.log(Date.now() - buildStart, 'ms');
 
     doneCallback();
 }

@@ -1,11 +1,11 @@
-export async function listenAndServe(httpHandler, webSocketHandler) {
-    const PORT_CANDIDATES = [3333, 4444, 5555, 6666, 7777, 8888, 9999];
+export async function listenAndServe(httpHandler, webSocketHandler, options = { port: null, muteLog: false }) {
 
+    const PORT_CANDIDATES = options.port ? [options.port] : [3333, 4444, 5555, 6666, 7777, 8888, 9999];
     const listener = createListener(PORT_CANDIDATES);
 
-    console.log();
-    console.log(`%cServer started at http://127.0.0.1:${listener.addr.port}/`, 'color:#4f4;');
-    console.log();
+    if (!options.muteLog) {
+        console.log(`%c\nServer started at http://127.0.0.1:${listener.addr.port}/\n`, 'color:#4f4;');
+    }
 
     for await (const connection of listener) {
         connectionHandler(connection, httpHandler, webSocketHandler);
@@ -36,12 +36,14 @@ function requestHandler(request, httpHandler, webSocketHandler) {
 }
 
 function createListener(portCandidates) {
+
     // Recursively try listen on port candidates.
     // Return listener if successful.
-    // Throw error when all candidates unsuccessfully tried.
+    // Exit if all candidates unsuccessfully tried.
 
     if (portCandidates.length < 1) {
-        throw new Error('Could not find an available port.');
+        console.log('%c\nError. Could not find an available port.\n', 'font-weight:bold;color:#f44;')
+        Deno.exit(1);
     }
 
     const port = portCandidates.shift();

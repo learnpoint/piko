@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.129.0/http/server.ts";
+import { listenAndServe } from "./utils/listen_and_serve.js";
 
 const PROXY_HOSTNAME = 'localhost';
 const PROXY_PORT = 9999;
@@ -8,32 +8,124 @@ let ORIGIN_PORT;
 
 export async function share(args) {
     ORIGIN_PORT = parseArgs(args);
-    startProxyServer(handler, PROXY_PORT);
+
+    listenAndServe(httpHandler, webSocketHandler, { port: PROXY_PORT, muteLog: true });
+    console.log(`%c\nCloudflare Tunnel requests will be forwarded to => http://${ORIGIN_HOSTNAME}:${ORIGIN_PORT}/\n`, 'font-weight:bold;color:#ff4;');
+
     startCloudflareTunnel(`${PROXY_HOSTNAME}:${PROXY_PORT}`);
 }
 
-async function startProxyServer(handler, port) {
-    serve(handler, { port });
-    console.log(`%c\nCloudflare Tunnel request will be forwarded to => http://${ORIGIN_HOSTNAME}:${ORIGIN_PORT}/\n`, 'color:#ff4;')
+
+
+/* =====================================================================
+    HTTP Handler
+    ===================================================================== */
+
+async function httpHandler(req) {
+    const proxyUrl = createProxyUrl(req.url);
+    const proxyHeaders = createProxyHeaders(req.headers);
+
+    return await fetch(proxyUrl.href, {
+        headers: proxyHeaders,
+        method: req.method,
+        body: req.body,
+        redirect: 'manual'
+    });
 }
+
+
+
+/* =====================================================================
+    WebSocket Handler
+    ===================================================================== */
+
+async function webSocketHandler(req) {
+
+    // STATUS: WebSockets are explicitly forbidden.
+    //
+    // WebSockets are symmetrical. The origin server can act as a
+    // "client" and send messages to the browser. It's a challenge
+    // to implement a symmetrical protocol in a proxy server.
+    //
+    // Article about sockets and proxies:
+    // https://www.infoq.com/articles/Web-Sockets-Proxy-Servers/
+    //
+    // Interesting libraries that bypass proxies through the TCP layer:
+    // https://github.com/TooTallNate/node-https-proxy-agent
+    // https://github.com/stbrenner/socket.io-proxy
+    //
+    // For now, we don't forward upgrade requests. Instead we
+    // immediately respond with 200 OK, which means that the
+    // upgrade is refused.
+    //
+    // NOTE: Cloudflare Tunnel seems to properly forwards upgrade requests.
+
+    return new Response(null);
+}
+
+
+
+/* =====================================================================
+    Start Cloudflare Tunnel
+    ===================================================================== */
 
 async function startCloudflareTunnel(url) {
     try {
-        const p = Deno.run({
+        const process = Deno.run({
             cmd: ["cloudflared", "tunnel", "-url", url],
         });
-        await p.status();
-        p.close();
-    } catch (ex) {
-        if (ex instanceof Deno.errors.NotFound) {
+
+        await process.status();
+        process.close();
+
+    } catch (error) {
+
+        if (error instanceof Deno.errors.NotFound) {
             console.log('%cError: Cloudflare Tunnel not found.', 'font-weight:bold;color:#f44');
-            console.log('=> Verify that the cloudflared deamon is properly installed on your system.');
+            console.log('  Verify that the cloudflared deamon is properly installed on your system.');
+            console.log('  Open a terminal and run the command:');
+            console.log('  cloudflared -v');
         } else {
-            console.log(ex)
+            console.log(error);
         }
         Deno.exit(1);
     }
 }
+
+
+
+/* =====================================================================
+    Proxy Helpers
+    ===================================================================== */
+
+function createProxyHeaders(headers) {
+    const proxyHeaders = new Headers();
+
+    for (const header of headers.entries()) {
+        if (header[0] === 'host') {
+            header[1] = `${ORIGIN_HOSTNAME}:${ORIGIN_PORT}`;
+        } else {
+            proxyHeaders.set(header[0], header[1]);
+        }
+    }
+
+    return proxyHeaders;
+}
+
+function createProxyUrl(url) {
+    const proxyUrl = new URL(url);
+    proxyUrl.protocol = "http:";
+    proxyUrl.hostname = ORIGIN_HOSTNAME;
+    proxyUrl.port = ORIGIN_PORT;
+
+    return proxyUrl;
+}
+
+
+
+/* =====================================================================
+    Parse Args
+    ===================================================================== */
 
 function parseArgs(args) {
     const configName = args[0];
@@ -93,6 +185,12 @@ function parseArgs(args) {
     return portArg;
 }
 
+
+
+/* =====================================================================
+    Terminal Print Helpers
+    ===================================================================== */
+
 function printSavedNames() {
     console.log('Saved names');
     console.log('-----------')
@@ -102,40 +200,5 @@ function printSavedNames() {
 }
 
 function printHelp() {
-    console.log('\n[piko share help]\n');
-}
-
-async function handler(req) {
-    const proxyUrl = createProxyUrl(req.url);
-    const proxyHeaders = createProxyHeaders(req.headers);
-
-    return await fetch(proxyUrl.href, {
-        headers: proxyHeaders,
-        method: req.method,
-        body: req.body,
-        redirect: 'manual'
-    });
-}
-
-function createProxyHeaders(headers) {
-    const proxyHeaders = new Headers();
-
-    for (const header of headers.entries()) {
-        if (header[0] === 'host') {
-            header[1] = `${ORIGIN_HOSTNAME}:${ORIGIN_PORT}`;
-        } else {
-            proxyHeaders.set(header[0], header[1]);
-        }
-    }
-
-    return proxyHeaders;
-}
-
-function createProxyUrl(url) {
-    const proxyUrl = new URL(url);
-    proxyUrl.protocol = "http:";
-    proxyUrl.hostname = ORIGIN_HOSTNAME;
-    proxyUrl.port = ORIGIN_PORT;
-
-    return proxyUrl;
+    console.log('\n[piko share help text]\n');
 }

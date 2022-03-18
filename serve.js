@@ -216,13 +216,13 @@ const browserReloadScript = `
         
         let socketIsProvenFunctional = false;
         let reloading = false;
-        const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
 
-        let ws = new WebSocket(protocol + '//' + location.host + '/ws');
+        const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(protocol + '//' + location.host + '/ws');
 
         ws.onopen = function (event) {
             socketIsProvenFunctional = true;
-            console.debug('piko reload socket connection established.');
+            console.log('piko reload socket connection established');
         }
 
         // The server will close the connection on file changes.
@@ -233,16 +233,15 @@ const browserReloadScript = `
             }
         }
 
-        // Keep connection alive.
+        ws.onerror = function (event) {
+            console.log('piko reload socket error');
+        };
+
         setInterval(function () {
             if (ws.readyState === 1) {
-                ws.send('ping');
+                ws.send('ping'); // Keep connection alive.
             }
         }, 50000);
-
-        ws.onerror = function (event) {
-            console.error(event);
-        };
 
         async function reload() {
             if (reloading) {
@@ -262,11 +261,11 @@ const browserReloadScript = `
                     console.log('piko reloading page...');
                     location.reload();
                 } else {
-                    console.debug('piko server not responding, will not reload.');
+                    console.log('piko server not responding, will not reload.');
                     reloading = false;
                 }
             } catch {
-                console.debug('piko server not responding, will not reload.');
+                console.log('piko server not responding, will not reload.');
                 reloading = false;
             }
         }

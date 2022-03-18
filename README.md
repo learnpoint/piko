@@ -1,18 +1,22 @@
 # <img src="piko.svg" height="20px">
 
-_Toolkit for Learnpoint Developers_
+_Toolkit for Learnpoint Developers._
+
+- **Serve** — A disturbingly fast web server. With auto reload, caching, and compression.
+- **Build** & **Dev** — SSG utils.
+- **Copy** — Copy files from your github template repo.
+- **Share** — Navigate to your localhost server from a mobile phone. Or share with colleagues!
 
 
-
-
-# Requirements
+## Requirements
 
 - [Deno](https://deno.land/manual/getting_started/installation) v1.20.1 or later.
+- [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/tutorials/single-command/) is required when using Piko Share.
 
 
 
 
-# Installation
+## Installation
 
 ```bash
 $ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.50/piko.js
@@ -29,7 +33,7 @@ piko 0.9.50
 
 
 
-# Upgrading
+## Upgrading
 
 ```bash
 $ piko upgrade
@@ -46,14 +50,14 @@ If you encounter any problems when upgrading, the easiest way out is to install 
 
 
 
-# CLI Reference
+## CLI Reference
 
 Piko is a CLI with a small collection of commands.
 
 
 
 
-## ```copy```
+### ```copy```
 
 Copy a github repo to your computer:
 ```bash
@@ -99,7 +103,7 @@ $ piko copy <OWNER/REPO> [FOLDER_NAME]
 
 
 
-## ```serve```
+### ```serve```
 
 Start a static web server in current folder:
 ```bash
@@ -121,7 +125,7 @@ $ piko serve
 
 
 
-## ```build```
+### ```build```
 
 Find all pages in the ```src``` folder, stitch them together with components in the ```src/_components``` folder and output the result in the ```docs``` folder:
 
@@ -140,7 +144,7 @@ $ piko build
 
 
 
-## ```dev```
+### ```dev```
 
 Continuously run the ```piko build``` command in the current folder, and start ```piko serve``` in the folder ```docs```:
 
@@ -157,7 +161,7 @@ piko dev
 
 
 
-## ```create```
+### ```create```
 
 Create a folder with example pages and Piko components:
 
@@ -184,7 +188,7 @@ $ piko create test
 
 
 
-## ```upgrade```
+### ```upgrade```
 
 Upgrade Piko:
 
@@ -198,7 +202,7 @@ $ piko upgrade
 
 
 
-## ```version```
+### ```version```
 
 Show currently installed version of Piko:
 
@@ -209,7 +213,7 @@ $ piko version
 
 
 
-## ```help```
+### ```help```
 
 Display the CLI Reference:
 
@@ -220,7 +224,7 @@ $ piko help
 
 
 
-# Piko Components
+## Piko Components
 
 If you're writing a site with several pages, keeping the head tag synchronized between the pages is annoying and error prone. Piko let's you extract the head tag into a separate file that can be included on all the pages in your site.
 
@@ -301,7 +305,7 @@ Pages can be written in markdown. Components can be included in markdown pages:
 ***NOTE:*** Components must be written in html. Markdown is only supported in pages.
 
 
-# Contributing
+## Contributing
 
 Piko is written with our specific use cases at [Learnpoint](https://github.com/learnpoint) in mind. We will not accept pull requests or fix issues that we don't experience at Learnpoint. We've written Piko for fun and for our own use.
 

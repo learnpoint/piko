@@ -1,6 +1,6 @@
-<img src="piko.svg" height="20px">
+# <img src="piko.svg" height="20px">
 
-_A minimal CLI toolkit for html writing._
+_Toolkit for Learnpoint Developers_
 
 
 

@@ -66,7 +66,7 @@ async function httpHandler(req) {
     }
 
     // Set Etag
-    const etag = stat.mtime.getTime().toString() + server.startTime.toString(); // flush cache on server boot
+    const etag = 'W/' + stat.mtime.getTime().toString() + server.startTime.toString(); // flush cache on server boot
     const headers = new Headers();
     headers.set('etag', etag);
 

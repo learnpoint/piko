@@ -4,8 +4,8 @@ _Toolkit for Learnpoint Developers._
 
 - **Serve** — A disturbingly fast web server. With auto reload, caching, and compression.
 - **Build** & **Dev** — SSG utils.
-- **Copy** — Copy files from your github template repo.
-- **Share** — Navigate to your localhost server from a mobile phone. Or share with colleagues!
+- **Copy** — Copy files from a github template repository.
+- **Share** — Navigate to your localhost server from a mobile phone. Or share with your curious colleagues!
 
 
 ## Requirements

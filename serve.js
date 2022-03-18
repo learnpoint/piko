@@ -38,7 +38,7 @@ async function webSocketHandler(req) {
 }
 
 async function httpHandler(req) {
-    // Use etag fast path (browser cache)?
+    // Use etag fast path?
     if (req.headers.get('if-none-match')) {
         if (etagFastPaths.includes(etagFastPathKey(req.url, req.headers.get('if-none-match')))) {
             return respond(req, Status.NotModified);
@@ -66,12 +66,13 @@ async function httpHandler(req) {
     }
 
     // Set Etag
-    const etag = 'W/' + stat.mtime.getTime().toString() + server.startTime.toString(); // flush cache on server boot
+    const etag = 'W/' + stat.mtime.getTime().toString() + server.startTime.toString(); // Flush cache on server (re)boot using server.startTime
     const headers = new Headers();
     headers.set('etag', etag);
 
     // Use cache?
     if (req.headers.get('if-none-match') && req.headers.get('if-none-match') === etag) {
+        etagFastPaths.push(etagFastPathKey(req.url, etag));
         return respond(req, Status.NotModified);
     }
 

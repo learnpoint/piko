@@ -5,6 +5,7 @@ import { create } from "./create.js";
 import { copy } from "./copy.js";
 import { serve } from "./serve.js";
 import { build } from "./build.js";
+import { share } from "./share.js";
 import { upgrade } from "./upgrade.js";
 import { version, denoVersion } from "./version.js";
 
@@ -34,6 +35,9 @@ switch (command) {
             options.forceRebuild = true;
         }
         build(options);
+        break;
+    case 'share':
+        share(Deno.args.slice(1));
         break;
     case 'upgrade':
         upgrade();
@@ -77,6 +81,10 @@ function printUsage() {
 
     console.log('Start dev server:');
     console.log('  piko dev');
+    console.log();
+
+    console.log('Share localhost over a Cloudflare Tunnel:');
+    console.log('  piko share <NAME> [PORT]');
     console.log();
 
     console.log('Create new site:');

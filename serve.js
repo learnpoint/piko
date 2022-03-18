@@ -214,38 +214,42 @@ const browserReloadScript = `
 <script>
     window.addEventListener('load', function () {
         
-        let socketDisabled = false;
+        let socketIsProvenFunctional = false;
         let reloading = false;
         const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
 
         let ws = new WebSocket(protocol + '//' + location.host + '/ws');
 
-        // Ping to keep connection alive.
+        ws.onopen = function (event) {
+            socketIsProvenFunctional = true;
+            console.debug('piko reload socket connection established.');
+        }
+
+        // The server will close the connection on file changes.
+        // Reload on close, but only if connection has been proven to work.
+        ws.onclose = function(event) {
+            if (socketIsProvenFunctional) {
+                reload();
+            }
+        }
+
+        // Keep connection alive.
         setInterval(function () {
             if (ws.readyState === 1) {
                 ws.send('ping');
             }
         }, 50000);
 
-        // The server will close the connection on file changes.
-        // Reload the page if the connection was 'cleanly' closed
-        // with code 1000 (otherwise do nothing).
-        ws.addEventListener('close', event => {
-            if (event.code !== 1000) {
-                console.log('piko reload socket was unexpectedly closed.');
-                socketDisabled = true;
-                return;
-            }
-
-            reload();
-        });
+        ws.onerror = function (event) {
+            console.error(event);
+        };
 
         async function reload() {
             if (reloading) {
                 return;
             }
 
-            if (socketDisabled) {
+            if (!socketIsProvenFunctional) {
                 return;
             }
 
@@ -267,7 +271,7 @@ const browserReloadScript = `
             }
         }
 
-        // The socket close event might not trigger when the page is hidden or inactive.
+        // The socket close event might be prevented from firing when page is hidden or inactive.
         // Therefore, check the connection on pages transitions and reload if connection was lost.
         // Wait to avoid reload before initial connection is established.
         setTimeout(function () {
@@ -279,15 +283,8 @@ const browserReloadScript = `
                     reload();
                 }
             }
-        }, 3000); 
+        }, 3000);
 
-        ws.onopen = function (event) {
-            console.debug('piko reload socket connection established.');
-        }
-
-        ws.onerror = function (event) {
-            console.error(event);
-        };
     });
 </script>
 

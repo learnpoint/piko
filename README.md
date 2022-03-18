@@ -1,63 +1,120 @@
 # <img src="piko.svg" height="20px">
 
-_Piko is a toolkit for Learnpoint Developers._
+
+_Piko is a toolkit for Learnpoint Developers_
+
 
 - **Serve** — A disturbingly fast web server. With auto reload, caching, and compression.
-- **Build** & **Dev** — SSG utils.
+- **Share** — Navigate to your localhost server from a mobile phone. Or share with curious colleagues!
 - **Copy** — Copy files from a github template repository.
-- **Share** — Navigate to your localhost server from a mobile phone. Or share with your curious colleagues!
+- **Build** & **Dev** — SSG utils.
+
 
 
 ## Requirements
 
-- [Deno](https://deno.land/manual/getting_started/installation) v1.20.1 or later.
-- [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/tutorials/single-command/) is required when using Piko Share.
+- **Deno v1.20.1** or later.
+- **Cloudflare Tunnel** (only required for the Share tool).
 
 
 
+## Install Deno
 
-## Installation
+Follow the [instructions on this page](https://deno.land/manual/getting_started/installation).
+
+Verify installation (from a fresh terminal):
+
+```bash
+$ deno --version
+deno 1.20.1 ...
+```
+
+Upgrade:
+```bash
+$ deno upgrade
+```
+
+
+
+## Install Cloudflare Tunnel on Windows
+
+Cloudflare Tunnel is only required for the **Share** tool. Every other Piko tool can be used without Cloudflare Tunnel.
+
+1. Download the 64-bit version (for Windows) from the [downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/).
+2. Rename the downloaded file to ```cloudflared.exe```
+3. Create a folder named ```C:\Program Files (x86)\cloudflared```
+4. Copy the (downloaded and renamed) file to the (created) folder.
+5. Add ```C:\Program Files (x86)\cloudflared``` to your PATH environment variable.
+
+Verify installation (from a fresh terminal):
+
+```bash
+$ cloudflared -v
+cloudflared version ...
+```
+
+Upgrading Cloudflare Tunnel must be done manually on Windows:
+
+1. Download the new version from the [downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/).
+2. Rename the downloaded file to ```cloudflared.exe```
+3. Copy the (downloaded and renamed) file to ```C:\Program Files (x86)\cloudflared```. Accept the warning to overwrite the existing file.
+
+
+
+## Install Piko
 
 ```bash
 $ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.50/piko.js
 ```
 
-Verify installation:
+Verify installation (from a fresh terminal):
 
 ```bash
 $ piko -v
-
-piko 0.9.50
+piko 0.9.50...
 ```
 
-
-
-
-## Upgrading
+Upgrade:
 
 ```bash
 $ piko upgrade
 ```
 
-If you encounter any problems when upgrading, the easiest way out is to install Piko from scratch:
-
-1. Make sure you have the required version of Deno installed (see _Requirements_ above).
-2. Delete the Piko binaries (there are one or two files, depending on operating system). The binaries are located here:
-    - Windows: ```%USERPROFILE%\.deno\bin```
-    - Mac: ```$HOME/.deno/bin```
-3. Install Piko from scratch (see _Installation_ above).
 
 
+## Serve
+
+Serve is a static web server. Launch from any folder using the command:
+
+```bash
+$ piko serve
+```
+
+Notes about Serve:
+
+- Most common file types are supported.
+- Requests to folders are redirected to ```/index.html```.
+- Requests to non-existing files (or folders) will recieve a 404 response. If a there's a ```404.html``` file in the server root folder, the response body will be populated with the contents of that file.
+- Browser(s) are automatically reloaded when a file is edited (in the folder where Serve was started). The reload functionality is implemented through websockets using javascript injection on html pages.
+- Multiple instances are allowed. When you start (a new instance of) Serve, the port is selected dynamically and printed to the terminal. Default port is ```3333```.
+- Responses are compressed with gzip or brotly (whatever the browser supports).
+- Only the http protocol is supported. There's no plan to implement https, h2 or h3.
+- Serve is host agnostic. Both 127.0.0.1 and localhost works fine.
+- Responses are marked with an etag headers for caching. The etag headers are re-calculated every time Serve is restarted.
 
 
-## CLI Reference
+## Share
 
-Piko is a CLI with a small collection of commands.
+Share your localhost server with the command:
+
+```bash
+$ piko share <name> [PORT]
+```
 
 
 
 
-### ```copy```
+## Copy
 
 Copy a github repo to your computer:
 ```bash
@@ -66,7 +123,7 @@ $ piko copy <OWNER/REPO> [FOLDER_NAME]
 
 **Description**
 
-> The ```piko copy``` command is somewhat similar to ```git clone```, except it only downloads the latest commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you want to use a github repo as a template for your html writing.
+The ```piko copy``` command is somewhat similar to ```git clone```, except it only downloads the latest commited tree. It doesn't download the ```.git``` folder. It also doesn't download files like ```LICENSE```, ```CNAME```, ```README.md```, or ```.gitignore```. This command is useful when you want to use a github repo as a template for your html writing.
 
 **```<OWNER/REPO>```** _required_
 
@@ -103,29 +160,7 @@ $ piko copy <OWNER/REPO> [FOLDER_NAME]
 
 
 
-### ```serve```
-
-Start a static web server in current folder:
-```bash
-$ piko serve
-```
-
-**Description**
-
-> The ```piko serve``` command will start a fast static web server in the current folder.
->
-> The server will automatically reload the browser(s) upon file changes.
->
-> The server is completely non-cached. It never asks clients to cache resources. If you need to test http caching logic, you should use another server.
-> 
-> Requests to folders will be redirected to ```/index.html```.
->
-> Requests to non-existing files or folders will recieve a 404 response. If there's a file named ```404.html``` in the root folder (the folder where ```piko serve``` was started), the reponse body will be populated with the contents of that file.
-
-
-
-
-### ```build```
+## Build
 
 Find all pages in the ```src``` folder, stitch them together with components in the ```src/_components``` folder and output the result in the ```docs``` folder:
 

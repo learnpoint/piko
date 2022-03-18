@@ -1,6 +1,6 @@
 # <img src="piko.svg" height="20px">
 
-_Toolkit for Learnpoint Developers._
+_Piko is a toolkit for Learnpoint Developers._
 
 - **Serve** — A disturbingly fast web server. With auto reload, caching, and compression.
 - **Build** & **Dev** — SSG utils.

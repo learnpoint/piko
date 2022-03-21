@@ -188,42 +188,6 @@ async function recursiveBuild(sourcePath, buildPath) {
     }));
 }
 
-// async function buildWalk(sourcePath, buildPath) {
-//     const pathPairs = [];
-
-//     for await (const item of Deno.readDir(sourcePath)) {
-//         const sPath = path.join(sourcePath, item.name);
-//         let bPath = path.join(buildPath, item.name);
-
-//         if (sPath === state.componentsPath) {
-//             continue;
-//         }
-
-//         if (sPath === state.layoutsPath) {
-//             continue;
-//         }
-
-//         if (item.isDirectory) {
-
-//             pathPairs.push({ sourcePath: sPath, buildPath: bPath });
-
-//             const nestedPaths = await buildWalk(sPath, bPath);
-//             pathPairs.push(...nestedPaths);
-
-//         } else {
-
-//             if (isMarkdownFile(bPath)) {
-//                 // Change build file extension from .md to .html
-//                 bPath = bPath.slice(0, -2) + 'html';
-//             }
-
-//             pathPairs.push({ sourcePath: sPath, buildPath: bPath });
-//         }
-//     }
-
-//     return pathPairs;
-// }
-
 async function pairWalk(originPath, pairPath, omit = []) {
 
     // Recursively walk the origin path and collect
@@ -257,26 +221,7 @@ async function pairWalk(originPath, pairPath, omit = []) {
     return pathPairs;
 }
 
-// async function buildDir(sourcePath, buildPath) {
-//     // const sourceFileInfo = await Deno.lstat(sourcePath);
-
-//     // if (!sourceFileInfo.isDirectory) {
-//     //     return;
-//     // }
-
-//     // if (await exists(buildPath)) {
-//     //     return;
-//     // }
-
-//     // await Deno.mkdir(buildPath, { recursive: true });
-// }
-
 async function buildFile(sourceFilePath, buildFilePath) {
-    // const sourceFileInfo = await Deno.lstat(sourceFilePath);
-
-    // if (sourceFileInfo.isDirectory) {
-    //     return;
-    // }
 
     if (isMarkdownFile(sourceFilePath)) {
         buildFilePath = buildFilePath.slice(0, -2) + 'html';
@@ -319,70 +264,6 @@ async function buildFile(sourceFilePath, buildFilePath) {
         console.log();
     }
 }
-
-// async function recursiveBuildX(sourcePath, buildPath) {
-//     await Deno.mkdir(buildPath, { recursive: true });
-
-//     for await (const dirEntry of Deno.readDir(sourcePath)) {
-//         const sPath = path.join(sourcePath, dirEntry.name);
-//         let bPath = path.join(buildPath, dirEntry.name);
-
-//         if (sPath === state.componentsPath) {
-//             continue;
-//         }
-
-//         if (sPath === state.layoutsPath) {
-//             continue;
-//         }
-
-//         if (dirEntry.isDirectory) {
-//             await recursiveBuild(sPath, bPath);
-//             continue;
-//         }
-
-//         if (isMarkdownFile(bPath)) {
-//             // Change build file extension from .md to .html
-//             bPath = bPath.slice(0, -2) + 'html';
-//         }
-
-//         const [buildNeeded, buildReason] = await isBuildNeeded(sPath, bPath)
-//         if (buildNeeded) {
-//             console.log('Building', path.relative(Deno.cwd(), bPath), '--', buildReason);
-//             await buildFile(sPath, bPath);
-//         }
-//     }
-// }
-
-// async function buildFileX(sourceFilePath, buildFilePath) {
-//     try {
-//         if (isHtmlOrMarkdownFile(sourceFilePath)) {
-
-//             const sourceContent = await Deno.readTextFile(sourceFilePath);
-
-//             const sourceItem = frontmatterParse(sourceContent);
-
-//             if (isMarkdownFile(sourceFilePath)) {
-//                 sourceItem.content = marked.parse(sourceItem.content);
-//             }
-
-//             if (sourceItem.data.layout) {
-//                 sourceItem.content = await renderLayout(sourceItem.content, sourceItem.data.layout);
-//             }
-
-//             sourceItem.content = renderComponentsAndVariables(sourceItem.content, sourceItem.data);
-
-//             await Deno.writeTextFile(buildFilePath, sourceItem.content);
-
-//         } else {
-//             await Deno.copyFile(sourceFilePath, buildFilePath);
-//         }
-//     } catch (err) {
-//         console.log();
-//         console.log(err);
-//         console.log(`%cCould not build file ${path.relative(Deno.cwd(), sourceFilePath)}`, 'font-weight:bold;color:#f44;');
-//         console.log();
-//     }
-// }
 
 async function renderLayout(text, layout) {
 
@@ -508,68 +389,10 @@ async function recursiveDelete(sourcePath, buildPath) {
     }));
 }
 
-// async function recursiveDelete(sourcePath, buildPath) {
-
-//     // Delete all files and folders in buildPath
-//     // that don't exist in sourcePath. Except for CNAME,
-//     // site_content.json and .nojekyll.
-
-//     for await (const dirEntry of Deno.readDir(buildPath)) {
-//         const bPath = path.join(buildPath, dirEntry.name);
-//         let sPath = path.join(sourcePath, dirEntry.name);
-
-//         if (dirEntry.isDirectory) {
-//             if (await exists(sPath)) {
-//                 await recursiveDelete(sPath, bPath);
-//                 continue;
-//             } else {
-//                 await Deno.remove(bPath, { recursive: true });
-//                 console.log(`%cDeleted ${path.relative(Deno.cwd(), bPath)}`, 'font-weight:bold;color:#f44;');
-//                 continue;
-//             }
-//         }
-
-//         if (await exists(sPath)) {
-//             continue;
-//         }
-
-//         if (dirEntry.name.toLowerCase() === 'cname') {
-//             await Deno.copyFile(bPath, sPath);
-//             console.log('Copied', path.relative(Deno.cwd(), bPath), 'to', path.relative(Deno.cwd(), sPath));
-//             continue;
-//         }
-
-//         if (dirEntry.name === '.nojekyll') {
-//             continue;
-//         }
-
-//         if (bPath === state.siteContentFilePath) {
-//             continue;
-//         }
-
-//         if (isHtmlFile(sPath)) {
-//             const sMarkdownPath = sPath.slice(0, -4) + 'md';
-//             if (await exists(sMarkdownPath)) {
-//                 continue;
-//             }
-//         }
-
-//         await Deno.remove(bPath);
-//         console.log(`%cDeleted ${path.relative(Deno.cwd(), bPath)}`, 'font-weight:bold;color:#f44;');
-
-//     }
-// }
-
 async function deleteDir(sourcePath, buildPath) {
     if (!await exists(buildPath)) {
         return;
     }
-
-    // const buildPathInfo = await Deno.lstat(buildPath);
-
-    // if (!buildPathInfo.isDirectory) {
-    //     return;
-    // }
 
     if (await exists(sourcePath)) {
         return;
@@ -584,12 +407,6 @@ async function deleteFile(sourcePath, buildPath) {
     if (!await exists(buildPath)) {
         return;
     }
-
-    // const buildPathInfo = await Deno.lstat(buildPath);
-
-    // if (buildPathInfo.isDirectory) {
-    //     return;
-    // }
 
     if (await exists(sourcePath)) {
         return;
@@ -621,42 +438,6 @@ async function deleteFile(sourcePath, buildPath) {
 
     console.log(`%cDeleted ${path.relative(Deno.cwd(), buildPath)}`, 'font-weight:bold;color:#f44;');
 }
-
-// async function deleteWalk(sourcePath, buildPath) {
-//     const pathPairs = [];
-
-//     for await (const item of Deno.readDir(sourcePath)) {
-//         const sPath = path.join(sourcePath, item.name);
-//         let bPath = path.join(buildPath, item.name);
-
-//         if (sPath === state.componentsPath) {
-//             continue;
-//         }
-
-//         if (sPath === state.layoutsPath) {
-//             continue;
-//         }
-
-//         if (item.isDirectory) {
-
-//             pathPairs.push({ sourcePath: sPath, buildPath: bPath });
-
-//             const nestedPaths = await buildWalk(sPath, bPath);
-//             pathPairs.push(...nestedPaths);
-
-//         } else {
-
-//             if (isMarkdownFile(bPath)) {
-//                 // Change build file extension from .md to .html
-//                 bPath = bPath.slice(0, -2) + 'html';
-//             }
-
-//             pathPairs.push({ sourcePath: sPath, buildPath: bPath });
-//         }
-//     }
-
-//     return pathPairs;
-// }
 
 
 

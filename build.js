@@ -30,7 +30,7 @@ export async function build(options) {
 
 
 
-/* =====================================================================
+/*  =====================================================================
     Init
     ===================================================================== */
 
@@ -87,7 +87,7 @@ async function ensureDirectories() {
 
 
 
-/* =====================================================================
+/*  =====================================================================
     Helpers
     ===================================================================== */
 
@@ -148,46 +148,6 @@ async function isBuildNeeded(sourceFilePath, buildFilePath) {
     return [false, ''];
 }
 
-
-
-/* =====================================================================
-    Build
-    ===================================================================== */
-
-async function runBuild(doneCallback) {
-    const buildStart = Date.now();
-
-    state.lastBuild = Date.now();
-    state.componentsAndLayoutsLastModifiedTime = await getComponentsAndLayoutsLastModifiedTime();
-
-    console.log('\nBuilding...\n');
-
-    await recursiveBuild(state.sourcePath, state.buildPath);
-    await recursiveDelete(state.sourcePath, state.buildPath);
-    await buildSiteContentFile();
-    await misc();
-
-    console.log(Date.now() - buildStart, 'ms');
-
-    doneCallback();
-}
-
-async function recursiveBuild(sourcePath, buildPath) {
-    const paths = await pairWalk(sourcePath, buildPath, [state.componentsPath, state.layoutsPath]);
-
-    await Promise.all(paths.filter(p => p.type === 'folder').map(async p => {
-        if (await exists(p.pairPath)) {
-            return;
-        }
-        await Deno.mkdir(p.pairPath, { recursive: true });
-        // await buildDir(p.originPath, p.pairPath);
-    }));
-
-    await Promise.all(paths.filter(p => p.type === 'file').map(async p => {
-        await buildFile(p.originPath, p.pairPath);
-    }));
-}
-
 async function pairWalk(originPath, pairPath, omit = []) {
 
     // Recursively walk the origin path and collect
@@ -219,6 +179,45 @@ async function pairWalk(originPath, pairPath, omit = []) {
     }
 
     return pathPairs;
+}
+
+
+
+/*  =====================================================================
+    Build
+    ===================================================================== */
+
+async function runBuild(doneCallback) {
+    const buildStart = Date.now();
+
+    state.lastBuild = Date.now();
+    state.componentsAndLayoutsLastModifiedTime = await getComponentsAndLayoutsLastModifiedTime();
+
+    console.log('\nBuilding...\n');
+
+    await recursiveBuild(state.sourcePath, state.buildPath);
+    await recursiveDelete(state.sourcePath, state.buildPath);
+    await buildSiteContentFile();
+    await misc();
+
+    console.log(Date.now() - buildStart, 'ms');
+
+    doneCallback();
+}
+
+async function recursiveBuild(sourcePath, buildPath) {
+    const paths = await pairWalk(sourcePath, buildPath, [state.componentsPath, state.layoutsPath]);
+
+    await Promise.all(paths.filter(p => p.type === 'folder').map(async p => {
+        if (await exists(p.pairPath)) {
+            return;
+        }
+        await Deno.mkdir(p.pairPath, { recursive: true });
+    }));
+
+    await Promise.all(paths.filter(p => p.type === 'file').map(async p => {
+        await buildFile(p.originPath, p.pairPath);
+    }));
 }
 
 async function buildFile(sourceFilePath, buildFilePath) {
@@ -264,6 +263,12 @@ async function buildFile(sourceFilePath, buildFilePath) {
         console.log();
     }
 }
+
+
+
+/*  =====================================================================
+    Build Helpers
+    ===================================================================== */
 
 async function renderLayout(text, layout) {
 
@@ -373,7 +378,7 @@ function parseComponentExpression(match) {
 
 
 
-/* =====================================================================
+/*  =====================================================================
     Delete Files
     ===================================================================== */
 

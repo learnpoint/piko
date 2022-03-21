@@ -4,7 +4,7 @@ export async function listenAndServe(httpHandler, webSocketHandler, options = { 
     const listener = createListener(PORT_CANDIDATES);
 
     if (!options.muteLog) {
-        console.log(`%c\nServer started at http://127.0.0.1:${listener.addr.port}/\n`, 'color:#4f4;');
+        console.log(`%c\nServer started at http://localhost:${listener.addr.port}/\n`, 'color:#4f4;');
     }
 
     for await (const connection of listener) {

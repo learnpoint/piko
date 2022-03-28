@@ -13,7 +13,7 @@ _A toolkit for Learnpoint Developers._
 
 ## Requirements
 
-- **Deno v1.20.1** or later.
+- **Deno 1.20.3** or later.
 - **Cloudflare Tunnel** is required for the Share tool.
 
 
@@ -29,7 +29,7 @@ Verify installation:
 
 ```bash
 $ deno --version
-deno 1.20.1 ...
+deno 1.20.3 ...
 ```
 
 Upgrade:

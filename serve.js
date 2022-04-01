@@ -125,18 +125,19 @@ async function watchAndReload() {
         clearTimeout(timeout);
 
         timeout = setTimeout(async () => {
-            console.log();
-            console.log('Reloading browser...');
-            console.log();
 
-            let socket = null;
             etagFastPaths = [];
 
-            while (socket = server.sockets.pop()) {
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.close(1000);
-                }
+            if (server.sockets.length) {
+                console.log('\nReloading browser...\n');
 
+                let socket = null;
+
+                while (socket = server.sockets.pop()) {
+                    if (socket.readyState === WebSocket.OPEN) {
+                        socket.close(1000);
+                    }
+                }
             }
         }, RELOAD_DEBOUNCE);
     }

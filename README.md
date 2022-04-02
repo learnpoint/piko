@@ -1,20 +1,20 @@
 # <img src="piko.svg" height="20px">
 
 
-_A toolkit for Learnpoint Developers._
+_Toolkit for Learnpoint Developers._
 
 
-- **Serve** — A disturbingly fast web server. With auto reload, caching, and compression.
-- **Share** — Browse your localhost server from a mobile phone. Or share with curious colleagues!
-- **Copy** — Copy files from a github template repository.
-- **Build** and **Dev** — SSG utils.
+- **Serve** — A disturbingly fast static server. With auto reload, caching, and compression.
+- **Share** — Share your development server with curious colleagues, or test from a different device.
+- **Copy** — Copy files from a github repo.
+- **Build** & **Dev** — SSG utils.
 
 
 
 ## Requirements
 
 - **Deno 1.20.3** or later.
-- **Cloudflare Tunnel** is required for the Share tool.
+- **Cloudflare Tunnel** (only required for using the Share tool).
 
 
 
@@ -87,7 +87,7 @@ $ piko upgrade
 
 ## Serve
 
-Serve is a static web server that's offensively fast. :fire:
+:fire: Serve is a static web server that's offensively fast.
 
 Launch from any folder:
 
@@ -102,21 +102,21 @@ Stop Serve with `Ctrl+C`.
 Serve details:
 
 - All common file types are supported.
-- ```index.html``` is served for requests to folders.
-- Browser(s) are automatically reloaded on file changes. The reload functionality is implemented through websockets using javascript dynamic page injection.
-- Multiple instances of Serve is allowed. When you start (a new instance of) Serve, the port is selected dynamically and displayed in the terminal. The default port is ```3333```.
-- Requests to non-existing files will get a 404 response. If a there's a ```404.html``` file, the response body will be populated with the content of that file.
+- ```index.html``` is served by default on requests to folders.
+- Browser(s) are automatically reloaded on file changes. The reload functionality is implemented through websockets using dynamic javascript page injection.
+- Multiple instances of Serve are allowed. When you start (a new instance of) Serve, the port is dynamically selected and printed to the terminal. Default port is ```3333```.
+- Requests to non-existing files will recieve a 404 response. If a there's a ```404.html``` file in the root folder, the response will be populated with the content of that file.
 - Responses are compressed with gzip or brotly (whatever the browser supports).
-- Only http is supported. There's no plan to implement https, h2 or h3.
+- Only http is supported. There's no plan to implement https, h2 or h3. Serve is not designed for production.
 - Responses are marked with a weak etag header for client caching. The etag headers are re-calculated when Serve is restarted.
 
 
 
 ## Share
 
-Share your localhost server in a secure manner without exposing your local precious environment. :lock:
+:lock: Share your development server without exposing your local environment.
 
-Start sharing your localhost server:
+Start sharing your dev server:
 
 ```bash
 $ piko share <NAME> [PORT]
@@ -128,10 +128,10 @@ Example:
 $ piko share learnpoint 53444
 ```
 
-A public address is generated and printed to the terminal. That address will tunnel requests to your localhost server.
+When you start Share, a public address is generated and printed to the terminal. All requests to that address will be tunneled (by Cloudflare) to your dev server.
 
 
-The ```[PORT]``` is saved when you run the command. On subsequent invocations, it can be omitted:
+The ```[PORT]``` is saved when you run the command. On subsequent invocations, the port can be omitted:
 
 ```bash
 $ piko share <NAME>
@@ -143,19 +143,21 @@ Example:
 $ piko share learnpoint
 ```
 
-List all saved name/port pairs:
+List all saved ports:
 
 ```bash
 $ piko share list
 ```
 
-Delete all saved name/port pairs:
+Delete all saved ports:
 
 ```bash
 $ piko share clear
 ```
 
 Stop Share with ```Ctrl+C```.
+
+***Note:*** You don't need Share if you're able to use Cloudflare Tunnel directly. Share doesn't add any functionality. But some dev servers only accepts requests to `localhost` and will deny requests coming through the tunnel. Share solves this problem by running a reverse proxy (with host header rewriting) that sits between your dev server and the tunnel. From the perspective of your dev server, all requests are made to `localhost`.
 
 
 ## Copy
@@ -355,7 +357,7 @@ Inside a component, variables are rendered with `{{ name }}` syntax:
 <button class="{{ theme || default }}">Save</button>
 ```
 
-*Note*: Variables defined in front matter also are available inside the components.
+***Note:*** Variables defined in front matter also are available inside the components.
 
 
 
@@ -374,7 +376,7 @@ title: Home
 <!-- footer-nav.html -->
 ```
 
-*Note*: Layouts and components doesn't support markdown. They must be written in html.
+***Note:*** Layouts and components doesn't support markdown. They must be written in html.
 
 
 
@@ -401,7 +403,7 @@ Each page object contains title, description, url, and content. Example:
 ]
 ```
 
-*Notes*:
+***Notes:***
 - HTML tags are stripped from the content.
 - Only the text inside the `<main>` element is added to the content property.
 - Text inside `<aside>` tags are stripped from the content property, *even if is't inside a `<main>` element*.

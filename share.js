@@ -1,5 +1,7 @@
 import { listenAndServe } from "./utils/listen_and_serve.js";
 
+const STORAGE_KEY = 'share';
+
 const PROXY_HOSTNAME = 'localhost';
 const PROXY_PORT = 9999;
 
@@ -7,7 +9,7 @@ const ORIGIN_HOSTNAME = 'localhost';
 let ORIGIN_PORT;
 
 export async function share(args) {
-    ORIGIN_PORT = parseArgs(args);
+    ORIGIN_PORT = getPortOrRunSubCommand(args);
 
     listenAndServe(httpHandler, webSocketHandler, { port: PROXY_PORT, muteLog: true });
     console.log(`%c\nCloudflare Tunnel requests will be forwarded to => http://${ORIGIN_HOSTNAME}:${ORIGIN_PORT}/\n`, 'font-weight:bold;color:#ff4;');
@@ -17,8 +19,8 @@ export async function share(args) {
 
 
 
-/* =====================================================================
-    HTTP Handler
+/*  =====================================================================
+    Handlers
     ===================================================================== */
 
 async function httpHandler(req) {
@@ -33,46 +35,32 @@ async function httpHandler(req) {
     });
 }
 
-
-
-/* =====================================================================
-    WebSocket Handler
-    ===================================================================== */
-
 async function webSocketHandler(req) {
 
-    // STATUS: WebSockets are explicitly forbidden.
-    //
-    // WebSockets are symmetrical. The origin server can act as a
-    // "client" and send messages to the browser. It's a challenge
-    // to implement a symmetrical protocol in a proxy server.
+    // STATUS: Not Implemented. The proxy will explicitly refuse upgrade requests.
+    // GOAL: Support WebSockets.
+    // NOTE: Cloudflare Tunnel seems to properly forwards upgrade requests.
     //
     // Article about sockets and proxies:
     // https://www.infoq.com/articles/Web-Sockets-Proxy-Servers/
     //
-    // Interesting libraries that bypass proxies through the TCP layer:
+    // Libraries that bypass proxies through the TCP layer:
     // https://github.com/TooTallNate/node-https-proxy-agent
     // https://github.com/stbrenner/socket.io-proxy
-    //
-    // For now, we don't forward upgrade requests. Instead we
-    // immediately respond with 200 OK, which means that the
-    // upgrade is refused.
-    //
-    // NOTE: Cloudflare Tunnel seems to properly forwards upgrade requests.
 
-    return new Response(null);
+    return new Response(null); // 200 OK means upgrade is refused.
 }
 
 
 
-/* =====================================================================
+/*  =====================================================================
     Start Cloudflare Tunnel
     ===================================================================== */
 
 async function startCloudflareTunnel(url) {
     try {
         const process = Deno.run({
-            cmd: ["cloudflared", "tunnel", "-url", url],
+            cmd: ["cloudflared", "tunnel", "-url", url]
         });
 
         await process.status();
@@ -94,7 +82,7 @@ async function startCloudflareTunnel(url) {
 
 
 
-/* =====================================================================
+/*  =====================================================================
     Proxy Helpers
     ===================================================================== */
 
@@ -123,11 +111,11 @@ function createProxyUrl(url) {
 
 
 
-/* =====================================================================
-    Parse Args
+/*  =====================================================================
+    Get Port or Run Sub Command
     ===================================================================== */
 
-function parseArgs(args) {
+function getPortOrRunSubCommand(args) {
     const configName = args[0];
 
     if (!configName) {
@@ -137,16 +125,16 @@ function parseArgs(args) {
         Deno.exit(1);
     }
 
+    // (A) Run Sub Command: clear | list | help
+
     if (configName === 'clear') {
-        localStorage.clear();
-        console.log('\nOK Deleted all saved names.\n');
+        clearPorts();
+        console.log('\nOK: Deleted all saved ports.');
         Deno.exit(1);
     }
 
     if (configName === 'list') {
-        console.log();
-        printSavedNames();
-        console.log();
+        printSavedPorts();
         Deno.exit(1);
     }
 
@@ -155,15 +143,16 @@ function parseArgs(args) {
         Deno.exit(1);
     }
 
+    // (B) Get Port (if sub command not detected)
+
     const portArg = args[1];
 
     if (!portArg) {
-        const savedPort = localStorage.getItem(configName);
+        const savedPort = getPort(configName);
 
         if (!savedPort) {
-            console.log(`%c\nError: The name "${configName}" was not found.\n`, 'font-weight:bold;color:#f44;');
-            printSavedNames();
-            console.log(`\nTo add the name "${configName}", provide a third argument that specify the port. For example:`);
+            console.log(`%c\nError: The name "${configName}" was not found.`, 'font-weight:bold;color:#f44;');
+            console.log(`\nAdd port to "${configName}" like so:`);
             console.log(`$ piko share ${configName} 56327`);
             Deno.exit(1);
         }
@@ -180,25 +169,79 @@ function parseArgs(args) {
         Deno.exit(1);
     }
 
-    localStorage.setItem(configName, portArg);
+    setPort(configName, portArg);
 
     return portArg;
 }
 
 
 
-/* =====================================================================
+/*  =====================================================================
     Terminal Print Helpers
     ===================================================================== */
 
-function printSavedNames() {
-    console.log('Saved names');
-    console.log('-----------')
-    for (let x in localStorage) {
-        console.log(x, localStorage.getItem(x));
+function printSavedPorts() {
+
+    const ports = getPorts();
+
+    if (Object.keys(ports).length === 0) {
+
+        console.log('\nNo saved ports.');
+
+    } else {
+
+        console.log('\nSaved ports:');
+        console.log('------------');
+
+        for (let key in ports) {
+            console.log(key, ports[key]);
+        }
     }
 }
 
 function printHelp() {
-    console.log('\n[piko share help text]\n');
+    console.log('\nShare port 56444 and save it with the name "learnpoint":');
+    console.log('$ piko share learnpoint 56444');
+
+    console.log('\nShare port 56444 using previously saved name "learnpoint":');
+    console.log('$ piko share learnpoint');
+
+    console.log('\nList all saved ports:');
+    console.log('$ piko share list');
+
+    console.log('\nDelete all saved ports:');
+    console.log('$ piko share clear');
+}
+
+
+
+/*  =====================================================================
+    Storage Helpers
+    ===================================================================== */
+
+function getPort(name) {
+    const storageObject = getStorageObject();
+    return storageObject[name];
+}
+
+function setPort(name, port) {
+    const storageObject = getStorageObject();
+    storageObject[name] = port;
+    setStorageObject(storageObject);
+}
+
+function getPorts() {
+    return getStorageObject();
+}
+
+function clearPorts() {
+    localStorage.removeItem(STORAGE_KEY);
+}
+
+function getStorageObject() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+}
+
+function setStorageObject(obj) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
 }

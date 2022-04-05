@@ -41,7 +41,7 @@ $ deno upgrade
 
 ### Cloudflare Tunnel Installation on Windows
 
-Cloudflare Tunnel is only required for using the **Share** tool.
+Cloudflare Tunnel is only required when using the **Share** tool.
 
 1. Download the 64-bit version (for Windows) from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/).
 2. Rename the downloaded file to ```cloudflared.exe```
@@ -162,7 +162,7 @@ Stop Share with ```Ctrl+C```.
 
 ## Copy
 
-Copy files from a github template repository:
+Copy files from a github repository:
 
 ```bash
 $ piko copy <OWNER/REPO> [FOLDER_NAME]
@@ -186,6 +186,15 @@ Example: Copy the files from ```https://github.com/ekmwest/empty``` into current
 $ piko copy ekmwest/empty .
 ```
 
+***Note:*** The following files will **not** be copied:
+- `LICENSE`
+- `CNAME`
+- `README.md`
+- `CODE_OF_CONDUCT.md`
+- `CONTRIBUTING.md`
+- `SECURITY.md`
+- `.gitignore`
+- `.gitattributes`
 
 
 ## SSG Utils
@@ -194,7 +203,7 @@ $ piko copy ekmwest/empty .
 
 ### Introduction
 
-Piko has basic, but highly opinionated, functionality for generating static sites. It supports markdown, layouts, front matter, and components.
+Piko has basic functionality for generating static sites. It supports front matter, layouts, includes, and markdown.
 
 
 
@@ -209,7 +218,7 @@ static-site
  └── src
       ├── _layouts
       |    ├── default.html
-      ├── _components
+      ├── _includes
       |    ├── header.html
       |    └── footer.html
       ├── about.md
@@ -219,12 +228,12 @@ static-site
 At the top level, there are two required folders:
 
 - **`docs`** contains the generated site.
-- **`src`** contains the source pages, layouts and components.
+- **`src`** contains the source pages, layouts and includes.
 
 Inside the `src` folder, there are two required folders:
 
 - **`_layouts`** contains the layouts.
-- **`_components`** contains the components.
+- **`_includes`** contains the includes.
 
 
 
@@ -252,13 +261,13 @@ Stop the dev server using `Ctrl + C`.
 
 ### The create command
 
-The create command scaffolds an example site with example pages, layouts and components:
+The create command scaffolds an example site with pages, layouts and includes:
 
 ```bash
 $ piko crate <FOLDER_NAME>
 ```
 
-Example: Create a folder named `static-site` with a proper folder structure including example pages, layouts and components:
+Example: Create a folder named `static-site` with a proper folder structure including pages, layouts and includes:
 
 ```bash
 $ piko create static-site
@@ -268,9 +277,9 @@ $ piko create static-site
 
 ### Working with layouts
 
-Layouts can be used as wrappers for pages.
+A layout is a wrapper for a page.
 
-The layout must contain a `{{ content }}` directive that specify where the page content should be placed:
+Every layout must contain a `{{ content }}` directive that specify where the page content should be rendered:
 
 ```html
 <!DOCTYPE html>
@@ -286,7 +295,7 @@ The layout must contain a `{{ content }}` directive that specify where the page 
 </html>
 ```
 
-Use front matter in the page to specify the layout:
+Inside a page, use front matter to specify the layout:
 
 ```html
 ---
@@ -305,7 +314,7 @@ title: Home
 <h1>Hello World</h1>
 ```
 
-Inside the layout, the passed variables are rendered with `{{ variableName }}` syntax. Default values can be defined using `{{ variableName || default value}}` syntax:
+Inside the layout, the passed variables are rendered with `{{ variableName }}` syntax. Default values are declared using `{{ variableName || default value}}` syntax:
 
 ```html
 <!DOCTYPE html>
@@ -323,9 +332,9 @@ Inside the layout, the passed variables are rendered with `{{ variableName }}` s
 
 
 
-### Working with components
+### Working with includes
 
-Components are plain html files that can be included in pages or layouts with `<!-- component-name.html -->` syntax:
+Includes are html files that can be inserted into pages (and layouts) with `<!-- include-name.html -->` syntax:
 
 ```html
 ---
@@ -338,7 +347,7 @@ title: Home
 <!-- footer-nav.html -->
 ```
 
-Variables can be passed to components with javascript object syntax:
+Variables can be passed to includes with javascript object syntax:
 
 ```html
 ---
@@ -351,13 +360,13 @@ title: Home
 <!-- save-button.html, { theme: 'primary' } -->
 ```
 
-Inside a component, variables are rendered with `{{ name }}` syntax:
+Inside an include, variables are rendered with `{{ name }}` syntax:
 
 ```html
 <button class="{{ theme || default }}">Save</button>
 ```
 
-***Note:*** Variables defined in front matter also are available inside the components.
+***Note:*** Variables defined in front matter also are available inside includes.
 
 
 
@@ -376,7 +385,7 @@ title: Home
 <!-- footer-nav.html -->
 ```
 
-***Note:*** Layouts and components doesn't support markdown. They must be written in html.
+***Note:*** Layouts and includes doesn't support markdown. They must be written in html.
 
 
 
@@ -384,7 +393,7 @@ title: Home
 
 When generating a static site, Piko creates a `site_content.json` file in the `docs` folder that contains an array with page objects. The json file can be used to implement search functionality in the browser.
 
-Each page object contains title, description, url, and content. Example:
+Each page object has four properties: title, description, url, and content. Example:
 
 ```json
 [
@@ -418,13 +427,13 @@ A static site that's generated with Piko is easy to deploy. Configure the host t
 
 ### A note about the CNAME file
 
-When deploying a site to github pages, a file named CNAME will be added to the `docs` folder (this file is added by github). If the build command detects such a file, it will copy that file back into the `src` folder.
+When deploying a site to github pages, a file named CNAME will be added to the `docs` folder (this file is added by github). If the build command detects such a file, it will copy that file back into the `src` folder. This is to make sure you can safely delete the `docs` folder and rebuild the site without loosing the CNAME file.
 
 
 
 ### A note about the .nojekyll file
 
-The build command will always ensure there's a file named `.nojekyll` inside the `docs` folder (or add it if it doesn't exist). This is to make sure that folders prefixed with an underscore are properly served by the github server.
+The build command will always ensure there's a file named `.nojekyll` inside the `docs` folder (or add it if it doesn't exist). This is to make sure that folders prefixed with an underscore are properly served by github pages.
 
 
 

@@ -40,7 +40,7 @@ function initState(options) {
     const defaults = {
         sourcePath: path.join(Deno.cwd(), 'src'),
         buildPath: path.join(Deno.cwd(), 'docs'),
-        componentsPath: path.join(Deno.cwd(), 'src', '_components'),
+        includesPath: path.join(Deno.cwd(), 'src', '_includes'),
         layoutsPath: path.join(Deno.cwd(), 'src', '_layouts'),
         siteContentFilePath: path.join(Deno.cwd(), 'docs', 'site_content.json'),
         forceRebuild: false,
@@ -66,9 +66,9 @@ async function ensureDirectories() {
         Deno.exit(1);
     }
 
-    if (!await exists(state.componentsPath)) {
+    if (!await exists(state.includesPath)) {
         console.log();
-        console.error('Components folder not found:', state.componentsPath);
+        console.error('Includes folder not found:', state.includesPath);
         console.log();
         console.log('Create the folder and try again.');
         console.log();
@@ -96,27 +96,27 @@ const isMarkdownFile = sourceFilePath => path.extname(sourceFilePath) === '.md';
 const isHtmlOrMarkdownFile = sourceFilePath => isHtmlFile(sourceFilePath) || isMarkdownFile(sourceFilePath);
 // const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
 
-async function getComponentsAndLayoutsLastModifiedTime() {
-    let componentsAndLayoutsLastModifiedTime = new Date(0);
+async function getIncludesAndLayoutsLastModifiedTime() {
+    let includesAndLayoutsLastModifiedTime = new Date(0);
 
-    const componentFiles = await walk(state.componentsPath);
+    const includeFiles = await walk(state.includesPath);
     const layoutFiles = await walk(state.layoutsPath);
 
-    for (const cf of componentFiles) {
-        const itemInfo = await Deno.lstat(cf);
-        if (itemInfo.mtime > componentsAndLayoutsLastModifiedTime) {
-            componentsAndLayoutsLastModifiedTime = itemInfo.mtime;
+    for (const infi of includeFiles) {
+        const itemInfo = await Deno.lstat(infi);
+        if (itemInfo.mtime > includesAndLayoutsLastModifiedTime) {
+            includesAndLayoutsLastModifiedTime = itemInfo.mtime;
         }
     }
 
     for (const lf of layoutFiles) {
         const itemInfo = await Deno.lstat(lf);
-        if (itemInfo.mtime > componentsAndLayoutsLastModifiedTime) {
-            componentsAndLayoutsLastModifiedTime = itemInfo.mtime;
+        if (itemInfo.mtime > includesAndLayoutsLastModifiedTime) {
+            includesAndLayoutsLastModifiedTime = itemInfo.mtime;
         }
     }
 
-    return componentsAndLayoutsLastModifiedTime;
+    return includesAndLayoutsLastModifiedTime;
 }
 
 async function isBuildNeeded(sourceFilePath, buildFilePath) {
@@ -134,8 +134,8 @@ async function isBuildNeeded(sourceFilePath, buildFilePath) {
             return [true, path.relative(Deno.cwd(), sourceFilePath) + ' was modified'];
         }
 
-        if (isHtmlFile(buildFilePath) && state.componentsAndLayoutsLastModifiedTime > buildFileInfo.mtime) {
-            return [true, 'Components or layouts were modified'];
+        if (isHtmlFile(buildFilePath) && state.includesAndLayoutsLastModifiedTime > buildFileInfo.mtime) {
+            return [true, 'Includes or layouts were modified'];
         }
     } catch (error) {
         if (error instanceof Deno.errors.NotFound) {
@@ -191,7 +191,7 @@ async function runBuild(doneCallback) {
     const buildStart = Date.now();
 
     state.lastBuild = Date.now();
-    state.componentsAndLayoutsLastModifiedTime = await getComponentsAndLayoutsLastModifiedTime();
+    state.includesAndLayoutsLastModifiedTime = await getIncludesAndLayoutsLastModifiedTime();
 
     console.log('\nBuilding...\n');
 
@@ -206,7 +206,11 @@ async function runBuild(doneCallback) {
 }
 
 async function recursiveBuild(sourcePath, buildPath) {
-    const paths = await pairWalk(sourcePath, buildPath, [state.componentsPath, state.layoutsPath]);
+    if (!await exists(buildPath)) {
+        await Deno.mkdir(buildPath, { recursive: true });
+    }
+
+    const paths = await pairWalk(sourcePath, buildPath, [state.includesPath, state.layoutsPath]);
 
     await Promise.all(paths.filter(p => p.type === 'folder').map(async p => {
         if (await exists(p.pairPath)) {
@@ -249,7 +253,7 @@ async function buildFile(sourceFilePath, buildFilePath) {
                 sourceItem.content = await renderLayout(sourceItem.content, sourceItem.data.layout);
             }
 
-            sourceItem.content = renderComponentsAndVariables(sourceItem.content, sourceItem.data);
+            sourceItem.content = renderIncludesAndVariables(sourceItem.content, sourceItem.data);
 
             await Deno.writeTextFile(buildFilePath, sourceItem.content);
 
@@ -296,7 +300,7 @@ async function renderLayout(text, layout) {
     return layoutText.replace(matcher, text);
 }
 
-function renderComponentsAndVariables(text, data) {
+function renderIncludesAndVariables(text, data) {
     text = renderVariables(text, data);
 
     if (!/<!--.*?-->/.test(text)) {
@@ -310,20 +314,20 @@ function renderComponentsAndVariables(text, data) {
             return match;
         }
 
-        const [componentName, componentProps] = parseComponentExpression(match);
+        const [includeName, includeProps] = parseIncludeExpression(match);
 
-        let componentText = '';
+        let includeText = '';
 
         try {
-            componentText = Deno.readTextFileSync(path.join(state.componentsPath, componentName));
+            includeText = Deno.readTextFileSync(path.join(state.includesPath, includeName));
         } catch (err) {
             console.log();
-            console.log(`%cCouldn't find the component ${componentName}`, 'font-weight:bold;color:#f44;');
+            console.log(`%cCouldn't find the include ${includeName}`, 'font-weight:bold;color:#f44;');
             console.log();
             return match;
         }
 
-        return renderComponentsAndVariables(componentText, { ...data, ...componentProps });
+        return renderIncludesAndVariables(includeText, { ...data, ...includeProps });
     });
 }
 
@@ -344,7 +348,7 @@ function renderVariables(text, data) {
     });
 }
 
-function parseComponentExpression(match) {
+function parseIncludeExpression(match) {
     match = match.replace('<!--', '').replace('-->', '').trim();
 
     const idx = match.indexOf(',');
@@ -367,7 +371,7 @@ function parseComponentExpression(match) {
 
     } catch (err) {
         console.log();
-        console.log(`%cComponent ${name} was passed invalid props: ${propsString}`, 'font-weight:bold;color:#f44;');
+        console.log(`%cInclude file ${name} was passed invalid props: ${propsString}`, 'font-weight:bold;color:#f44;');
         console.log('=> Props should be a javascript object, like: { name: "piko" }');
         console.log();
         props = {};

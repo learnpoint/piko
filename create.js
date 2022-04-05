@@ -20,11 +20,11 @@ export async function create(projectName) {
     }
 
     const sourcePath = path.join(projectPath, 'src');
-    const componentsPath = path.join(sourcePath, '_components');
+    const includesPath = path.join(sourcePath, '_includes');
     const layoutsPath = path.join(sourcePath, '_layouts');
 
     await Deno.mkdir(sourcePath);
-    await Deno.mkdir(componentsPath);
+    await Deno.mkdir(includesPath);
     await Deno.mkdir(layoutsPath);
 
     Deno.writeTextFile(path.join(sourcePath, 'index.html'), indexPageContent());
@@ -32,7 +32,7 @@ export async function create(projectName) {
     Deno.writeTextFile(path.join(sourcePath, '404.html'), notFoundPageContent());
     Deno.writeTextFile(path.join(sourcePath, 'style.css'), styleContent());
     Deno.writeTextFile(path.join(layoutsPath, 'default.html'), defaultLayoutContent());
-    Deno.writeTextFile(path.join(componentsPath, 'nav.html'), navComponentContent(projectName));
+    Deno.writeTextFile(path.join(includesPath, 'nav.html'), navIncludeContent(projectName));
 
     console.log(`piko successfully created the folder /${projectName}`);
     console.log();
@@ -126,7 +126,7 @@ const defaultLayoutContent = () => `<!DOCTYPE html>
 
 </html>`;
 
-const navComponentContent = projectName => `<aside>
+const navIncludeContent = projectName => `<aside>
 <nav>
     <a href="/index.html">Home</a>
     <a href="/about.html">About</a>

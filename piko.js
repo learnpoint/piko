@@ -61,7 +61,7 @@ function printVersion() {
 
 function printUsage() {
     console.log(`piko ${version}`);
-    console.log('A minimal toolkit for html writing.');
+    console.log('A toolkit for Learnpoint developers.');
     console.log();
 
     console.log(`Docs: https://github.com/learnpoint/piko`);

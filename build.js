@@ -23,7 +23,15 @@ export async function build(options) {
             if ((Date.now() - state.lastBuild) < WATCH_BUILD_DEBOUNCE) {
                 continue;
             }
-            runBuild(state.watchBuildDoneCallback);
+            if (event.kind === 'modify' && event.paths.length === 1 && !isIncludeOrLayoutFile(event.paths[0])) {
+
+                // Just a single file was modified. And it was not an include or a layout.
+                runBuild(state.watchBuildDoneCallback, event.paths[0]);
+
+            } else {
+
+                runBuild(state.watchBuildDoneCallback);
+            }
         }
     }
 }
@@ -94,6 +102,8 @@ async function ensureDirectories() {
 const isHtmlFile = sourceFilePath => path.extname(sourceFilePath) === '.html';
 const isMarkdownFile = sourceFilePath => path.extname(sourceFilePath) === '.md';
 const isHtmlOrMarkdownFile = sourceFilePath => isHtmlFile(sourceFilePath) || isMarkdownFile(sourceFilePath);
+const isIncludeOrLayoutFile = filePath => filePath.includes(state.layoutsPath) || filePath.includes(state.includesPath);
+const buildPathFromSourcePath = sourceFilePath => sourceFilePath.replace(state.sourcePath, state.buildPath);
 // const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
 
 async function getIncludesAndLayoutsLastModifiedTime() {
@@ -187,18 +197,26 @@ async function pairWalk(originPath, pairPath, omit = []) {
     Build
     ===================================================================== */
 
-async function runBuild(doneCallback) {
+async function runBuild(doneCallback, singleFile = false) {
+    console.log('\nBuilding...\n');
+
     const buildStart = Date.now();
 
     state.lastBuild = Date.now();
-    state.includesAndLayoutsLastModifiedTime = await getIncludesAndLayoutsLastModifiedTime();
 
-    console.log('\nBuilding...\n');
+    if (singleFile) {
+        
+        const buildPath = buildPathFromSourcePath(singleFile);
+        await buildFile(singleFile, buildPath);
 
-    await recursiveBuild(state.sourcePath, state.buildPath);
-    await recursiveDelete(state.sourcePath, state.buildPath);
-    await buildSiteContentFile();
-    await misc();
+    } else {
+
+        state.includesAndLayoutsLastModifiedTime = await getIncludesAndLayoutsLastModifiedTime();
+        await recursiveBuild(state.sourcePath, state.buildPath);
+        await recursiveDelete(state.sourcePath, state.buildPath);
+        await buildSiteContentFile();
+        await misc();
+    }
 
     console.log(Date.now() - buildStart, 'ms');
 

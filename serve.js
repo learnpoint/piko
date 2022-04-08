@@ -15,7 +15,7 @@ const server = {
 let etagFastPaths = [];
 const etagFastPathKey = (url, etag) => url + ':' + etag;
 
-export async function serve(servePath) {
+export async function serve(servePath, disableAutoReload = false) {
     server.startTime = Date.now();
     server.root = servePath || Deno.cwd();
 
@@ -28,7 +28,10 @@ export async function serve(servePath) {
     }
 
     listenAndServe(httpHandler, webSocketHandler);
-    watchAndReload();
+
+    if (!disableAutoReload) {
+        watchAndReload();
+    }
 
     return reload;
 }

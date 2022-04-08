@@ -16,7 +16,13 @@ export async function build(options) {
 
     await ensureDirectories();
 
-    await runBuild(state.firstBuildDoneCallback);
+    await runBuild();
+
+    if (state.getWatchBuildCallbackFromInitialBuildCallback) {
+        state.watchBuildCallback = await state.initialBuildCallback();
+    } else {
+        state.initialBuildCallback();
+    }
 
     if (state.buildWatch) {
         for await (const event of Deno.watchFs(state.sourcePath)) {
@@ -26,11 +32,13 @@ export async function build(options) {
             if (event.kind === 'modify' && event.paths.length === 1 && !isIncludeOrLayoutFile(event.paths[0])) {
 
                 // Just a single file was modified. And it was not an include or a layout.
-                runBuild(state.watchBuildDoneCallback, event.paths[0]);
+                await runBuild(event.paths[0]);
+                state.watchBuildCallback();
 
             } else {
 
-                runBuild(state.watchBuildDoneCallback);
+                await runBuild();
+                state.watchBuildCallback();
             }
         }
     }
@@ -53,8 +61,9 @@ function initState(options) {
         siteContentFilePath: path.join(Deno.cwd(), 'docs', 'site_content.json'),
         forceRebuild: false,
         buildWatch: false,
-        firstBuildDoneCallback: () => { },
-        watchBuildDoneCallback: () => { }
+        getWatchBuildCallbackFromInitialBuildCallback: false,
+        initialBuildCallback: () => { },
+        watchBuildCallback: () => { }
     };
 
     state = { ...defaults, ...options };
@@ -197,7 +206,7 @@ async function pairWalk(originPath, pairPath, omit = []) {
     Build
     ===================================================================== */
 
-async function runBuild(doneCallback, singleFile = false) {
+async function runBuild(singleFile = false) {
     console.log('\nBuilding...\n');
 
     const buildStart = Date.now();
@@ -205,7 +214,7 @@ async function runBuild(doneCallback, singleFile = false) {
     state.lastBuild = Date.now();
 
     if (singleFile) {
-        
+
         const buildPath = buildPathFromSourcePath(singleFile);
         await buildFile(singleFile, buildPath);
 
@@ -219,8 +228,6 @@ async function runBuild(doneCallback, singleFile = false) {
     }
 
     console.log(Date.now() - buildStart, 'ms');
-
-    doneCallback();
 }
 
 async function recursiveBuild(sourcePath, buildPath) {

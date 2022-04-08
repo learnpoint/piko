@@ -5,7 +5,8 @@ import { serve } from "./serve.js";
 export async function dev(options) {
     const defaults = {
         buildWatch: true,
-        firstBuildDoneCallback: () => serve(path.join(Deno.cwd(), 'docs'))
+        getWatchBuildCallbackFromInitialBuildCallback: true,
+        initialBuildCallback: () => serve(path.join(Deno.cwd(), 'docs'), true)
     };
 
     options = { ...defaults, ...options };

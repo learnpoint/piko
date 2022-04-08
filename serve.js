@@ -123,23 +123,23 @@ async function watchAndReload() {
         // until the fs event storm has passed.
 
         clearTimeout(timeout);
+        timeout = setTimeout(reload, RELOAD_DEBOUNCE);
+    }
+}
 
-        timeout = setTimeout(async () => {
+function reload() {
+    etagFastPaths = [];
 
-            etagFastPaths = [];
+    if (server.sockets.length) {
+        console.log('\nReloading browser...\n');
 
-            if (server.sockets.length) {
-                console.log('\nReloading browser...\n');
+        let socket = null;
 
-                let socket = null;
-
-                while (socket = server.sockets.pop()) {
-                    if (socket.readyState === WebSocket.OPEN) {
-                        socket.close(1000);
-                    }
-                }
+        while (socket = server.sockets.pop()) {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.close(1000);
             }
-        }, RELOAD_DEBOUNCE);
+        }
     }
 }
 

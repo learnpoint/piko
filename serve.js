@@ -29,6 +29,8 @@ export async function serve(servePath) {
 
     listenAndServe(httpHandler, webSocketHandler);
     watchAndReload();
+
+    return reload;
 }
 
 async function webSocketHandler(req) {

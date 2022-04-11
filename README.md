@@ -67,14 +67,14 @@ Upgrading Cloudflare Tunnel must be done manually on Windows:
 ### Piko Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@0.9.54/piko.js
+$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@1.0.0/piko.js
 ```
 
 Verify installation:
 
 ```bash
 $ piko -v
-piko 0.9.54...
+piko 1.0.0...
 ```
 
 Upgrade:

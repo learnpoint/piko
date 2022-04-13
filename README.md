@@ -7,7 +7,7 @@ _Toolkit for Learnpoint Developers._
 - **Serve** — A disturbingly fast static server. With auto reload, caching, and compression.
 - **Share** — Share your development server with curious colleagues, or test from a different device.
 - **Copy** — Copy files from a github repo.
-- **Build** & **Dev** — SSG utils.
+- **Build**, **Dev** and **Create** — SSG utils.
 
 
 
@@ -25,14 +25,14 @@ _Toolkit for Learnpoint Developers._
 
 Follow the [instructions on this page](https://deno.land/manual/getting_started/installation).
 
-Verify installation:
+Verify Deno installation:
 
 ```bash
 $ deno --version
 deno 1.20.5 ...
 ```
 
-Upgrade:
+Upgrade Deno:
 ```bash
 $ deno upgrade
 ```
@@ -49,7 +49,7 @@ Cloudflare Tunnel is only required when using the **Share** tool.
 4. Copy the (downloaded and renamed) file to the (created) folder.
 5. Add ```C:\Program Files (x86)\cloudflared``` to your PATH environment variable.
 
-Verify installation:
+Verify Cloudflare Tunnel installation:
 
 ```bash
 $ cloudflared -v
@@ -70,14 +70,14 @@ Upgrading Cloudflare Tunnel must be done manually on Windows:
 $ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@1.0.1/piko.js
 ```
 
-Verify installation:
+Verify Piko installation:
 
 ```bash
 $ piko -v
 piko 1.0.1...
 ```
 
-Upgrade:
+Upgrade Piko:
 
 ```bash
 $ piko upgrade
@@ -237,7 +237,7 @@ Inside the `src` folder, there are two required folders:
 
 
 
-### The build command
+### The `build` command
 
 The build command generates a static site. Input is taken from the `src` folder and the site is generated in `docs`:
 
@@ -247,27 +247,27 @@ $ piko build
 
 
 
-### The dev server
+### The `dev` server
 
-The dev server runs build in the background and starts Serve for the generated site:
+The dev server continuously runs build in the background and starts Serve in the generated site folder:
 
 ```bash
 $ piko dev
 ```
 
-Stop the dev server using `Ctrl + C`.
+Stop the dev server with `Ctrl + C`.
 
 
 
-### The create command
+### The `create` command
 
-The create command scaffolds an example site with pages, layouts and includes:
+Create a Piko SSG site with default folder structure and example pages, layouts and includes:
 
 ```bash
-$ piko crate <FOLDER_NAME>
+$ piko create <FOLDER_NAME>
 ```
 
-Example: Create a folder named `static-site` with a proper folder structure including pages, layouts and includes:
+Example: Create a folder named `static-site` and populate it with an example Piko SSG site:
 
 ```bash
 $ piko create static-site

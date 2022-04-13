@@ -217,6 +217,7 @@ async function runBuild(singleFile = false) {
 
         const buildPath = buildPathFromSourcePath(singleFile);
         await buildFile(singleFile, buildPath);
+        await buildSiteContentFile();
 
     } else {
 

@@ -28,13 +28,12 @@ Follow the [instructions on this page](https://deno.land/manual/getting_started/
 Verify Deno installation:
 
 ```bash
-$ deno --version
-deno 1.21.3 ...
+deno --version
 ```
 
 Upgrade Deno:
 ```bash
-$ deno upgrade
+deno upgrade
 ```
 
 
@@ -44,43 +43,41 @@ $ deno upgrade
 Cloudflare Tunnel is only required when using the **Share** tool.
 
 1. Download the 64-bit version (for Windows) from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/).
-2. Rename the downloaded file to ```cloudflared.exe```
-3. Create a folder named ```C:\Program Files (x86)\cloudflared```
+2. Rename the downloaded file to `cloudflared.exe`.
+3. Create a folder named `C:\Program Files (x86)\cloudflared`.
 4. Copy the (downloaded and renamed) file to the (created) folder.
-5. Add ```C:\Program Files (x86)\cloudflared``` to your PATH environment variable.
+5. Add `C:\Program Files (x86)\cloudflared` to your PATH environment variable.
 
 Verify Cloudflare Tunnel installation:
 
 ```bash
-$ cloudflared -v
-cloudflared version ...
+cloudflared -v
 ```
 
 Upgrading Cloudflare Tunnel must be done manually on Windows:
 
 1. Download the new version from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/).
-2. Rename the downloaded file to ```cloudflared.exe```
-3. Copy the file to ```C:\Program Files (x86)\cloudflared```. Accept the warning to overwrite the existing file.
+2. Rename the downloaded file to `cloudflared.exe`.
+3. Copy the file to `C:\Program Files (x86)\cloudflared`. Accept the warning to overwrite the existing file.
 
 
 
 ### Piko Installation
 
 ```bash
-$ deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@1.0.4/piko.js
+deno install -A https://cdn.jsdelivr.net/gh/learnpoint/piko@1.0.4/piko.js
 ```
 
 Verify Piko installation:
 
 ```bash
-$ piko -v
-piko 1.0.4...
+piko -v
 ```
 
 Upgrade Piko:
 
 ```bash
-$ piko upgrade
+piko upgrade
 ```
 
 
@@ -92,9 +89,7 @@ $ piko upgrade
 Launch from any folder:
 
 ```bash
-$ piko serve
-
-Server started at http://localhost:3333/
+piko serve
 ```
 
 Stop Serve with `Ctrl+C`.
@@ -102,10 +97,10 @@ Stop Serve with `Ctrl+C`.
 Serve details:
 
 - All common file types are supported.
-- ```index.html``` is served by default on requests to folders.
+- `index.html` is served by default on requests to folders.
 - Browser(s) are automatically reloaded on file changes. The reload functionality is implemented through websockets using dynamic javascript page injection.
-- Multiple instances of Serve are allowed. When you start (a new instance of) Serve, the port is dynamically selected and printed to the terminal. Default port is ```3333```.
-- Requests to non-existing files will recieve a 404 response. If a there's a ```404.html``` file in the root folder, the response will be populated with the content of that file.
+- Multiple instances of Serve are allowed. When you start (a new instance of) Serve, the port is dynamically selected and printed to the terminal. Default port is `3333`.
+- Requests to non-existing files will recieve a 404 response. If a there's a `404.html` file in the root folder, the response will be populated with the content of that file.
 - Responses are compressed with gzip or brotly (whatever the browser supports).
 - Only http is supported. There's no plan to implement https, h2 or h3. Serve is not designed for production.
 - Responses are marked with a weak etag header for client caching. The etag headers are re-calculated when Serve is restarted.
@@ -119,43 +114,43 @@ Serve details:
 Start sharing your dev server:
 
 ```bash
-$ piko share <NAME> [PORT]
+piko share <NAME> [PORT]
 ```
 
 Example:
 
 ```bash
-$ piko share learnpoint 53444
+piko share learnpoint 53444
 ```
 
 When you start Share, a public address is generated and printed to the terminal. All requests to that address will be tunneled (by Cloudflare) to your dev server.
 
 
-The ```[PORT]``` is saved when you run the command. On subsequent invocations, the port can be omitted:
+The `[PORT]` is saved when you run the command. On subsequent invocations, the port can be omitted:
 
 ```bash
-$ piko share <NAME>
+piko share <NAME>
 ```
 
 Example:
 
 ```bash
-$ piko share learnpoint
+piko share learnpoint
 ```
 
 List all saved ports:
 
 ```bash
-$ piko share list
+piko share list
 ```
 
 Delete all saved ports:
 
 ```bash
-$ piko share clear
+piko share clear
 ```
 
-Stop Share with ```Ctrl+C```.
+Stop Share with `Ctrl+C`.
 
 ***Note:*** You don't need Share if you're able to use Cloudflare Tunnel directly. Share doesn't add any functionality. But some dev servers only accepts requests to `localhost` and will deny requests coming through the tunnel. Share solves this problem by running a reverse proxy (with host header rewriting) that sits between your dev server and the tunnel. From the perspective of your dev server, all requests are made to `localhost`.
 
@@ -165,25 +160,25 @@ Stop Share with ```Ctrl+C```.
 Copy files from a github repository:
 
 ```bash
-$ piko copy <OWNER/REPO> [FOLDER_NAME]
+piko copy <OWNER/REPO> [FOLDER_NAME]
 ```
 
-Example: Create a folder named ```empty``` and copy the files from ```https://github.com/ekmwest/empty``` into that folder:
+Example: Create a folder named `empty` and copy the files from `https://github.com/ekmwest/empty` into that folder:
 
 ```bash
-$ piko copy ekmwest/empty
+piko copy ekmwest/empty
 ```
 
-Example: Create a folder named ```fake``` and copy the files from  ```https://github.com/ekmwest/empty``` into that folder:
+Example: Create a folder named `fake` and copy the files from  `https://github.com/ekmwest/empty` into that folder:
 
 ```bash
-$ piko copy ekmwest/empty fake
+piko copy ekmwest/empty fake
 ```
 
-Example: Copy the files from ```https://github.com/ekmwest/empty``` into current folder:
+Example: Copy the files from `https://github.com/ekmwest/empty` into current folder:
 
 ```bash
-$ piko copy ekmwest/empty .
+piko copy ekmwest/empty .
 ```
 
 ***Note:*** The following files will **not** be copied:
@@ -242,7 +237,7 @@ Inside the `src` folder, there are two required folders:
 The build command generates a static site. Input is taken from the `src` folder and the site is generated in `docs`:
 
 ```bash
-$ piko build
+piko build
 ```
 
 
@@ -252,7 +247,7 @@ $ piko build
 The dev server continuously runs build in the background and starts Serve in the generated site folder:
 
 ```bash
-$ piko dev
+piko dev
 ```
 
 Stop the dev server with `Ctrl + C`.
@@ -264,13 +259,13 @@ Stop the dev server with `Ctrl + C`.
 Create a Piko SSG site with default folder structure and example pages, layouts and includes:
 
 ```bash
-$ piko create <FOLDER_NAME>
+piko create <FOLDER_NAME>
 ```
 
 Example: Create a folder named `static-site` and populate it with an example Piko SSG site:
 
 ```bash
-$ piko create static-site
+piko create static-site
 ```
 
 
@@ -444,7 +439,7 @@ The build command will always ensure there's a file named `.nojekyll` inside the
 Show installed version of Piko and Deno:
 
 ```bash
-$ piko version
+piko version
 ```
 
 
@@ -454,7 +449,7 @@ $ piko version
 Show help documentation:
 
 ```bash
-$ piko help
+piko help
 ```
 
 

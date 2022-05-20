@@ -1,5 +1,6 @@
 import { version as currentPikoVersion } from "./version.js";
 
+const STORAGE_ORIGIN = "https://piko.learnpoint.io/";
 const TAGS_URL = "https://api.github.com/repos/learnpoint/piko/tags";
 const pikoUrl = version => `https://cdn.jsdelivr.net/gh/learnpoint/piko@${version}/piko.js`;
 const pikoVersionModuleUrl = version => `https://cdn.jsdelivr.net/gh/learnpoint/piko@${version}/version.js`;
@@ -91,7 +92,7 @@ function isDenoUpgradeRecommended(currentDenoVersion, recommendedDenoVersion) {
 
 async function upgradePikoTo(version) {
     try {
-        const p = Deno.run({ cmd: ["deno", "install", "-f", "-A", pikoUrl(version)] });
+        const p = Deno.run({ cmd: ["deno", "install", "-f", "-A", "--location", STORAGE_ORIGIN, pikoUrl(version)] });
         const code = await p.status();
 
         if (code.success) {

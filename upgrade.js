@@ -92,7 +92,7 @@ function isDenoUpgradeRecommended(currentDenoVersion, recommendedDenoVersion) {
 
 async function upgradePikoTo(version) {
     try {
-        const p = Deno.run({ cmd: ["deno", "install", "-f", "-A", "--location", STORAGE_ORIGIN, pikoUrl(version)] });
+        const p = Deno.run({ cmd: ["deno", "install", "-f", "-A", "--no-check", "--location", STORAGE_ORIGIN, pikoUrl(version)] });
         const code = await p.status();
 
         if (code.success) {

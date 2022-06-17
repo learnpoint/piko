@@ -15,6 +15,24 @@ export async function share(args) {
     console.log(`%c\nCloudflare Tunnel requests will be forwarded to => http://${ORIGIN_HOSTNAME}:${ORIGIN_PORT}/\n`, 'font-weight:bold;color:#ff4;');
 
     startCloudflareTunnel(`${PROXY_HOSTNAME}:${PROXY_PORT}`);
+
+    // Give cloudflare tunnel some time
+    // to finish properly before exit.
+    let sigintReceived = false;
+    Deno.addSignalListener('SIGINT', () => {
+        if (sigintReceived) {
+            return;
+        }
+
+        sigintReceived = true;
+
+        console.log('\nClosing piko share...\n');
+
+        setTimeout(() => {
+            Deno.exit();
+        }, 1600);
+
+    });
 }
 
 

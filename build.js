@@ -7,7 +7,7 @@ marked.setOptions({
     headerIds: false
 });
 
-const WATCH_BUILD_DEBOUNCE = 200;
+const WATCH_BUILD_DEBOUNCE = 100;
 
 let state;
 
@@ -25,12 +25,16 @@ export async function build(options) {
     }
 
     if (state.buildWatch) {
+        let watchBuildTimeout = null;
         for await (const event of Deno.watchFs(state.sourcePath)) {
-            if ((Date.now() - state.lastBuild) < WATCH_BUILD_DEBOUNCE) {
-                continue;
+            if (watchBuildTimeout) {
+                clearTimeout(watchBuildTimeout);
             }
-
-            await watchBuild(event);
+            watchBuildTimeout = setTimeout(async () => {
+                await runBuild();
+                await state.watchBuildCallback();
+                watchBuildTimeout = null;
+            }, WATCH_BUILD_DEBOUNCE);
         }
     }
 }
@@ -102,8 +106,6 @@ async function ensureDirectories() {
 const isHtmlFile = sourceFilePath => path.extname(sourceFilePath) === '.html';
 const isMarkdownFile = sourceFilePath => path.extname(sourceFilePath) === '.md';
 const isHtmlOrMarkdownFile = sourceFilePath => isHtmlFile(sourceFilePath) || isMarkdownFile(sourceFilePath);
-const isIncludeOrLayoutFile = filePath => filePath.includes(state.layoutsPath) || filePath.includes(state.includesPath);
-const buildPathFromSourcePath = sourceFilePath => sourceFilePath.replace(state.sourcePath, state.buildPath);
 
 async function getIncludesAndLayoutsLastModifiedTime() {
     let includesAndLayoutsLastModifiedTime = new Date(0);
@@ -190,68 +192,26 @@ async function pairWalk(originPath, pairPath, omit = []) {
     return pathPairs;
 }
 
-async function isFsEventSingleFileModified(event) {
-    if (event.paths.length !== 1) {
-        return false;
-    }
-
-    if (event.kind !== 'modify') {
-        return false;
-    }
-
-    try {
-        const stat = await Deno.stat(event.paths[0]);
-        if (!stat.isFile) {
-            return false;
-        }
-    } catch {
-        // Perhaps access denied
-        return false;
-    }
-
-    return true;
-}
-
 
 
 /*  =====================================================================
     Build
     ===================================================================== */
 
-async function runBuild(singleFile = false) {
+async function runBuild() {
     console.log('\nBuilding...\n');
 
     const buildStart = Date.now();
 
     state.lastBuild = Date.now();
 
-    if (singleFile) {
-
-        const buildPath = buildPathFromSourcePath(singleFile);
-        await buildFile(singleFile, buildPath);
-        await buildSiteContentFile();
-
-    } else {
-
-        state.includesAndLayoutsLastModifiedTime = await getIncludesAndLayoutsLastModifiedTime();
-        await recursiveBuild(state.sourcePath, state.buildPath);
-        await recursiveDelete(state.sourcePath, state.buildPath);
-        await buildSiteContentFile();
-        await misc();
-    }
+    state.includesAndLayoutsLastModifiedTime = await getIncludesAndLayoutsLastModifiedTime();
+    await recursiveBuild(state.sourcePath, state.buildPath);
+    await recursiveDelete(state.sourcePath, state.buildPath);
+    await buildSiteContentFile();
+    await misc();
 
     console.log(Date.now() - buildStart, 'ms');
-}
-
-async function watchBuild(event) {
-
-    if (await isFsEventSingleFileModified(event) && !isIncludeOrLayoutFile(event.paths[0])) {
-        await runBuild(event.paths[0]);
-    } else {
-        await runBuild();
-    }
-
-    state.watchBuildCallback();
 }
 
 async function recursiveBuild(sourcePath, buildPath) {

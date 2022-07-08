@@ -29,17 +29,8 @@ export async function build(options) {
             if ((Date.now() - state.lastBuild) < WATCH_BUILD_DEBOUNCE) {
                 continue;
             }
-            if (event.kind === 'modify' && event.paths.length === 1 && !isIncludeOrLayoutFile(event.paths[0])) {
 
-                // Just a single file was modified. And it was not an include or a layout.
-                await runBuild(event.paths[0]);
-                state.watchBuildCallback();
-
-            } else {
-
-                await runBuild();
-                state.watchBuildCallback();
-            }
+            await watchBuild(event);
         }
     }
 }
@@ -113,7 +104,6 @@ const isMarkdownFile = sourceFilePath => path.extname(sourceFilePath) === '.md';
 const isHtmlOrMarkdownFile = sourceFilePath => isHtmlFile(sourceFilePath) || isMarkdownFile(sourceFilePath);
 const isIncludeOrLayoutFile = filePath => filePath.includes(state.layoutsPath) || filePath.includes(state.includesPath);
 const buildPathFromSourcePath = sourceFilePath => sourceFilePath.replace(state.sourcePath, state.buildPath);
-// const lineNumber = (pos, str) => str.substring(0, pos).split('\n').length;
 
 async function getIncludesAndLayoutsLastModifiedTime() {
     let includesAndLayoutsLastModifiedTime = new Date(0);
@@ -200,6 +190,28 @@ async function pairWalk(originPath, pairPath, omit = []) {
     return pathPairs;
 }
 
+async function isFsEventSingleFileModified(event) {
+    if (event.paths.length !== 1) {
+        return false;
+    }
+
+    if (event.kind !== 'modify') {
+        return false;
+    }
+
+    try {
+        const stat = await Deno.stat(event.paths[0]);
+        if (!stat.isFile) {
+            return false;
+        }
+    } catch {
+        // Perhaps access denied
+        return false;
+    }
+
+    return true;
+}
+
 
 
 /*  =====================================================================
@@ -229,6 +241,17 @@ async function runBuild(singleFile = false) {
     }
 
     console.log(Date.now() - buildStart, 'ms');
+}
+
+async function watchBuild(event) {
+
+    if (await isFsEventSingleFileModified(event) && !isIncludeOrLayoutFile(event.paths[0])) {
+        await runBuild(event.paths[0]);
+    } else {
+        await runBuild();
+    }
+
+    state.watchBuildCallback();
 }
 
 async function recursiveBuild(sourcePath, buildPath) {

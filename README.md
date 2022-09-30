@@ -13,7 +13,7 @@ _Toolkit for Learnpoint Developers._
 
 ## Requirements
 
-- **Deno v1.24.0** or later.
+- **Deno v1.26.0** or later.
 - **Cloudflare Tunnel** (only required for using the Share tool).
 
 
@@ -23,7 +23,7 @@ _Toolkit for Learnpoint Developers._
 
 ### Deno Installation
 
-Follow the [instructions on this page](https://deno.land/manual/getting_started/installation).
+Follow the [instructions on this page](https://deno.land/manual@v1.26.0/getting_started/installation).
 
 Verify Deno installation (the command should display the installed version):
 

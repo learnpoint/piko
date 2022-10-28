@@ -5,7 +5,7 @@ _Toolkit for Learnpoint Developers._
 
 
 - **Serve** — A disturbingly fast static server. With auto reload, caching, and compression.
-- **Share** — Share your development server with curious colleagues, or test from a different device.
+- **Share** — Share your work with colleagues or test your site from a different device.
 - **Copy** — Copy files from a github repo.
 - **Build**, **Dev** and **Create** — SSG utils.
 
@@ -13,7 +13,7 @@ _Toolkit for Learnpoint Developers._
 
 ## Requirements
 
-- **Deno v1.26.0** or later.
+- **Deno v1.27.0** or later.
 - **Cloudflare Tunnel** (only required for using the Share tool).
 
 
@@ -23,7 +23,7 @@ _Toolkit for Learnpoint Developers._
 
 ### Deno Installation
 
-Follow the [instructions on this page](https://deno.land/manual@v1.26.0/getting_started/installation).
+Follow the [instructions on this page](https://deno.land/manual@v1.27.0/getting_started/installation).
 
 Verify Deno installation (the command should display the installed version):
 

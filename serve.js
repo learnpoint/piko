@@ -292,7 +292,6 @@ const browserReloadScript = `
             window.addEventListener('focus', reloadIfConnectionLost);
 
             function reloadIfConnectionLost() {
-                console.log('connection lost');
                 if (ws.readyState !== 1 && document.visibilityState === 'visible') {
                     reload();
                 }

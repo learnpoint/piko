@@ -232,12 +232,18 @@ const browserReloadScript = `
             console.log('piko reload socket connection established');
         }
 
-        // The server will close the connection on file changes.
+        // The server will close the connection on file changes with the code 1000.
         // Reload on close, but only if connection has been proven to work.
         ws.onclose = function(event) {
-            if (socketIsProvenFunctional) {
-                reload();
+            if (event.code !== 1000) {
+                return;
             }
+
+            if(!socketIsProvenFunctional) {
+                return;
+            }
+
+            reload();
         }
 
         ws.onerror = function (event) {
@@ -264,6 +270,7 @@ const browserReloadScript = `
             try {
                 let res = await fetch(location.href);
 
+
                 if (res.ok || res.status === 404) {
                     console.log('piko reloading page...');
                     location.reload();
@@ -285,6 +292,7 @@ const browserReloadScript = `
             window.addEventListener('focus', reloadIfConnectionLost);
 
             function reloadIfConnectionLost() {
+                console.log('connection lost');
                 if (ws.readyState !== 1 && document.visibilityState === 'visible') {
                     reload();
                 }

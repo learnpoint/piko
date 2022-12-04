@@ -66,7 +66,7 @@ Upgrading Cloudflare Tunnel must be done manually on Windows:
 ### Piko Installation
 
 ```bash
-deno install -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@1.0.19/piko.js
+deno install -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@1.1.0/piko.js
 ```
 
 Verify Piko installation (the command should display the installed version):
@@ -330,7 +330,7 @@ Inside the layout, the passed variables are rendered with `{{ variableName }}` s
 
 ### Working with includes
 
-Includes are html files that can be inserted into pages (and layouts) with `<!-- include-name.html -->` syntax:
+Includes are html or svg files that can be inserted into pages (and layouts) with `<!-- include-name.html -->` syntax:
 
 ```html
 ---

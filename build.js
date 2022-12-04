@@ -104,8 +104,9 @@ async function ensureDirectories() {
     ===================================================================== */
 
 const isHtmlFile = sourceFilePath => path.extname(sourceFilePath) === '.html';
+const isSvgFile = sourceFilePath => path.extname(sourceFilePath) === '.svg';
 const isMarkdownFile = sourceFilePath => path.extname(sourceFilePath) === '.md';
-const isHtmlOrMarkdownFile = sourceFilePath => isHtmlFile(sourceFilePath) || isMarkdownFile(sourceFilePath);
+const isHtmlOrSvgOrMarkdownFile = sourceFilePath => isHtmlFile(sourceFilePath) || isSvgFile(sourceFilePath) || isMarkdownFile(sourceFilePath);
 
 async function getIncludesAndLayoutsLastModifiedTime() {
     let includesAndLayoutsLastModifiedTime = new Date(0);
@@ -248,7 +249,7 @@ async function buildFile(sourceFilePath, buildFilePath) {
     console.log('Building', path.relative(Deno.cwd(), buildFilePath), '--', buildReason);
 
     try {
-        if (isHtmlOrMarkdownFile(sourceFilePath)) {
+        if (isHtmlOrSvgOrMarkdownFile(sourceFilePath)) {
 
             const sourceContent = await Deno.readTextFile(sourceFilePath);
 

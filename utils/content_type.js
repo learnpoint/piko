@@ -23,6 +23,7 @@ const MEDIA_TYPE = {
     '.jpg': 'image/jpeg',
     '.js': 'application/javascript; charset=utf-8',
     '.json': 'application/json; charset=utf-8',
+    '.md': 'text/markdown',
     '.mjs': 'text/javascript; charset=utf-8',
     '.mp3': 'audio/mpeg',
     '.mp4': 'video/mp4',

@@ -93,6 +93,12 @@ Launch from any folder:
 piko serve
 ```
 
+Launch using a specific port:
+
+```bash
+piko serve 5151
+```
+
 Stop Serve with `Ctrl+C`.
 
 Serve details:
@@ -100,7 +106,7 @@ Serve details:
 - All common file types are supported.
 - `index.html` is served by default on requests to folders.
 - Browser(s) are automatically reloaded on file changes. The reload functionality is implemented through websockets using dynamic javascript page injection.
-- Multiple instances of Serve are allowed. When you start (a new instance of) Serve, the port is dynamically selected and printed to the terminal. Default port is `3333`.
+- Multiple instances of Serve are allowed. When you start (a new instance of) Serve, without specifying a port, the port is dynamically selected and printed to the terminal. Default port is `3333`.
 - Requests to non-existing files will recieve a 404 response. If a there's a `404.html` file in the root folder, the response will be populated with the content of that file.
 - Responses are compressed with gzip or brotly (whatever the browser supports).
 - Only http is supported. There's no plan to implement https, h2 or h3. Serve is not designed for production.

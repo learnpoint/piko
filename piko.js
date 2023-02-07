@@ -27,7 +27,7 @@ switch (command) {
         copy(Deno.args[1], Deno.args[2]);
         break;
     case 'serve':
-        serve();
+        serve(null, false, Deno.args[1]);
         break;
     case 'build':
         const options = {};

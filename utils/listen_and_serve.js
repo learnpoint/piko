@@ -42,7 +42,7 @@ function createListener(portCandidates) {
     // Exit if all candidates unsuccessfully tried.
 
     if (portCandidates.length < 1) {
-        console.log('%c\nError. Could not find an available port.\n', 'font-weight:bold;color:#f44;')
+        console.log('%c\nError. Port not available.\n', 'font-weight:bold;color:#f44;')
         Deno.exit(1);
     }
 

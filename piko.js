@@ -18,7 +18,7 @@ const command = Deno.args[0];
 
 switch (command) {
     case 'dev':
-        dev();
+        dev({}, Deno.args[1]);
         break;
     case 'create':
         create(Deno.args[1]);

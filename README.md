@@ -257,6 +257,13 @@ The dev server continuously runs build in the background and starts Serve in the
 piko dev
 ```
 
+Start the dev server and specify the port that Serve should use:
+
+```bash
+piko dev 5252
+```
+
+
 Stop the dev server with `Ctrl + C`.
 
 

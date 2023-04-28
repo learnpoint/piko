@@ -77,12 +77,16 @@ async function webSocketHandler(req) {
 
 async function startCloudflareTunnel(url) {
     try {
-        const process = Deno.run({
-            cmd: ["cloudflared", "tunnel", "-url", url]
+        const command = new Deno.Command("cloudflared", {
+            args: [
+                "tunnel",
+                "-url",
+                url
+            ],
         });
 
-        await process.status();
-        process.close();
+        const child = command.spawn();
+        await child.status;
 
     } catch (error) {
 

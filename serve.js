@@ -142,7 +142,7 @@ function reload() {
 
         while (socket = server.sockets.pop()) {
             if (socket.readyState === WebSocket.OPEN) {
-                socket.close(1000);
+                socket.close();
             }
         }
     }
@@ -232,13 +232,9 @@ const browserReloadScript = `
             console.log('piko reload socket connection established');
         }
 
-        // The server will close the connection on file changes with the code 1000.
+        // The server will close the connection on file changes.
         // Reload on close, but only if connection has been proven to work.
         ws.onclose = function(event) {
-            if (event.code !== 1000) {
-                return;
-            }
-
             if(!socketIsProvenFunctional) {
                 return;
             }

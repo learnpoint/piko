@@ -170,22 +170,16 @@ Copy files from a github repository:
 piko copy <OWNER/REPO> [FOLDER_NAME]
 ```
 
-Example: Create a folder named `empty` and copy the files from `https://github.com/ekmwest/empty` into that folder:
+Example: Create a folder named `demo` and copy the files from `https://github.com/ekmwest/empty` into that folder:
 
 ```bash
-piko copy ekmwest/empty
-```
-
-Example: Create a folder named `fake` and copy the files from  `https://github.com/ekmwest/empty` into that folder:
-
-```bash
-piko copy ekmwest/empty fake
+piko copy ekmwest/empty demo
 ```
 
 Example: Copy the files from `https://github.com/ekmwest/empty` into current folder:
 
 ```bash
-piko copy ekmwest/empty .
+piko copy ekmwest/empty
 ```
 
 ***Note:*** The following files will **not** be copied:

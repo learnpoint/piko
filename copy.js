@@ -15,13 +15,7 @@ export async function copy(githubPath, newFolderName) {
     ensureGithubPathOrExit(githubPath);
     state.githubPath = githubPath;
 
-    if (!newFolderName) {
-        const githubRepoName = getRepoNameFromGithubPath(state.githubPath);
-        state.downloadPath = path.join(Deno.cwd(), githubRepoName);
-        createFolderOrExit(state.downloadPath);
-        state.deleteDownloadPathOnExitWithError = true;
-        state.downloadFolderName = githubRepoName;
-    } else if (newFolderName === '.') {
+    if (!newFolderName || newFolderName === '.') {
         state.downloadPath = Deno.cwd();
         state.downloadFolderName = 'current folder';
     } else {

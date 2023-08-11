@@ -3,11 +3,6 @@ import { exists } from "./utils/exists.js";
 import { walk } from "./utils/walk.js";
 import { parse as frontmatterParse } from "./utils/frontmatter.js";
 
-marked.setOptions({
-    headerIds: false,
-    mangle: false
-});
-
 const WATCH_BUILD_DEBOUNCE = 100;
 
 let state;

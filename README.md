@@ -43,7 +43,7 @@ deno upgrade
 
 Cloudflare Tunnel is only required when using the **Share** tool.
 
-1. Download the 64-bit version (for Windows) from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/).
+1. Download the 64-bit version (for Windows) from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/).
 2. Rename the downloaded file to `cloudflared.exe`.
 3. Create a folder named `C:\Program Files (x86)\cloudflared`.
 4. Copy the (downloaded and renamed) file to the (created) folder.
@@ -57,7 +57,7 @@ cloudflared -v
 
 Upgrading Cloudflare Tunnel must be done manually on Windows:
 
-1. Download the new version from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/).
+1. Download the new version from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/).
 2. Rename the downloaded file to `cloudflared.exe`.
 3. Copy the file to `C:\Program Files (x86)\cloudflared`. Accept the warning to overwrite the existing file.
 
@@ -66,7 +66,7 @@ Upgrading Cloudflare Tunnel must be done manually on Windows:
 ### Piko Installation
 
 ```bash
-deno install -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@2.1.3/piko.js
+deno install -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@2.2.0/piko.js
 ```
 
 Verify Piko installation (the command should display the installed version):

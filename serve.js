@@ -82,7 +82,7 @@ async function httpHandler(req) {
     }
 
     try {
-        // html?
+        // if html => insert reload script
         if (path.extname(filePath) === '.html') {
             const fileContent = await Deno.readTextFile(filePath);
             const body = fileContent.replace("</body>", `${browserReloadScript}</body>`);
@@ -90,10 +90,11 @@ async function httpHandler(req) {
             etagFastPaths.push(etagFastPathKey(req.url, etag));
             return respond(req, Status.OK, body, headers);
         } else {
-            const file = await Deno.readFile(filePath);
-            headers.set("content-type", contentType(filePath));
+            const file = await Deno.open(filePath);
             etagFastPaths.push(etagFastPathKey(req.url, etag));
-            return respond(req, Status.OK, file, headers);
+            headers.set("content-type", contentType(filePath));
+            headers.set("content-length", `${stat.size}`);
+            return respond(req, Status.OK, file.readable, headers);
         }
     } catch (error) {
         if (error instanceof Deno.errors.NotFound) {

@@ -3,6 +3,7 @@ import { listenAndServe } from "./utils/listen_and_serve.js";
 import { Status, STATUS_TEXT } from "./utils/http_status.js";
 import { contentType } from "./utils/content_type.js";
 import { path } from "./deps.js";
+import { ByteSliceStream } from "./deps.js";
 
 const RELOAD_DEBOUNCE = 80;
 
@@ -81,27 +82,67 @@ async function httpHandler(req) {
         return respond(req, Status.NotModified);
     }
 
+    // Set content type
+    headers.set("content-type", contentType(filePath));
+
+    // Respond with file
     try {
-        // if html => insert reload script
+
+        // HTML => buffer & insert reload script tag
         if (path.extname(filePath) === '.html') {
             const fileContent = await Deno.readTextFile(filePath);
             const body = fileContent.replace("</body>", `${browserReloadScript}</body>`);
-            headers.set("content-type", contentType(filePath));
             etagFastPaths.push(etagFastPathKey(req.url, etag));
             return respond(req, Status.OK, body, headers);
-        } else {
+        }
+
+        // Allow range requests (not for html resources, bc those need reload script tag)
+        headers.set("accept-ranges", "bytes");
+
+        // Set content length
+        headers.set("content-length", `${stat.size}`);
+
+        // Extract range
+        const requestRange = getRequestRange(req, stat.size);
+
+        // NON RANGE REQUEST => stream response
+        if (!requestRange) {
             const file = await Deno.open(filePath);
             etagFastPaths.push(etagFastPathKey(req.url, etag));
-            headers.set("content-type", contentType(filePath));
-            headers.set("content-length", `${stat.size}`);
             return respond(req, Status.OK, file.readable, headers);
         }
+
+        // INVALID RANGE => 416
+        if (requestRange.end < 0 || requestRange.end < requestRange.start || stat.size <= requestRange.start) {
+            headers.set("content-range", `bytes */${stat.size}`);
+            return respond(req, Status.RequestedRangeNotSatisfiable, undefined, headers);
+        }
+
+        // Clamp range
+        const start = Math.max(0, requestRange.start);
+        const end = Math.min(requestRange.end, stat.size - 1);
+
+        // Set range header
+        headers.set("content-range", `bytes ${start}-${end}/${stat.size}`);
+
+        // Update content length based on current range
+        const contentLength = end - start + 1;
+        headers.set("content-length", `${contentLength}`);
+
+        // Extract range (slice) stream
+        const file = await Deno.open(filePath);
+        await file.seek(start, Deno.SeekMode.Start);
+        const rangeStream = file.readable.pipeThrough(new ByteSliceStream(0, contentLength - 1));
+
+        // VALID RANGE => 206
+        return respond(req, Status.PartialContent, rangeStream, headers);
+
     } catch (error) {
+
         if (error instanceof Deno.errors.NotFound) {
             return notFound(req);
         } else {
-            console.error(error);
-            return respond(req, Status.InternalServerError, error.message);
+            return serverError(req, error);
         }
     }
 }
@@ -173,6 +214,12 @@ async function notFound(req) {
     return respond(req, 404, content, headers);
 }
 
+async function serverError(req, error) {
+    const headers = new Headers();
+    headers.set("content-type", 'text/html');
+    return respond(req, Status.InternalServerError, error, headers)
+}
+
 async function respond(req, status, body, headers) {
     try {
         body = body || STATUS_TEXT.get(status);
@@ -195,8 +242,44 @@ async function respond(req, status, body, headers) {
         }
 
         return new Response(body, { status, headers });
+
     } catch (err) {
+
         console.log(err)
+    }
+}
+
+function getRequestRange(req, fileSize) {
+    const rangeValue = req.headers.get('range');
+
+    if (!rangeValue) {
+        return null;
+    }
+
+    if (fileSize < 1) {
+        return null;
+    }
+
+    const rangeRegex = /bytes=(?<start>\d+)?-(?<end>\d+)?$/u;
+    const parsed = rangeValue.match(rangeRegex);
+
+    if (!parsed || !parsed.groups) {
+        return null;
+    }
+
+    const { start, end } = parsed.groups;
+    if (start !== undefined) {
+        if (end !== undefined) {
+            return { start: +start, end: +end };
+        } else {
+            return { start: +start, end: fileSize - 1 };
+        }
+    } else {
+        if (end !== undefined) {
+            return { start: fileSize - +end, end: fileSize - 1 };
+        } else {
+            return null;
+        }
     }
 }
 

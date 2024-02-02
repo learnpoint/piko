@@ -12,7 +12,15 @@ export async function build(options) {
 
     await ensureDirectories();
 
+    // Force Rebuild on the first build
+    const specifiedForceRebuild = state.forceRebuild;
+    const firstBuildForceRebuild = true;
+    state.forceRebuild = firstBuildForceRebuild;
+
     await runBuild();
+
+    // Revert to specified value on subsequent rebuilds
+    state.forceRebuild = specifiedForceRebuild;
 
     if (state.getWatchBuildCallbackFromInitialBuildCallback) {
         state.watchBuildCallback = await state.initialBuildCallback();

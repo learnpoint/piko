@@ -13,7 +13,7 @@ _Toolkit for Learnpoint Developers._
 
 ## Requirements
 
-- **Deno v1.39.1** or later.
+- **Deno v1.40.3** or later.
 - **Cloudflare Tunnel** (only required for using the Share tool).
 
 
@@ -66,7 +66,7 @@ Upgrading Cloudflare Tunnel must be done manually on Windows:
 ### Piko Installation
 
 ```bash
-deno install -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@2.2.3/piko.js
+deno install -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@2.2.4/piko.js
 ```
 
 Verify Piko installation (the command should display the installed version):

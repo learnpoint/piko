@@ -294,7 +294,7 @@ function getFilePath(req) {
 }
 
 function pathname(req) {
-    return new URL(req.url).pathname;
+    return decodeURI(new URL(req.url).pathname);
 }
 
 function searchString(req) {

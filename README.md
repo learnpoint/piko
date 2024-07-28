@@ -13,7 +13,7 @@ _Toolkit for Learnpoint Developers._
 
 ## Requirements
 
-- **Deno v1.44.4** or later.
+- **Deno v1.45.4** or later.
 - **Cloudflare Tunnel** (only required for using the Share tool).
 
 

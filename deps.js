@@ -2,4 +2,4 @@ export * as path from "jsr:@std/path@1.0.2";
 export { decodeBase64 as decode } from "jsr:@std/encoding@1.0.2/base64";
 export { parse as yamlParse } from "jsr:@std/yaml@1.0.3/parse";
 export { ByteSliceStream } from "jsr:@std/streams@1.0.2/byte-slice-stream";
-export * as marked from "https://cdn.jsdelivr.net/npm/marked@13.0.3/lib/marked.esm.js";
+export * as marked from "https://cdn.jsdelivr.net/npm/marked@14.0.0/lib/marked.esm.js";

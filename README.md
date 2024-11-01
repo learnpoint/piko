@@ -23,7 +23,7 @@ _Toolkit for Learnpoint Developers._
 
 ### Deno Installation
 
-Follow the [instructions on this page](https://docs.deno.com/runtime/manual/getting_started/installation).
+Follow the [instructions on this page](https://docs.deno.com/runtime/getting_started/installation/).
 
 Verify Deno installation (the command should display the installed version):
 

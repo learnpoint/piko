@@ -81,6 +81,12 @@ Upgrade Piko:
 piko upgrade
 ```
 
+*NOTE:* It's not possible to upgrade from Piko v2.2.14 (or earlier) using Deno v2. In this situation you can re-install piko:
+
+```bash
+deno install -g -f -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@2.2.14/piko.js
+```
+
 
 
 ## Serve

@@ -96,6 +96,7 @@ async function upgradePikoTo(version) {
             args: [
                 "install",
                 "-f",
+                "-g",
                 "-A",
                 "--location",
                 STORAGE_ORIGIN,

@@ -472,15 +472,15 @@ piko help
 If you want to work on Piko itself, you should configure a local dev environment:
 
 1. Clone the Piko repository.
-2. Locate the piko binary on your file system. The default path is `$HOME/.deno/bin`.
-3. Copy the files `piko` and `piko.cmd` and name them `pilo` and `pilo.cmd` ("pilo" is short for "piko local").
-4. Edit the files (`pilo` and `pilo.cmd`) and change the URL to `piko.js` into a path to your local clone. Here's an example of how the content in the `pilo` file could look like:
+2. Locate the Piko binary on your file system. The default path is `$HOME/.deno/bin`.
+3. Copy the files `piko` and `piko.cmd` and name the copies `pilo` and `pilo.cmd` ("pilo" is short for "piko local").
+4. Edit the files (`pilo` and `pilo.cmd`) and change the `piko.js` URL into a path to your local clone. Here's an example of how the `pilo` file could look like:
     ```bash
     #!/bin/sh
     deno "run" "--allow-all" "--location" "https://piko.learnpoint.io/" "--no-config" "/c/src/github/learnpoint/piko/piko.js" "$@"
     ```
 
-Now you should be able to run piko directly from your local repository using the command `pilo`, for example:
+Now you should be able to run Piko directly from your local repository using the command `pilo`, for example:
 
 ```bash
 pilo version

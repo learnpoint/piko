@@ -475,10 +475,6 @@ async function buildSiteContentFile() {
 
     let siteContentString = JSON.stringify(state.siteContent, null, 4);
 
-    if (Deno.build.os === 'windows') {
-        siteContentString = siteContentString.replaceAll("\n", "\r\n");
-    }
-
     await Deno.writeTextFile(state.siteContentFilePath, siteContentString);
 }
 

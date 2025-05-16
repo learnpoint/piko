@@ -3,19 +3,19 @@ import { path } from "./deps.js";
 export async function create(projectName) {
     console.log();
 
-    if (!projectName) {
-        exitWithError('Missing name of folder to create.');
-    }
+    let projectPath = Deno.cwd();
 
-    const projectPath = path.join(Deno.cwd(), projectName);
+    if (projectName) {
+        projectPath = path.join(Deno.cwd(), projectName);
 
-    try {
-        await Deno.mkdir(projectPath);
-    } catch (err) {
-        if (err instanceof Deno.errors.AlreadyExists) {
-            exitWithError(`Folder ${projectName} already exists.`);
-        } else {
-            exitWithError('Error', err);
+        try {
+            await Deno.mkdir(projectPath);
+        } catch (err) {
+            if (err instanceof Deno.errors.AlreadyExists) {
+                exitWithError(`Folder ${projectName} already exists.`);
+            } else {
+                exitWithError('Error', err);
+            }
         }
     }
 
@@ -34,14 +34,7 @@ export async function create(projectName) {
     Deno.writeTextFile(path.join(layoutsPath, 'default.html'), defaultLayoutContent());
     Deno.writeTextFile(path.join(includesPath, 'nav.html'), navIncludeContent(projectName));
 
-    console.log(`piko successfully created the folder /${projectName}`);
-    console.log();
-    console.log(`1. Open /${projectName} in your html editor.`);
-    console.log(`2. Start a terminal in /${projectName}.`);
-    console.log('3. Run the command "piko dev" in the terminal.');
-    console.log();
-    console.log('Happy html writing!');
-    console.log();
+    console.log(`Static site created in ${projectName ? '/' + projectName : 'current folder'}`);
 }
 
 function exitWithError(messages, error) {

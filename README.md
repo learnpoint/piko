@@ -273,13 +273,19 @@ Stop the dev server with `Ctrl + C`.
 Create a Piko SSG site with default folder structure and example pages, layouts and includes:
 
 ```bash
-piko create <FOLDER_NAME>
+piko create [FOLDER_NAME]
 ```
 
-Example: Create a folder named `static-site` and populate it with an example Piko SSG site:
+Example: Create a folder named `static-site` and populate it with a Piko SSG example site:
 
 ```bash
 piko create static-site
+```
+
+Example: Populate current folder with an example Piko SSG site:
+
+```bash
+piko create
 ```
 
 

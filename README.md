@@ -66,7 +66,7 @@ Upgrading Cloudflare Tunnel must be done manually on Windows:
 ### Piko Installation
 
 ```bash
-deno install -g -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@3.1.0/piko.js
+deno install -g -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@3.1.1/piko.js
 ```
 
 Verify Piko installation (the command should display the installed version):
@@ -84,7 +84,7 @@ piko upgrade
 *NOTE:* It's not possible to upgrade from Piko v2.2.14 (or earlier) using Deno v2. In this situation you can just re-install piko:
 
 ```bash
-deno install -g -f -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@3.1.0/piko.js
+deno install -g -f -A --location https://piko.learnpoint.io/ https://cdn.jsdelivr.net/gh/learnpoint/piko@3.1.1/piko.js
 ```
 
 

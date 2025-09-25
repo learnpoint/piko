@@ -81,7 +81,7 @@ async function copyGithubRepoOrExit() {
         }
         console.log();
     } catch (err) {
-        exitWithError(`Error when copying ${state.githubPath}`);
+        exitWithError(`Error when copying ${state.githubPath}`, err);
     }
 }
 
@@ -98,9 +98,11 @@ async function downloadGithubBlobOrExit(path, node) {
         const blobData = await blobResponse.json();
         ensureGithubResponseOrExit(blobResponse, blobData);
 
-        await Deno.writeFile(path, decode(blobData.content));
+        const contentWithoutLineBreaks = blobData.content.replace(/[\r\n]+/gm, '');
+
+        await Deno.writeFile(path, decode(contentWithoutLineBreaks));
     } catch (err) {
-        exitWithError(`Error when downloading ${node.path} from github.`);
+        exitWithError(`Error when downloading ${node.path} from github.`, err);
     }
 }
 

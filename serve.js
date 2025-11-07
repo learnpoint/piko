@@ -177,17 +177,16 @@ async function watchAndReload() {
 function reload() {
     etagFastPaths = [];
 
-    if (server.sockets.length) {
-        console.log('\nReloading browser...\n');
+    console.log('\nReloading browsers...\n');
 
-        let socket = null;
-
-        while (socket = server.sockets.pop()) {
-            if (socket.readyState === WebSocket.OPEN) {
-                socket.close();
-            }
+    for (const socket of server.sockets) {
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.close(1000, "Page should be reloaded.");
         }
     }
+
+    // Throw away closed sockets:
+    server.sockets = server.sockets.filter(socket => socket.readyState !== WebSocket.CLOSED);
 }
 
 async function redirect(req, location) {
@@ -313,21 +312,28 @@ const browserReloadScript = `
 
         ws.onopen = function (event) {
             socketIsProvenFunctional = true;
-            console.log('piko reload socket connection established');
+            console.debug('Piko reload socket opened.');
         }
 
         // The server will close the connection on file changes.
         // Reload on close, but only if connection has been proven to work.
         ws.onclose = function(event) {
-            if(!socketIsProvenFunctional) {
+            if (!socketIsProvenFunctional) {
                 return;
             }
+
+            // Do not reload if code is 1001 (browser navigation).
+            if (event.code === 1001) {
+                return;
+            }
+
+            console.debug('Piko reload socket closed. Code:', event.code, 'Reason:', event.reason);
 
             reload();
         }
 
         ws.onerror = function (event) {
-            console.log('piko reload socket error');
+            console.debug('Piko reload socket error.', event);
         };
 
         setInterval(function () {
@@ -352,20 +358,20 @@ const browserReloadScript = `
 
 
                 if (res.ok || res.status === 404) {
-                    console.log('piko reloading page...');
+                    console.debug('Piko reloading page.');
                     location.reload();
                 } else {
-                    console.log('piko server not responding, will not reload.');
+                    console.debug('Piko server is not responding, will not reload.');
                     reloading = false;
                 }
             } catch {
-                console.log('piko server not responding, will not reload.');
+                console.debug('Piko server is not responding, will not reload.');
                 reloading = false;
             }
         }
 
         // The socket close event might be prevented from firing when page is hidden or inactive.
-        // Therefore, check the connection on pages transitions and reload if connection was lost.
+        // Therefore, check the connection on page transitions and reload if connection was lost.
         // Wait to avoid reload before initial connection is established.
         setTimeout(function () {
             document.addEventListener('visibilitychange', reloadIfConnectionLost);

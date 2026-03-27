@@ -4,8 +4,8 @@
 _Toolkit for Learnpoint Developers._
 
 
-- **Serve** — A disturbingly fast static server. With auto reload, caching, and compression.
-- **Share** — Share your work with colleagues or test your site from a different device.
+- **Serve** — A disturbingly fast static web server. With auto reload, caching, and compression.
+- **Share** — Share your work with colleagues, or test your site from different devices.
 - **Copy** — Copy files from a github repo.
 - **Build**, **Dev** and **Create** — SSG utils.
 
@@ -14,7 +14,7 @@ _Toolkit for Learnpoint Developers._
 ## Requirements
 
 - **Deno v2.7.9** or later.
-- **Cloudflare Tunnel** (only required for using the Share tool).
+- **Cloudflare Tunnel** (only required when using the Share tool).
 
 
 
@@ -25,7 +25,7 @@ _Toolkit for Learnpoint Developers._
 
 Follow the [instructions on this page](https://docs.deno.com/runtime/getting_started/installation/).
 
-Verify Deno installation (the command should display the installed version):
+Verify Deno installation (the command should display the installed version of Deno):
 
 ```bash
 deno --version
@@ -41,9 +41,9 @@ deno upgrade
 
 ### Cloudflare Tunnel Installation on Windows
 
-Cloudflare Tunnel is only required when using the **Share** tool.
+Cloudflare Tunnel is only required when using the **Share** tool in Piko.
 
-1. Download the 64-bit version (for Windows) from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/).
+1. Download the 64-bit version (for Windows) from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/).
 2. Rename the downloaded file to `cloudflared.exe`.
 3. Create a folder named `C:\Program Files (x86)\cloudflared`.
 4. Copy the (downloaded and renamed) file to the (created) folder.
@@ -57,7 +57,7 @@ cloudflared -v
 
 Upgrading Cloudflare Tunnel must be done manually on Windows:
 
-1. Download the new version from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/).
+1. Download the new version from the [Cloudflare Tunnel downloads page](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/).
 2. Rename the downloaded file to `cloudflared.exe`.
 3. Copy the file to `C:\Program Files (x86)\cloudflared`. Accept the warning to overwrite the existing file.
 
